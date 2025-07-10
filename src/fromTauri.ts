@@ -28,3 +28,7 @@ export interface BackendConfig {
     m7_source_path: string;
     python_path: string;
 }
+
+export async function get_account_uid() {
+    return await invoke('get_account_uid') as number;
+}

@@ -8,7 +8,7 @@ import './App.css';
 import { invoke } from '@tauri-apps/api/core';
 import OpenSaveProject from './OpenSaveProject';
 import { frontendConfig, loadConfig, saveConfig } from './config';
-import { exists, load_backend_config, readTextFile, writeTextFile } from './fromTauri';
+import { exists, get_account_uid, load_backend_config, readTextFile, writeTextFile } from './fromTauri';
 import { AppConfig } from './AppConfig';
 import { AppExport } from './AppExport';
 
@@ -280,7 +280,12 @@ function App() {
         alert('三月七小助手源代码路径未设置。');
         return;
       }
-      setInit(70);
+      try {
+        const uid = await get_account_uid();
+        setInit(70);
+      } catch (e) {
+        alert('获取账号UID失败。');
+      }
     }} openFromPath={openFromPath} initFromTemaplate={initFromTemaplate} />;
   }
 

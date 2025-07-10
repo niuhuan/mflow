@@ -4,6 +4,8 @@
 use tokio::time::{sleep, Duration};
 use std::path::PathBuf;
 use std::path::Path;
+use winreg::enums::*;
+use winreg::RegKey;
 
 mod config;
 
@@ -108,6 +110,83 @@ async fn close_game() -> Result<(), ()> {
     Ok(())
 }
 
+#[tauri::command]
+async fn get_account_uid() -> Result<i64, ()> {
+    println!("后台日志: 正在读取账号UID...");
+    
+    // 打开 HKEY_CURRENT_USER
+    let hkcu = RegKey::predef(HKEY_CURRENT_USER);
+    
+    // 打开崩坏：星穹铁道的注册表项
+    let key_path = r"Software\miHoYo\崩坏：星穹铁道";
+    let key = match hkcu.open_subkey(key_path) {
+        Ok(key) => key,
+        Err(e) => {
+            println!("打开注册表项失败: {}", e);
+            return Err(());
+        }
+    };
+    
+    // 读取 App_LastUserID_h2841727341 值
+    let value_name = "App_LastUserID_h2841727341";
+    match key.get_raw_value(value_name) {
+        Ok(raw_value) => {
+            println!("读取到原始值: {:?}", raw_value);
+            
+            // 检查值类型
+            match raw_value.vtype {
+                REG_DWORD => {
+                    // REG_DWORD 是 4 字节的 DWORD
+                    if raw_value.bytes.len() == 4 {
+                        // 将字节数组转换为 u32 (小端序)
+                        let uid_u32 = u32::from_le_bytes([
+                            raw_value.bytes[0],
+                            raw_value.bytes[1], 
+                            raw_value.bytes[2],
+                            raw_value.bytes[3]
+                        ]);
+                        let uid_i64 = uid_u32 as i64;
+                        println!("成功读取账号UID: {} (从REG_DWORD)", uid_i64);
+                        Ok(uid_i64)
+                    } else {
+                        println!("REG_DWORD 值长度不正确: {}", raw_value.bytes.len());
+                        Err(())
+                    }
+                }
+                REG_QWORD => {
+                    // REG_QWORD 是 8 字节的 QWORD
+                    if raw_value.bytes.len() == 8 {
+                        // 将字节数组转换为 u64 (小端序)
+                        let uid_u64 = u64::from_le_bytes([
+                            raw_value.bytes[0],
+                            raw_value.bytes[1],
+                            raw_value.bytes[2],
+                            raw_value.bytes[3],
+                            raw_value.bytes[4],
+                            raw_value.bytes[5],
+                            raw_value.bytes[6],
+                            raw_value.bytes[7]
+                        ]);
+                        let uid_i64 = uid_u64 as i64;
+                        println!("成功读取账号UID: {} (从REG_QWORD)", uid_i64);
+                        Ok(uid_i64)
+                    } else {
+                        println!("REG_QWORD 值长度不正确: {}", raw_value.bytes.len());
+                        Err(())
+                    }
+                }
+                _ => {
+                    println!("不支持的注册表值类型: {:?}", raw_value.vtype);
+                    Err(())
+                }
+            }
+        }
+        Err(e) => {
+            println!("读取注册表值失败: {}", e);
+            Err(())
+        }
+    }
+}
 
 pub(crate) fn join_paths<P: AsRef<Path>>(paths: Vec<P>) -> String {
     match paths.len() {
@@ -144,6 +223,7 @@ fn main() {
             save_backend_config,
             farming,
             close_game,
+            get_account_uid,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
