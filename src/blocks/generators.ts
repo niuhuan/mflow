@@ -37,4 +37,8 @@ javascriptGenerator.forBlock['simulated_universe'] = function(block) {
 
 javascriptGenerator.forBlock['farming'] = function(block) {
   return 'await farming();\n';
+};
+
+javascriptGenerator.forBlock['close_game'] = function(block) {
+  return 'closeGame();\n';
 }; 

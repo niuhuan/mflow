@@ -38,6 +38,7 @@ function App() {
         <block type="wait_seconds">
           <field name="SECONDS">1</field>
         </block>
+        <block type="close_game"></block>
       </category>
       <category name="循环" colour="120" name_ch="循环">
         <block type="controls_repeat_ext">
@@ -145,6 +146,10 @@ function App() {
                 resolve();
             }, 500);
         });
+    }
+
+    const closeGame = () => {
+      log('游戏已关闭。');
     }
     
     const execute = async () => {

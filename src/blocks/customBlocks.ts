@@ -93,5 +93,13 @@ Blockly.defineBlocksWithJsonArray([
     "colour": 290,
     "tooltip": "执行锄大地流程",
     "helpUrl": ""
+  },
+  {
+    "type": "close_game",
+    "message0": "关闭游戏",
+    "previousStatement": null,
+    "colour": 0,
+    "tooltip": "结束流程",
+    "helpUrl": ""
   }
 ]); 
