@@ -12,11 +12,6 @@ javascriptGenerator.forBlock['load_account'] = function(block) {
   return code;
 };
 
-javascriptGenerator.forBlock['request_account_info'] = function(block) {
-  var code = 'requestAccountInfo();\n';
-  return code;
-};
-
 javascriptGenerator.forBlock['save_account'] = function(block) {
   var saveName = javascriptGenerator.valueToCode(block, 'SAVE_NAME', Order.ATOMIC) || "''";
   return `await saveAccount(${saveName});\n`;

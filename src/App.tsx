@@ -5,6 +5,7 @@ import './blocks/generators';
 import * as Blockly from 'blockly/core';
 import { javascriptGenerator } from 'blockly/javascript';
 import './App.css';
+import { invoke } from '@tauri-apps/api/core';
 
 function App() {
   const [code, setCode] = useState<string>('');
@@ -24,7 +25,6 @@ function App() {
             </shadow>
           </value>
         </block>
-        <block type="request_account_info"></block>
         <block type="save_account">
           <value name="SAVE_NAME">
             <shadow type="text">
@@ -86,30 +86,11 @@ function App() {
     setConsoleMessages(['> 开始运行...']);
 
     const loadAccount = (name: string) => {
-        return new Promise<void>(resolve => {
-            setTimeout(() => {
-                log(`Account "${name}" loaded.`);
-                resolve();
-            }, 1000);
-        });
-    }
-
-    const requestAccountInfo = () => {
-        return new Promise<void>(resolve => {
-            setTimeout(() => {
-                log('Account info requested and received.');
-                resolve();
-            }, 1000);
-        });
+        return invoke('load_account', { name });
     }
     
     const saveAccount = (name: string) => {
-        return new Promise<void>(resolve => {
-            setTimeout(() => {
-                log(`状态已保存为 "${name}"。`);
-                resolve();
-            }, 500);
-        });
+      return invoke('save_account', { name });
     }
 
     const wait = (seconds: number) => {
@@ -122,34 +103,19 @@ function App() {
     }
 
     const dailyMission = () => {
-        return new Promise<void>(resolve => {
-            setTimeout(() => {
-                log('开始执行每日任务...');
-                resolve();
-            }, 500);
-        });
+      return invoke('daily_mission');
     }
 
     const simulatedUniverse = () => {
-        return new Promise<void>(resolve => {
-            setTimeout(() => {
-                log('开始执行模拟宇宙...');
-                resolve();
-            }, 500);
-        });
+      return invoke('simulated_universe');
     }
 
     const farming = () => {
-        return new Promise<void>(resolve => {
-            setTimeout(() => {
-                log('开始执行锄大地...');
-                resolve();
-            }, 500);
-        });
+      return invoke('farming');
     }
 
     const closeGame = () => {
-      log('游戏已关闭。');
+      return invoke('close_game');
     }
     
     const execute = async () => {

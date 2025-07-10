@@ -26,15 +26,6 @@ Blockly.defineBlocksWithJsonArray([
     "helpUrl": ""
   },
   {
-    "type": "request_account_info",
-    "message0": "请求账号信息",
-    "previousStatement": null,
-    "nextStatement": null,
-    "colour": 20,
-    "tooltip": "请求当前已加载账号的信息",
-    "helpUrl": ""
-  },
-  {
     "type": "save_account",
     "message0": "保存账号为 %1",
     "args0": [
