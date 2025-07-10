@@ -1,6 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use base64::Engine;
 use tokio::time::{sleep, Duration};
 use std::path::PathBuf;
 use std::path::Path;
@@ -188,6 +189,77 @@ async fn get_account_uid() -> Result<i64, ()> {
     }
 }
 
+
+#[tauri::command]
+async fn export_account(account_name: String, password: String) -> Result<(), ()> {
+    let uid = get_account_uid().await?;
+    let config = config::load_config().await?;
+    let m7_source_path = config.m7_source_path;
+    let account_folder = format!("{}/m7f_accounts/{}", m7_source_path, account_name);
+    tokio::fs::create_dir_all(&account_folder).await.map_err(|_| ())?;
+    let reg_path = format!("{}/account.reg", account_folder);
+    export_reg(reg_path.as_str()).await?;
+    let src_config_path = format!("{}/config.yaml", m7_source_path);
+    let config_path = format!("{}/config.yaml", account_folder);
+    tokio::fs::copy(src_config_path, config_path).await.map_err(|_| ())?;
+    if password.len() > 0 {
+        let data_dir = format!("{}/settings/accounts", m7_source_path);
+        let data_reg_path = format!("{}/{}.reg", data_dir, uid);
+        tokio::fs::copy(reg_path, data_reg_path).await.map_err(|_| ())?;
+        let password_base64 = xor_encrypt_to_base64(password);
+        let data_password_path = format!("{}/{}.acc", data_dir, uid);
+        tokio::fs::write(data_password_path, password_base64).await.map_err(|_| ())?;
+    }
+    Ok(())
+}
+
+fn xor_encrypt_to_base64(plaintext: String) -> String {
+    let xor_key = "TI4ftRSDaP63kBxxoLoZ5KpVmRBz00JikzLNweryzZ4wecWJxJO9tbxlH9YDvjAr"; 
+    let xor_key_bytes = xor_key.as_bytes();
+    let plaintext_bytes = plaintext.as_bytes();
+    let mut encrypted_bytes = Vec::new();
+    for i in 0..plaintext_bytes.len() {
+        let byte_plaintext = plaintext_bytes[i];
+        let byte_key = xor_key_bytes[i % xor_key_bytes.len()];
+        let encrypted_byte = byte_plaintext ^ byte_key; 
+        encrypted_bytes.push(encrypted_byte);
+    }
+    base64::prelude::BASE64_STANDARD.encode(encrypted_bytes)
+}
+
+/*
+def xor_encrypt_to_base64(plaintext: str) -> str:
+    secret_key = xor_key
+    plaintext_bytes = plaintext.encode('utf-8')
+    key_bytes = secret_key.encode('utf-8')
+
+    encrypted_bytes = bytearray()
+    for i in range(len(plaintext_bytes)):
+        byte_plaintext = plaintext_bytes[i]
+        byte_key = key_bytes[i % len(key_bytes)]
+        encrypted_byte = byte_plaintext ^ byte_key
+        encrypted_bytes.append(encrypted_byte)
+
+    base64_encoded = base64.b64encode(encrypted_bytes).decode('utf-8')
+    return base64_encoded
+*/
+
+async fn export_reg(reg_path: &str) -> Result<(), ()> {
+    // "REG", "EXPORT", "HKEY_CURRENT_USER\\SOFTWARE\\miHoYo\\崩坏：星穹铁道", path, "/y
+    let mut cmd = tokio::process::Command::new("REG");
+        cmd.arg("EXPORT")
+        .arg(format!("HKEY_CURRENT_USER\\SOFTWARE\\miHoYo\\崩坏：星穹铁道\\{}", reg_path))
+        .arg("/y");
+    let output = cmd.output().await.map_err(|_| ())?;
+    println!("{}", String::from_utf8_lossy(&output.stdout));
+    println!("{}", String::from_utf8_lossy(&output.stderr));
+    if output.status.success() {
+        Ok(())
+    } else {
+        Err(())
+    }
+}
+
 pub(crate) fn join_paths<P: AsRef<Path>>(paths: Vec<P>) -> String {
     match paths.len() {
         0 => String::default(),
@@ -224,6 +296,7 @@ fn main() {
             farming,
             close_game,
             get_account_uid,
+            export_account,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
