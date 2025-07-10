@@ -1,7 +1,52 @@
 import { open, save } from '@tauri-apps/plugin-dialog';
 import './OpenSaveProject.css';
 
-function OpenSaveProject({ goSetting, initFromPath }: { goSetting: () => void, initFromPath: (path: string) => void }) {
+const blankXml = `<xml xmlns="https://developers.google.com/blockly/xml">
+    <block type="start_flow" id="start" x="100" y="100"></block>
+  </xml>`;
+
+import mutilAccountXml from './assets/mutil-account.xml?raw';
+
+function OpenSaveProject({ goSetting, openFromPath, initFromTemaplate }: { goSetting: () => void, openFromPath: (path: string) => void, initFromTemaplate: (path: string, template: string) => void }) {
+    
+    const handleCreateFromTemplate = async () => {
+        const templateType = prompt(
+            '请选择模板类型：\n1. 空白模板\n2. 多账户模板\n\n请输入 1 或 2：'
+        );
+        
+        if (!templateType) return;
+        
+        let selectedTemplate = '';
+        let templateName = '';
+        
+        switch (templateType.trim()) {
+            case '1':
+                selectedTemplate = blankXml;
+                templateName = '空白模板';
+                break;
+            case '2':
+                selectedTemplate = mutilAccountXml;
+                templateName = '多账户模板';
+                break;
+            default:
+                alert('无效选择，请选择 1 或 2');
+                return;
+        }
+        
+        const path = await save({
+            filters: [
+                {
+                    name: 'Blockly XML',
+                    extensions: ['m7f']
+                }
+            ]
+        });
+        
+        if (path) {
+            initFromTemaplate(path, selectedTemplate);
+        }
+    };
+
     return (
         <div className="open-save-container">
             <div className="button-group">
@@ -17,7 +62,7 @@ function OpenSaveProject({ goSetting, initFromPath }: { goSetting: () => void, i
                             ]
                         })
                         if (path) {
-                            initFromPath(path);
+                            openFromPath(path);
                         }
                     }}
                 >
@@ -31,19 +76,7 @@ function OpenSaveProject({ goSetting, initFromPath }: { goSetting: () => void, i
                 
                 <button 
                     className="action-button save-button"
-                    onClick={async () => {
-                        const path = await save({
-                            filters: [
-                                {
-                                    name: 'Blockly XML',
-                                    extensions: ['m7f']
-                                }
-                            ]
-                        })
-                        if (path) {
-                            initFromPath(path);
-                        }
-                    }}
+                    onClick={handleCreateFromTemplate}
                 >
                     <svg className="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>

@@ -133,9 +133,21 @@ function App() {
     await saveToFile(xmlText);
   }
 
-  const initFromPath = async (path: string) => {
+  const openFromPath = async (path: string) => {
     if (!await exists(path)) {
       await writeTextFile(path, initialXml);
+    }
+    const fileContent = await readTextFile(path);
+    setFilePath(path);
+    setFileContent(fileContent);
+    frontendConfig.lastFile = path;
+    await saveConfig();
+    setInit(100);
+  }
+
+  const initFromTemaplate = async (path: string, template: string) => {
+    if (!await exists(path)) {
+      await writeTextFile(path, template);
     }
     const fileContent = await readTextFile(path);
     setFilePath(path);
@@ -249,7 +261,7 @@ function App() {
       await loadConfig();
       if (frontendConfig.lastFile) {
         if (await exists(frontendConfig.lastFile)) {
-          await initFromPath(frontendConfig.lastFile);
+          await openFromPath(frontendConfig.lastFile);
         } else {
           setInit(20);
         }
@@ -263,7 +275,7 @@ function App() {
   if (init === 20) {
     return <OpenSaveProject goSetting={() => {
       setInit(40);
-    }} initFromPath={initFromPath} />;
+    }} openFromPath={openFromPath} initFromTemaplate={initFromTemaplate} />;
   }
 
   if (init === 30) {
