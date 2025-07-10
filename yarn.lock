@@ -545,6 +545,20 @@
     "@tauri-apps/cli-win32-ia32-msvc" "2.6.2"
     "@tauri-apps/cli-win32-x64-msvc" "2.6.2"
 
+"@tauri-apps/plugin-dialog@~2":
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/@tauri-apps/plugin-dialog/-/plugin-dialog-2.3.0.tgz#123d2cd3d98467b9b115d23ad71eef469d6ead35"
+  integrity sha512-ylSBvYYShpGlKKh732ZuaHyJ5Ie1JR71QCXewCtsRLqGdc8Is4xWdz6t43rzXyvkItM9syNPMvFVcvjgEy+/GA==
+  dependencies:
+    "@tauri-apps/api" "^2.6.0"
+
+"@tauri-apps/plugin-fs@~2":
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/@tauri-apps/plugin-fs/-/plugin-fs-2.4.0.tgz#d76e4d1b3061508b21427394b9063e904897c87c"
+  integrity sha512-Sp8AdDcbyXyk6LD6Pmdx44SH3LPeNAvxR2TFfq/8CwqzfO1yOyV+RzT8fov0NNN7d9nvW7O7MtMAptJ42YXA5g==
+  dependencies:
+    "@tauri-apps/api" "^2.6.0"
+
 "@tauri-apps/plugin-opener@^2":
   version "2.4.0"
   resolved "https://registry.npmmirror.com/@tauri-apps/plugin-opener/-/plugin-opener-2.4.0.tgz#57eae5998e1c396791af16832a9dde16eca06439"
