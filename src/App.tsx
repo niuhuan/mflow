@@ -6,8 +6,9 @@ import * as Blockly from 'blockly/core';
 import { javascriptGenerator } from 'blockly/javascript';
 import './App.css';
 import { invoke } from '@tauri-apps/api/core';
-import { exists, readFile, writeFile } from '@tauri-apps/plugin-fs';
 import OpenSaveProject from './OpenSaveProject';
+import { frontendConfig, loadConfig, saveConfig } from './config';
+import { exists, readTextFile, writeTextFile } from './fromTauri';
 
 function App() {
 
@@ -63,25 +64,27 @@ function App() {
 
   const [code, setCode] = useState<string>('');
   const [consoleMessages, setConsoleMessages] = useState<string[]>([]);
-  const [init, setInit] = useState<boolean>(false);
+  const [init, setInit] = useState<number>(0);
   const [filePath, setFilePath] = useState<string>('');
   const [fileContent, setFileContent] = useState<string>(initialXml);
 
   const saveToFile = async (xmlContent: string) => {
     if (filePath) {
       setConsoleMessages(prev => [...prev, `> 保存到文件: ${filePath}`]);
-      await writeFile(filePath, new TextEncoder().encode(xmlContent));
+      await writeTextFile(filePath, xmlContent);
     }
   }
 
   const initFromPath = async (path: string) => {
     if (!await exists(path)) {
-      await writeFile(path, new TextEncoder().encode(initialXml));
+      await writeTextFile(path, initialXml);
     }
-    const fileContent = await readFile(path);
+    const fileContent = await readTextFile(path);
     setFilePath(path);
-    setFileContent(new TextDecoder().decode(fileContent));
-    setInit(true);
+    setFileContent(fileContent);
+    frontendConfig.lastFile = path;
+    await saveConfig();
+    setInit(100);
   }
 
   const runCode = async () => {
@@ -158,24 +161,43 @@ function App() {
     execute();
   };
 
+  useEffect(() => {
+    var a = async () => {
+      await loadConfig();
+      if (frontendConfig.lastFile) {
+        if (await exists(frontendConfig.lastFile)) {
+          await initFromPath(frontendConfig.lastFile);
+        } else {
+          setInit(20);
+        }
+      } else {
+        setInit(20);
+      }
+    };
+    a();
+  }, []);
 
-  if (!init) {
+  if (init === 20) {
     return <OpenSaveProject initFromPath={initFromPath} />;
   }
 
-  return (
-    <div className="app-container">
-      <div className="editor-container">
-        <BlocklyComponent initialXml={fileContent} toolboxXml={toolboxXml} />
-      </div>
-      <div className="controls-container">
-        <button onClick={runCode} className="run-button">运行</button>
-        <div className="console">
-          {consoleMessages.map((msg, i) => <p key={i}>{msg}</p>)}
+  if (init === 100) {
+    return (
+      <div className="app-container">
+        <div className="editor-container">
+          <BlocklyComponent initialXml={fileContent} toolboxXml={toolboxXml} />
+        </div>
+        <div className="controls-container">
+          <button onClick={runCode} className="run-button">运行</button>
+          <div className="console">
+            {consoleMessages.map((msg, i) => <p key={i}>{msg}</p>)}
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  }
+
+  return <div>  </div>
 }
 
 export default App;
