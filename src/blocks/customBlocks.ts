@@ -105,12 +105,16 @@ Blockly.defineBlocksWithJsonArray([
   },
   {
     "type": "controls_whileUntil",
-    "message0": "当 %1 时重复执行",
+    "message0": "当 %1 时重复执行 %2",
     "args0": [
       {
         "type": "input_value",
         "name": "BOOL",
         "check": "Boolean"
+      },
+      {
+        "type": "input_statement",
+        "name": "DO"
       }
     ],
     "previousStatement": null,

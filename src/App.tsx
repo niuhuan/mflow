@@ -43,7 +43,8 @@ function App() {
         </block>
         <block type="close_game"></block>
       </category>
-      <category name="循环" colour="120" name_ch="循环">
+      <category name="循环控制" colour="120">
+        <block type="controls_whileUntil"></block>
         <block type="controls_repeat_ext">
           <value name="TIMES">
             <shadow type="math_number">
@@ -52,6 +53,42 @@ function App() {
           </value>
         </block>
         <block type="controls_forEach"></block>
+      </category>
+      <category name="逻辑" colour="210">
+        <block type="logic_boolean">
+          <field name="BOOL">TRUE</field>
+        </block>
+        <block type="logic_operation">
+          <value name="A">
+            <shadow type="logic_boolean">
+              <field name="BOOL">TRUE</field>
+            </shadow>
+          </value>
+          <value name="B">
+            <shadow type="logic_boolean">
+              <field name="BOOL">FALSE</field>
+            </shadow>
+          </value>
+        </block>
+        <block type="logic_negate">
+          <value name="BOOL">
+            <shadow type="logic_boolean">
+              <field name="BOOL">TRUE</field>
+            </shadow>
+          </value>
+        </block>
+        <block type="logic_compare">
+          <value name="A">
+            <shadow type="math_number">
+              <field name="NUM">0</field>
+            </shadow>
+          </value>
+          <value name="B">
+            <shadow type="math_number">
+              <field name="NUM">0</field>
+            </shadow>
+          </value>
+        </block>
       </category>
       <category name="列表" colour="260">
         <block type="lists_create_with"></block>
