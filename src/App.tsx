@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import BlocklyComponent from './components/BlocklyComponent';
 import './blocks/customBlocks';
 import './blocks/generators';
@@ -6,10 +6,10 @@ import * as Blockly from 'blockly/core';
 import { javascriptGenerator } from 'blockly/javascript';
 import './App.css';
 import { invoke } from '@tauri-apps/api/core';
+import { exists, readFile, writeFile } from '@tauri-apps/plugin-fs';
+import OpenSaveProject from './OpenSaveProject';
 
 function App() {
-  const [code, setCode] = useState<string>('');
-  const [consoleMessages, setConsoleMessages] = useState<string[]>([]);
 
   const initialXml = `<xml xmlns="https://developers.google.com/blockly/xml">
     <block type="start_flow" id="start" x="100" y="100"></block>
@@ -61,6 +61,29 @@ function App() {
     </xml>
   `;
 
+  const [code, setCode] = useState<string>('');
+  const [consoleMessages, setConsoleMessages] = useState<string[]>([]);
+  const [init, setInit] = useState<boolean>(false);
+  const [filePath, setFilePath] = useState<string>('');
+  const [fileContent, setFileContent] = useState<string>(initialXml);
+
+  const saveToFile = async (xmlContent: string) => {
+    if (filePath) {
+      setConsoleMessages(prev => [...prev, `> 保存到文件: ${filePath}`]);
+      await writeFile(filePath, new TextEncoder().encode(xmlContent));
+    }
+  }
+
+  const initFromPath = async (path: string) => {
+    if (!await exists(path)) {
+      await writeFile(path, new TextEncoder().encode(initialXml));
+    }
+    const fileContent = await readFile(path);
+    setFilePath(path);
+    setFileContent(new TextDecoder().decode(fileContent));
+    setInit(true);
+  }
+
   const runCode = () => {
     const log = (message: string) => {
       setConsoleMessages(prev => [...prev, `> ${message}`]);
@@ -83,23 +106,24 @@ function App() {
 
     const codeToRun = javascriptGenerator.workspaceToCode(workspace);
     setCode(codeToRun);
-    setConsoleMessages(['> 开始运行...']);
+
+    setConsoleMessages(prev => [...prev, `> 开始运行...`]);
 
     const loadAccount = (name: string) => {
-        return invoke('load_account', { name });
+      return invoke('load_account', { name });
     }
-    
+
     const saveAccount = (name: string) => {
       return invoke('save_account', { name });
     }
 
     const wait = (seconds: number) => {
-        return new Promise<void>(resolve => {
-            setTimeout(() => {
-                log(`Waited for ${seconds} second(s).`);
-                resolve();
-            }, seconds * 1000);
-        });
+      return new Promise<void>(resolve => {
+        setTimeout(() => {
+          log(`Waited for ${seconds} second(s).`);
+          resolve();
+        }, seconds * 1000);
+      });
     }
 
     const dailyMission = () => {
@@ -117,29 +141,33 @@ function App() {
     const closeGame = () => {
       return invoke('close_game');
     }
-    
+
     const execute = async () => {
-        try {
-            await eval(`(async () => { ${codeToRun} })()`);
-            log('运行结束。');
-        } catch (e: any) {
-            log(`运行出错: ${e.message}`);
-        }
+      try {
+        await eval(`(async () => { ${codeToRun} })()`);
+        log('运行结束。');
+      } catch (e: any) {
+        log(`运行出错: ${e.message}`);
+      }
     }
-    
+
     execute();
   };
 
 
+  if (!init) {
+    return <OpenSaveProject initFromPath={initFromPath} />;
+  }
+
   return (
     <div className="app-container">
       <div className="editor-container">
-        <BlocklyComponent initialXml={initialXml} toolboxXml={toolboxXml} />
+        <BlocklyComponent initialXml={fileContent} toolboxXml={toolboxXml} />
       </div>
       <div className="controls-container">
         <button onClick={runCode} className="run-button">运行</button>
         <div className="console">
-            {consoleMessages.map((msg, i) => <p key={i}>{msg}</p>)}
+          {consoleMessages.map((msg, i) => <p key={i}>{msg}</p>)}
         </div>
       </div>
     </div>

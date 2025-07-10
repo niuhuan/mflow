@@ -9,6 +9,10 @@
     "core:default",
     "opener:default",
     "fs:default",
+    "fs:write-all",
+    "fs:read-all",
+    "fs:read-meta",
+    "fs:read-dirs",
     "dialog:default"
   ]
 }
