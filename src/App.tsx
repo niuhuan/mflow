@@ -8,7 +8,8 @@ import './App.css';
 import { invoke } from '@tauri-apps/api/core';
 import OpenSaveProject from './OpenSaveProject';
 import { frontendConfig, loadConfig, saveConfig } from './config';
-import { exists, readTextFile, writeTextFile } from './fromTauri';
+import { exists, load_backend_config, readTextFile, writeTextFile } from './fromTauri';
+import { AppConfig } from './AppConfig';
 
 function App() {
 
@@ -75,6 +76,12 @@ function App() {
     }
   }
 
+  const saveFlow = async () => {
+    const xml = Blockly.Xml.workspaceToDom(Blockly.getMainWorkspace());
+    const xmlText = Blockly.Xml.domToText(xml);
+    await saveToFile(xmlText);
+  }
+
   const initFromPath = async (path: string) => {
     if (!await exists(path)) {
       await writeTextFile(path, initialXml);
@@ -87,9 +94,17 @@ function App() {
     setInit(100);
   }
 
+  const putConsoleMessage = (message: string) => {
+    setConsoleMessages(prev => prev.length > 100 ? [...prev.slice(1), message] : [...prev, message]);
+    const consoleContainer = document.querySelector('.console');
+    if (consoleContainer) {
+      consoleContainer.scrollTop = consoleContainer.scrollHeight;
+    }
+  }
+
   const runCode = async () => {
     const log = (message: string) => {
-      setConsoleMessages(prev => [...prev, `> ${message}`]);
+      putConsoleMessage(message);
     }
 
     const workspace = Blockly.getMainWorkspace();
@@ -103,18 +118,24 @@ function App() {
 
     const startBlocks = workspace.getBlocksByType('start_flow', false);
     if (startBlocks.length === 0) {
-      setConsoleMessages(['> 执行失败: 找不到"开始"积木。']);
+      log('执行失败: 找不到"开始"积木。');
       return;
     }
     if (startBlocks.length > 1) {
-      setConsoleMessages(['> 执行失败: 只能有一个"开始"积木，请移除多余的。']);
+      log('执行失败: 只能有一个"开始"积木，请移除多余的。');
       return;
     }
 
     const codeToRun = javascriptGenerator.workspaceToCode(workspace);
     setCode(codeToRun);
 
-    setConsoleMessages(prev => [...prev, `> 开始运行...`]);
+    log('开始运行...');
+
+    const cfg = await load_backend_config();
+    if (!cfg.m7_source_path) {
+      log('执行失败: 三月七小助手源代码路径未设置。');
+      return;
+    }
 
     const loadAccount = (name: string) => {
       return invoke('load_account', { name });
@@ -152,9 +173,9 @@ function App() {
     const execute = async () => {
       try {
         await eval(`(async () => { ${codeToRun} })()`);
-        log('运行结束。');
+        log('运行完成。');
       } catch (e: any) {
-        log(`运行出错: ${e.message}`);
+        log('运行失败: ' + e.message);
       }
     }
 
@@ -181,16 +202,43 @@ function App() {
     return <OpenSaveProject initFromPath={initFromPath} />;
   }
 
+  if (init === 30) {
+    return <AppConfig backToEditor={() => {
+      setInit(100);
+    }} />;
+  }
+
   if (init === 100) {
     return (
-      <div className="app-container">
-        <div className="editor-container">
-          <BlocklyComponent initialXml={fileContent} toolboxXml={toolboxXml} />
+      <div id="boo">
+        <div id="top" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <button onClick={() => {
+            setInit(20);
+          }}>
+            关闭
+          </button>
+          <input type="text" value={filePath} disabled={true}
+            style={{ flexGrow: 1, border: 'none', outline: 'none', backgroundColor: 'transparent' }} />
+          <button onClick={() => {
+            saveFlow();
+          }}>
+            保存
+          </button>
+          <button onClick={() => {
+            setInit(30);
+          }}>
+            配置
+          </button>
         </div>
-        <div className="controls-container">
-          <button onClick={runCode} className="run-button">运行</button>
-          <div className="console">
-            {consoleMessages.map((msg, i) => <p key={i}>{msg}</p>)}
+        <div className="app-container">
+          <div className="editor-container">
+            <BlocklyComponent initialXml={fileContent} toolboxXml={toolboxXml} />
+          </div>
+          <div className="controls-container">
+            <button onClick={runCode} className="run-button">保存并运行</button>
+            <div className="console">
+              {consoleMessages.map((msg, i) => <p key={i}>{msg}</p>)}
+            </div>
           </div>
         </div>
       </div>

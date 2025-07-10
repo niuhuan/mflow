@@ -5,6 +5,8 @@ use tokio::time::{sleep, Duration};
 use std::path::PathBuf;
 use std::path::Path;
 
+mod config;
+
 #[tauri::command]
 async fn load_account(name: String) -> Result<String, ()> {
     println!("后台日志: 正在加载账号 '{}'...", name);
@@ -73,6 +75,18 @@ async fn read_text_file(path: String) -> Result<String, ()> {
     Ok(content)
 }
 
+#[tauri::command]
+async fn load_backend_config() -> Result<config::BackendConfig, ()> {
+    let config = config::load_config().await.unwrap();
+    Ok(config)
+}
+
+#[tauri::command]
+async fn save_backend_config(config: config::BackendConfig) -> Result<(), ()> {
+    config::save_config(config).await.unwrap();
+    Ok(())
+}
+
 pub(crate) fn join_paths<P: AsRef<Path>>(paths: Vec<P>) -> String {
     match paths.len() {
         0 => String::default(),
@@ -103,6 +117,8 @@ fn main() {
             mkdir,
             write_text_file,
             read_text_file,
+            load_backend_config,
+            save_backend_config,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
