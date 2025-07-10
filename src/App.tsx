@@ -10,6 +10,7 @@ import OpenSaveProject from './OpenSaveProject';
 import { frontendConfig, loadConfig, saveConfig } from './config';
 import { exists, load_backend_config, readTextFile, writeTextFile } from './fromTauri';
 import { AppConfig } from './AppConfig';
+import { AppExport } from './AppExport';
 
 function App() {
 
@@ -273,6 +274,13 @@ function App() {
   if (init === 20) {
     return <OpenSaveProject goSetting={() => {
       setInit(40);
+    }}  goExport={async () => {
+      const bc = await load_backend_config();
+      if (!bc.m7_source_path) {
+        alert('三月七小助手源代码路径未设置。');
+        return;
+      }
+      setInit(70);
     }} openFromPath={openFromPath} initFromTemaplate={initFromTemaplate} />;
   }
 
@@ -283,6 +291,11 @@ function App() {
   }
   if (init === 40) {
     return <AppConfig backToEditor={() => {
+      setInit(20);
+    }} />;
+  }
+  if (init === 70) {
+    return <AppExport backToOpenSaveProject={() => {
       setInit(20);
     }} />;
   }

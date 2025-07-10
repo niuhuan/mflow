@@ -8,7 +8,7 @@ const blankXml = `<xml xmlns="https://developers.google.com/blockly/xml">
 
 import mutilAccountXml from './assets/mutil-account.xml?raw';
 
-function OpenSaveProject({ goSetting, openFromPath, initFromTemaplate }: { goSetting: () => void, openFromPath: (path: string) => void, initFromTemaplate: (path: string, template: string) => void }) {
+function OpenSaveProject({ goSetting, goExport, openFromPath, initFromTemaplate }: { goSetting: () => void, goExport: () => void, openFromPath: (path: string) => void, initFromTemaplate: (path: string, template: string) => void }) {
     
     const [showTemplateModal, setShowTemplateModal] = useState(false);
     
@@ -162,7 +162,7 @@ function OpenSaveProject({ goSetting, openFromPath, initFromTemaplate }: { goSet
                 
                 <button 
                     className="action-button export-button"
-                    onClick={() => { alert('导出账号功能待实现'); }}
+                    onClick={goExport}
                 >
                     <svg className="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
