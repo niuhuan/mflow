@@ -30,7 +30,7 @@ function App() {
         <block type="save_account">
           <value name="SAVE_NAME">
             <shadow type="text">
-              <field name="TEXT">默认存档</field>
+              <field name="TEXT">默认账号</field>
             </shadow>
           </value>
         </block>

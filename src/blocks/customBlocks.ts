@@ -27,7 +27,7 @@ Blockly.defineBlocksWithJsonArray([
   },
   {
     "type": "save_account",
-    "message0": "保存账号为 %1",
+    "message0": "保存账号数据 %1",
     "args0": [
       {
         "type": "input_value",
@@ -89,6 +89,7 @@ Blockly.defineBlocksWithJsonArray([
     "type": "close_game",
     "message0": "关闭游戏",
     "previousStatement": null,
+    "nextStatement": null,
     "colour": 0,
     "tooltip": "结束流程",
     "helpUrl": ""
