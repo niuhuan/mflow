@@ -84,7 +84,7 @@ function App() {
     setInit(true);
   }
 
-  const runCode = () => {
+  const runCode = async () => {
     const log = (message: string) => {
       setConsoleMessages(prev => [...prev, `> ${message}`]);
     }
@@ -93,6 +93,10 @@ function App() {
     if (!workspace) {
       return;
     }
+
+    const xml = Blockly.Xml.workspaceToDom(workspace);
+    const xmlText = Blockly.Xml.domToText(xml);
+    await saveToFile(xmlText);
 
     const startBlocks = workspace.getBlocksByType('start_flow', false);
     if (startBlocks.length === 0) {
