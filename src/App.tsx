@@ -146,9 +146,7 @@ function App() {
   }
 
   const initFromTemaplate = async (path: string, template: string) => {
-    if (!await exists(path)) {
-      await writeTextFile(path, template);
-    }
+    await writeTextFile(path, template);
     const fileContent = await readTextFile(path);
     setFilePath(path);
     setFileContent(fileContent);

@@ -1,4 +1,5 @@
 import { open, save } from '@tauri-apps/plugin-dialog';
+import { useState } from 'react';
 import './OpenSaveProject.css';
 
 const blankXml = `<xml xmlns="https://developers.google.com/blockly/xml">
@@ -9,27 +10,24 @@ import mutilAccountXml from './assets/mutil-account.xml?raw';
 
 function OpenSaveProject({ goSetting, openFromPath, initFromTemaplate }: { goSetting: () => void, openFromPath: (path: string) => void, initFromTemaplate: (path: string, template: string) => void }) {
     
-    const handleCreateFromTemplate = async () => {
-        const templateType = prompt(
-            '请选择模板类型：\n1. 空白模板\n2. 多账户模板\n\n请输入 1 或 2：'
-        );
-        
-        if (!templateType) return;
+    const [showTemplateModal, setShowTemplateModal] = useState(false);
+    
+    const handleCreateFromTemplate = async (templateType: string) => {
+        setShowTemplateModal(false);
         
         let selectedTemplate = '';
         let templateName = '';
         
-        switch (templateType.trim()) {
-            case '1':
+        switch (templateType) {
+            case 'blank':
                 selectedTemplate = blankXml;
                 templateName = '空白模板';
                 break;
-            case '2':
+            case 'multi':
                 selectedTemplate = mutilAccountXml;
                 templateName = '多账户模板';
                 break;
             default:
-                alert('无效选择，请选择 1 或 2');
                 return;
         }
         
@@ -49,6 +47,69 @@ function OpenSaveProject({ goSetting, openFromPath, initFromTemaplate }: { goSet
 
     return (
         <div className="open-save-container">
+            {showTemplateModal && (
+                <div className="modal-overlay" onClick={() => setShowTemplateModal(false)}>
+                    <div className="template-modal" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <h2>选择模板</h2>
+                            <button 
+                                className="close-button"
+                                onClick={() => setShowTemplateModal(false)}
+                            >
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"/>
+                                    <line x1="6" y1="6" x2="18" y2="18"/>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <div className="template-grid">
+                            <div 
+                                className="template-card"
+                                onClick={() => handleCreateFromTemplate('blank')}
+                            >
+                                <div className="template-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                        <polyline points="14,2 14,8 20,8"/>
+                                        <line x1="16" y1="13" x2="8" y2="13"/>
+                                        <line x1="16" y1="17" x2="8" y2="17"/>
+                                        <polyline points="10,9 9,9 8,9"/>
+                                    </svg>
+                                </div>
+                                <h3>空白模板</h3>
+                                <p>从零开始创建项目，只包含一个开始积木</p>
+                                <div className="template-preview">
+                                    <div className="preview-block start-block">开始</div>
+                                </div>
+                            </div>
+                            
+                            <div 
+                                className="template-card"
+                                onClick={() => handleCreateFromTemplate('multi')}
+                            >
+                                <div className="template-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                        <circle cx="9" cy="7" r="4"/>
+                                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                    </svg>
+                                </div>
+                                <h3>多账户模板</h3>
+                                <p>包含完整的多账户工作流程和函数定义</p>
+                                <div className="template-preview">
+                                    <div className="preview-block start-block">开始</div>
+                                    <div className="preview-block function-block">刷体力做每日</div>
+                                    <div className="preview-block function-block">锄大地</div>
+                                    <div className="preview-block loop-block">循环执行</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+            
             <div className="button-group">
                 <button 
                     className="action-button open-button"
@@ -76,7 +137,7 @@ function OpenSaveProject({ goSetting, openFromPath, initFromTemaplate }: { goSet
                 
                 <button 
                     className="action-button save-button"
-                    onClick={handleCreateFromTemplate}
+                    onClick={() => setShowTemplateModal(true)}
                 >
                     <svg className="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
