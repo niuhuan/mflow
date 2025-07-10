@@ -94,6 +94,21 @@ async fn save_backend_config(config: config::BackendConfig) -> Result<(), ()> {
     Ok(())
 }
 
+#[tauri::command]
+async fn farming() -> Result<(), ()> {
+    println!("后台日志: 正在锄大地...");
+    sleep(Duration::from_secs(3)).await;
+    Ok(())
+}
+
+#[tauri::command]
+async fn close_game() -> Result<(), ()> {
+    println!("后台日志: 正在关闭游戏...");
+    sleep(Duration::from_secs(1)).await;
+    Ok(())
+}
+
+
 pub(crate) fn join_paths<P: AsRef<Path>>(paths: Vec<P>) -> String {
     match paths.len() {
         0 => String::default(),
@@ -127,6 +142,8 @@ fn main() {
             read_text_file,
             load_backend_config,
             save_backend_config,
+            farming,
+            close_game,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

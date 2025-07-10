@@ -84,4 +84,24 @@ javascriptGenerator.forBlock['logic_compare'] = function(block) {
   var argument1 = javascriptGenerator.valueToCode(block, 'B', order) || '0';
   var code = argument0 + ' ' + operator + ' ' + argument1;
   return [code, order];
+};
+
+javascriptGenerator.forBlock['custom_function_def'] = function(block) {
+  var funcName = block.getFieldValue('FUNC_NAME') || 'myFunc';
+  var params = block.getFieldValue('PARAMS') || '';
+  var branch = javascriptGenerator.statementToCode(block, 'DO');
+  var code = `async function ${funcName}(${params}) {\n${branch}}\n`;
+  return code;
+};
+
+javascriptGenerator.forBlock['custom_function_call'] = function(block) {
+  var funcName = block.getFieldValue('FUNC_NAME') || 'myFunc';
+  var args = javascriptGenerator.valueToCode(block, 'ARGS', Order.NONE) || '';
+  var code = `await ${funcName}(${args});\n`;
+  return code;
+};
+
+javascriptGenerator.forBlock['custom_parameter'] = function(block) {
+  var paramName = block.getFieldValue('PARAM_NAME') || 'param1';
+  return [paramName, Order.ATOMIC];
 }; 

@@ -98,6 +98,19 @@ function App() {
       </category>
       <sep></sep>
       <category name="变量" colour="%{BKY_VARIABLE_HUE}" custom="VARIABLE"></category>
+      <category name="函数" colour="290">
+        <block type="custom_function_def"></block>
+        <block type="custom_function_call">
+          <value name="ARGS">
+            <shadow type="text">
+              <field name="TEXT"></field>
+            </shadow>
+          </value>
+        </block>
+        <block type="custom_parameter">
+          <field name="PARAM_NAME">param1</field>
+        </block>
+      </category>
     </xml>
   `;
 
@@ -176,10 +189,12 @@ function App() {
     }
 
     const loadAccount = (name: string) => {
+      log('加载账号数据: ' + name);
       return invoke('load_account', { name });
     }
 
     const saveAccount = (name: string) => {
+      log('保存账号数据: ' + name);
       return invoke('save_account', { name });
     }
 
@@ -193,22 +208,27 @@ function App() {
     }
 
     const dailyMission = () => {
+      log('执行每日任务...');
       return invoke('daily_mission');
     }
 
     const refreshStamina = () => {
+      log('刷体力...');
       return invoke('refresh_stamina');
     }
 
     const simulatedUniverse = () => {
+      log('执行模拟宇宙...');
       return invoke('simulated_universe');
     }
 
     const farming = () => {
+      log('锄大地...');
       return invoke('farming');
     }
 
     const closeGame = () => {
+      log('关闭游戏...');
       return invoke('close_game');
     }
 

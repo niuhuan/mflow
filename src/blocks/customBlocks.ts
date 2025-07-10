@@ -215,5 +215,65 @@ Blockly.defineBlocksWithJsonArray([
     "colour": 210,
     "tooltip": "比较两个值",
     "helpUrl": ""
+  },
+  {
+    "type": "custom_function_def",
+    "message0": "定义函数 %1 参数 %2 %3",
+    "args0": [
+      {
+        "type": "field_input",
+        "name": "FUNC_NAME",
+        "text": "myFunc"
+      },
+      {
+        "type": "field_input",
+        "name": "PARAMS",
+        "text": ""
+      },
+      {
+        "type": "input_statement",
+        "name": "DO"
+      }
+    ],
+    "colour": 290,
+    "tooltip": "自定义函数定义，可填写参数名，用逗号分隔。",
+    "helpUrl": "",
+    "nextStatement": null,
+    "previousStatement": null
+  },
+  {
+    "type": "custom_function_call",
+    "message0": "调用函数 %1 参数 %2",
+    "args0": [
+      {
+        "type": "field_input",
+        "name": "FUNC_NAME",
+        "text": "myFunc"
+      },
+      {
+        "type": "input_value",
+        "name": "ARGS"
+      }
+    ],
+    "colour": 290,
+    "tooltip": "调用自定义函数，参数用逗号分隔。",
+    "helpUrl": "",
+    "previousStatement": null,
+    "nextStatement": null
+  },
+  {
+    "type": "custom_parameter",
+    "message0": "参数 %1",
+    "args0": [
+      {
+        "type": "field_input",
+        "name": "PARAM_NAME",
+        "text": "param1"
+      }
+    ],
+    "output": null,
+    "colour": 290,
+    "tooltip": "引用函数参数",
+    "helpUrl": ""
   }
 ]); 
