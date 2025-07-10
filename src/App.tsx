@@ -261,12 +261,19 @@ function App() {
   }, []);
 
   if (init === 20) {
-    return <OpenSaveProject initFromPath={initFromPath} />;
+    return <OpenSaveProject goSetting={() => {
+      setInit(40);
+    }} initFromPath={initFromPath} />;
   }
 
   if (init === 30) {
     return <AppConfig backToEditor={() => {
       setInit(100);
+    }} />;
+  }
+  if (init === 40) {
+    return <AppConfig backToEditor={() => {
+      setInit(20);
     }} />;
   }
 

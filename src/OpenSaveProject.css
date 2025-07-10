@@ -1,13 +1,15 @@
 .open-save-container {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     padding: 20px;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100px;
+    min-height: 100vh;
     border-radius: 12px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     margin: 20px;
+    gap: 20px;
 }
 
 .button-group {
@@ -73,6 +75,39 @@
     box-shadow: 0 8px 25px rgba(250, 112, 154, 0.6);
 }
 
+.config-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.config-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+}
+
+.export-button {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(240, 147, 251, 0.4);
+}
+
+.export-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(240, 147, 251, 0.6);
+}
+
+.danger-button {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+}
+
+.danger-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 107, 107, 0.6);
+}
+
 .button-icon {
     width: 18px;
     height: 18px;
@@ -105,7 +140,7 @@
 /* 深色模式支持 */
 @media (prefers-color-scheme: dark) {
     .open-save-container {
-        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     }
 }
