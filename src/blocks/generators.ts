@@ -26,6 +26,10 @@ javascriptGenerator.forBlock['daily_mission'] = function(block) {
   return 'await dailyMission();\n';
 };
 
+javascriptGenerator.forBlock['refresh_stamina'] = function(block) {
+  return 'await refreshStamina();\n';
+};
+
 javascriptGenerator.forBlock['simulated_universe'] = function(block) {
   return 'await simulatedUniverse();\n';
 };
@@ -36,4 +40,48 @@ javascriptGenerator.forBlock['farming'] = function(block) {
 
 javascriptGenerator.forBlock['close_game'] = function(block) {
   return 'closeGame();\n';
+};
+
+javascriptGenerator.forBlock['controls_whileUntil'] = function(block) {
+  var argument0 = javascriptGenerator.valueToCode(block, 'BOOL', Order.NONE) || 'false';
+  var branch = javascriptGenerator.statementToCode(block, 'DO');
+  var code = 'while (' + argument0 + ') {\n' + branch + '}\n';
+  return code;
+};
+
+javascriptGenerator.forBlock['logic_boolean'] = function(block) {
+  var code = (block.getFieldValue('BOOL') == 'TRUE') ? 'true' : 'false';
+  return [code, Order.ATOMIC];
+};
+
+javascriptGenerator.forBlock['logic_operation'] = function(block) {
+  var operator = (block.getFieldValue('OP') == 'AND') ? '&&' : '||';
+  var order = (operator == '&&') ? Order.LOGICAL_AND : Order.LOGICAL_OR;
+  var argument0 = javascriptGenerator.valueToCode(block, 'A', order) || 'false';
+  var argument1 = javascriptGenerator.valueToCode(block, 'B', order) || 'false';
+  var code = argument0 + ' ' + operator + ' ' + argument1;
+  return [code, order];
+};
+
+javascriptGenerator.forBlock['logic_negate'] = function(block) {
+  var argument0 = javascriptGenerator.valueToCode(block, 'BOOL', Order.LOGICAL_NOT) || 'false';
+  var code = '!' + argument0;
+  return [code, Order.LOGICAL_NOT];
+};
+
+javascriptGenerator.forBlock['logic_compare'] = function(block) {
+  var OPERATORS: { [key: string]: string } = {
+    'EQ': '==',
+    'NEQ': '!=',
+    'LT': '<',
+    'LTE': '<=',
+    'GT': '>',
+    'GTE': '>='
+  };
+  var operator = OPERATORS[block.getFieldValue('OP')] || '==';
+  var order = Order.RELATIONAL;
+  var argument0 = javascriptGenerator.valueToCode(block, 'A', order) || '0';
+  var argument1 = javascriptGenerator.valueToCode(block, 'B', order) || '0';
+  var code = argument0 + ' ' + operator + ' ' + argument1;
+  return [code, order];
 }; 

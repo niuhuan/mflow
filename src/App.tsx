@@ -35,6 +35,7 @@ function App() {
           </value>
         </block>
         <block type="daily_mission"></block>
+        <block type="refresh_stamina"></block>
         <block type="simulated_universe"></block>
         <block type="farming"></block>
         <block type="wait_seconds">
@@ -156,6 +157,10 @@ function App() {
 
     const dailyMission = () => {
       return invoke('daily_mission');
+    }
+
+    const refreshStamina = () => {
+      return invoke('refresh_stamina');
     }
 
     const simulatedUniverse = () => {

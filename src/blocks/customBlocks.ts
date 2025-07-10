@@ -68,6 +68,15 @@ Blockly.defineBlocksWithJsonArray([
     "helpUrl": ""
   },
   {
+    "type": "refresh_stamina",
+    "message0": "刷体力",
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": 290,
+    "tooltip": "执行刷体力流程",
+    "helpUrl": ""
+  },
+  {
     "type": "simulated_universe",
     "message0": "模拟宇宙",
     "previousStatement": null,
@@ -92,6 +101,115 @@ Blockly.defineBlocksWithJsonArray([
     "nextStatement": null,
     "colour": 0,
     "tooltip": "结束流程",
+    "helpUrl": ""
+  },
+  {
+    "type": "controls_whileUntil",
+    "message0": "当 %1 时重复执行",
+    "args0": [
+      {
+        "type": "input_value",
+        "name": "BOOL",
+        "check": "Boolean"
+      }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": 120,
+    "tooltip": "当条件为真时重复执行",
+    "helpUrl": ""
+  },
+  {
+    "type": "logic_boolean",
+    "message0": "%1",
+    "args0": [
+      {
+        "type": "field_dropdown",
+        "name": "BOOL",
+        "options": [
+          ["真", "TRUE"],
+          ["假", "FALSE"]
+        ]
+      }
+    ],
+    "output": "Boolean",
+    "colour": 210,
+    "tooltip": "布尔值：真或假",
+    "helpUrl": ""
+  },
+  {
+    "type": "logic_operation",
+    "message0": "%1 %2 %3",
+    "args0": [
+      {
+        "type": "input_value",
+        "name": "A",
+        "check": "Boolean"
+      },
+      {
+        "type": "field_dropdown",
+        "name": "OP",
+        "options": [
+          ["且", "AND"],
+          ["或", "OR"]
+        ]
+      },
+      {
+        "type": "input_value",
+        "name": "B",
+        "check": "Boolean"
+      }
+    ],
+    "output": "Boolean",
+    "colour": 210,
+    "tooltip": "逻辑运算：且、或",
+    "helpUrl": ""
+  },
+  {
+    "type": "logic_negate",
+    "message0": "非 %1",
+    "args0": [
+      {
+        "type": "input_value",
+        "name": "BOOL",
+        "check": "Boolean"
+      }
+    ],
+    "output": "Boolean",
+    "colour": 210,
+    "tooltip": "逻辑非运算",
+    "helpUrl": ""
+  },
+  {
+    "type": "logic_compare",
+    "message0": "%1 %2 %3",
+    "args0": [
+      {
+        "type": "input_value",
+        "name": "A",
+        "check": null
+      },
+      {
+        "type": "field_dropdown",
+        "name": "OP",
+        "options": [
+          ["=", "EQ"],
+          ["≠", "NEQ"],
+          ["<", "LT"],
+          ["≤", "LTE"],
+          [">", "GT"],
+          ["≥", "GTE"]
+        ]
+      },
+      {
+        "type": "input_value",
+        "name": "B",
+        "check": null
+      }
+    ],
+    "output": "Boolean",
+    "colour": 210,
+    "tooltip": "比较两个值",
     "helpUrl": ""
   }
 ]); 

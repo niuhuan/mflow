@@ -29,6 +29,13 @@ async fn daily_mission() -> Result<String, ()> {
 }
 
 #[tauri::command]
+async fn refresh_stamina() -> Result<String, ()> {
+    println!("后台日志: 正在刷体力...");
+    sleep(Duration::from_secs(3)).await;
+    Ok("刷体力已完成。".to_string())
+}
+
+#[tauri::command]
 async fn simulated_universe() -> Result<String, ()> {
     println!("后台日志: 正在执行模拟宇宙...");
     sleep(Duration::from_secs(5)).await;
@@ -110,6 +117,7 @@ fn main() {
             load_account,
             save_account,
             daily_mission,
+            refresh_stamina,
             simulated_universe,
             chudadi,
             app_data_path,
