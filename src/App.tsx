@@ -40,7 +40,8 @@ function App() {
         <block type="simulated_universe"></block>
         <block type="farming"></block>
         <block type="wait_seconds">
-          <field name="SECONDS">1</field>
+          <field name="TIME_VALUE">1</field>
+          <field name="TIME_UNIT">SECONDS</field>
         </block>
         <block type="close_game"></block>
       </category>
@@ -217,10 +218,28 @@ function App() {
       return invoke('save_account', { name });
     }
 
-    const wait = (seconds: number) => {
+    const wait = (timeValue: number, timeUnit: string = 'SECONDS') => {
       return new Promise<void>(resolve => {
-        log(`Waited for ${seconds} second(s).`);
+        let seconds = timeValue;
+        let unitText = '秒';
+        
+        switch (timeUnit) {
+          case 'MINUTES':
+            seconds = timeValue * 60;
+            unitText = '分钟';
+            break;
+          case 'HOURS':
+            seconds = timeValue * 3600;
+            unitText = '小时';
+            break;
+          default:
+            unitText = '秒';
+            break;
+        }
+        
+        log(`等待 ${timeValue} ${unitText}...`);
         setTimeout(() => {
+          log(`等待完成。`);
           resolve();
         }, seconds * 1000);
       });
@@ -328,7 +347,7 @@ function App() {
           </button>
           <input type="text" value={filePath} disabled={true}
             style={{ flexGrow: 1, border: 'none', outline: 'none', backgroundColor: 'transparent' }} />
-          <button disabled={isRunning} onClick={() => {
+          <button onClick={() => {
             saveFlow();
           }}>
             保存

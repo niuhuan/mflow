@@ -8,7 +8,8 @@
                     <block type="close_game" id="Vm{wN)u]Rr456kX-|6uJ">
                         <next>
                             <block type="wait_seconds" id="-.fUCf,r$o7QU0uwak#!">
-                                <field name="SECONDS">10</field>
+                                <field name="TIME_VALUE">10</field>
+                                <field name="TIME_UNIT">SECONDS</field>
                                 <next>
                                     <block type="load_account" id="v7{H1U~tUCv8Qjhcj%DI">
                                         <value name="ACCOUNT_NAME">
@@ -49,8 +50,11 @@
                                                                                 type="wait_seconds"
                                                                                 id="m$$b@q~u/NGqj);)r?O.">
                                                                                 <field
-                                                                                    name="SECONDS">
+                                                                                    name="TIME_VALUE">
                                                                                     10</field>
+                                                                                <field
+                                                                                    name="TIME_UNIT">
+                                                                                    SECONDS</field>
                                                                             </block>
                                                                         </next>
                                                                     </block>
@@ -75,7 +79,8 @@
                             <block type="close_game" id="|i`#GDp?uSN7)6#)8|iE">
                                 <next>
                                     <block type="wait_seconds" id="iiH2oOiHCtXV`5NXU#mE">
-                                        <field name="SECONDS">10</field>
+                                        <field name="TIME_VALUE">10</field>
+                                        <field name="TIME_UNIT">SECONDS</field>
                                         <next>
                                             <block type="load_account" id="ZhEuH4DMRSUWLnID5c}=">
                                                 <value name="ACCOUNT_NAME">
@@ -115,8 +120,11 @@
                                                                                 type="wait_seconds"
                                                                                 id="EcOo|chX]b~XTT1#QX#n">
                                                                                 <field
-                                                                                    name="SECONDS">
+                                                                                    name="TIME_VALUE">
                                                                                     10</field>
+                                                                                <field
+                                                                                    name="TIME_UNIT">
+                                                                                    SECONDS</field>
                                                                             </block>
                                                                         </next>
                                                                     </block>
@@ -140,7 +148,8 @@
                                     <block type="close_game" id="t@b9$POmB2`~,ruWKEuY">
                                         <next>
                                             <block type="wait_seconds" id="R/t-(lLX3q+Q87C}?C5U">
-                                                <field name="SECONDS">10</field>
+                                                <field name="TIME_VALUE">10</field>
+                                                <field name="TIME_UNIT">SECONDS</field>
                                                 <next>
                                                     <block type="load_account"
                                                         id="uE9GD^Q-#tT}=fwyE9g%">
@@ -186,8 +195,11 @@
                                                                                         type="wait_seconds"
                                                                                         id="rY8]Xh[tuK}/eYL~VbYu">
                                                                                         <field
-                                                                                            name="SECONDS">
+                                                                                            name="TIME_VALUE">
                                                                                             10</field>
+                                                                                        <field
+                                                                                            name="TIME_UNIT">
+                                                                                            SECONDS</field>
                                                                                     </block>
                                                                                 </next>
                                                                             </block>
@@ -212,7 +224,8 @@
                                                 <next>
                                                     <block type="wait_seconds"
                                                         id="WQUvDMIVYI?,80QRjK.l">
-                                                        <field name="SECONDS">10</field>
+                                                        <field name="TIME_VALUE">10</field>
+                                                        <field name="TIME_UNIT">SECONDS</field>
                                                         <next>
                                                             <block type="load_account"
                                                                 id="/Z@pr:W$`,ScqI~aw`e`">
@@ -258,8 +271,11 @@
                                                                                                 type="wait_seconds"
                                                                                                 id="+@IXvnnt00o]qR(e4lRz">
                                                                                                 <field
-                                                                                                    name="SECONDS">
+                                                                                                    name="TIME_VALUE">
                                                                                                     10</field>
+                                                                                                <field
+                                                                                                    name="TIME_UNIT">
+                                                                                                    SECONDS</field>
                                                                                             </block>
                                                                                         </next>
                                                                                     </block>
@@ -400,8 +416,11 @@
                                                                                                         type="wait_seconds"
                                                                                                         id="dBsA[h$Ac~K)LLGTiiei">
                                                                                                         <field
-                                                                                                            name="SECONDS">
-                                                                                                            10000</field>
+                                                                                                            name="TIME_VALUE">
+                                                                                                            5</field>
+                                                                                                        <field
+                                                                                                            name="TIME_UNIT">
+                                                                                                            HOURS</field>
                                                                                                     </block>
                                                                                                 </next>
                                                                                             </block>

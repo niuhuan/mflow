@@ -18,8 +18,9 @@ javascriptGenerator.forBlock['save_account'] = function(block) {
 };
 
 javascriptGenerator.forBlock['wait_seconds'] = function(block) {
-  var seconds = block.getFieldValue('SECONDS');
-  return `await wait(${seconds});\n`;
+  var timeValue = block.getFieldValue('TIME_VALUE');
+  var timeUnit = block.getFieldValue('TIME_UNIT');
+  return `await wait(${timeValue}, '${timeUnit}');\n`;
 };
 
 javascriptGenerator.forBlock['daily_mission'] = function(block) {

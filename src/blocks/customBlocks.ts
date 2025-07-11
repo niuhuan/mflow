@@ -43,13 +43,22 @@ Blockly.defineBlocksWithJsonArray([
   },
   {
     "type": "wait_seconds",
-    "message0": "等待 %1 秒",
+    "message0": "等待 %1 %2",
     "args0": [
       {
         "type": "field_number",
-        "name": "SECONDS",
+        "name": "TIME_VALUE",
         "value": 1,
         "min": 0
+      },
+      {
+        "type": "field_dropdown",
+        "name": "TIME_UNIT",
+        "options": [
+          ["小时", "HOURS"],
+          ["分钟", "MINUTES"],
+          ["秒", "SECONDS"]
+        ]
       }
     ],
     "previousStatement": null,
