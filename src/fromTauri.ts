@@ -33,6 +33,6 @@ export async function get_account_uid() {
     return await invoke('get_account_uid') as number;
 }
 
-export async function export_account(account_name: string, password: string) {
-    return await invoke('export_account', { account_name, password });
+export async function export_account(accountName: string, username: string, password: string) {
+    return await invoke('export_account', { accountName, username, password });
 }

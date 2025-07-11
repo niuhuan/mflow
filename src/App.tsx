@@ -309,7 +309,9 @@ function App() {
     return (
       <div id="boo">
         <div id="top" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <button onClick={() => {
+          <button onClick={async () => {
+            frontendConfig.lastFile = '';
+            await saveConfig();
             setInit(20);
           }}>
             关闭

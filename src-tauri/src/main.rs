@@ -191,7 +191,7 @@ async fn get_account_uid() -> Result<i64, ()> {
 
 
 #[tauri::command]
-async fn export_account(account_name: String, password: String) -> Result<(), ()> {
+async fn export_account(account_name: String, username: String, password: String) -> Result<(), ()> {
     let uid = get_account_uid().await?;
     let config = config::load_config().await?;
     let m7_source_path = config.m7_source_path;
@@ -202,13 +202,15 @@ async fn export_account(account_name: String, password: String) -> Result<(), ()
     let src_config_path = format!("{}/config.yaml", m7_source_path);
     let config_path = format!("{}/config.yaml", account_folder);
     tokio::fs::copy(src_config_path, config_path).await.map_err(|_| ())?;
-    if password.len() > 0 {
+    if username.len() > 0 && password.len() > 0 {
         let data_dir = format!("{}/settings/accounts", m7_source_path);
         let data_reg_path = format!("{}/{}.reg", data_dir, uid);
         tokio::fs::copy(reg_path, data_reg_path).await.map_err(|_| ())?;
-        let password_base64 = xor_encrypt_to_base64(password);
+        let password_base64 = xor_encrypt_to_base64(format!("{username},{password}"));
         let data_password_path = format!("{}/{}.acc", data_dir, uid);
         tokio::fs::write(data_password_path, password_base64).await.map_err(|_| ())?;
+        let name_path = format!("{}/{}.name", data_dir, uid);
+        tokio::fs::write(name_path, account_name).await.map_err(|_| ())?;
     }
     Ok(())
 }
@@ -229,7 +231,7 @@ fn xor_encrypt_to_base64(plaintext: String) -> String {
 
 /*
 def xor_encrypt_to_base64(plaintext: str) -> str:
-    secret_key = xor_key
+    secret_key = "TI4ftRSDaP63kBxxoLoZ5KpVmRBz00JikzLNweryzZ4wecWJxJO9tbxlH9YDvjAr"
     plaintext_bytes = plaintext.encode('utf-8')
     key_bytes = secret_key.encode('utf-8')
 
@@ -248,7 +250,8 @@ async fn export_reg(reg_path: &str) -> Result<(), ()> {
     // "REG", "EXPORT", "HKEY_CURRENT_USER\\SOFTWARE\\miHoYo\\崩坏：星穹铁道", path, "/y
     let mut cmd = tokio::process::Command::new("REG");
         cmd.arg("EXPORT")
-        .arg(format!("HKEY_CURRENT_USER\\SOFTWARE\\miHoYo\\崩坏：星穹铁道\\{}", reg_path))
+        .arg(format!("HKEY_CURRENT_USER\\SOFTWARE\\miHoYo\\崩坏：星穹铁道"))
+        .arg(reg_path)
         .arg("/y");
     let output = cmd.output().await.map_err(|_| ())?;
     println!("{}", String::from_utf8_lossy(&output.stdout));
