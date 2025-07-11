@@ -13,51 +13,31 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Get last commit info
-      id: last-commit
-      run: |
-        $lastCommit = git log -1 --pretty=format:"%H"
-        echo "last_commit=$lastCommit" >> $env:GITHUB_OUTPUT
-        
-        $hasTag = git tag --contains $lastCommit
-        if ($hasTag) {
-          echo "has_tag=true" >> $env:GITHUB_OUTPUT
-          $tagName = $hasTag.Trim()
-          echo "tag_name=$tagName" >> $env:GITHUB_OUTPUT
-        } else {
-          echo "has_tag=false" >> $env:GITHUB_OUTPUT
-          echo "tag_name=" >> $env:GITHUB_OUTPUT
-        }
-
     - name: Generate version tag
       id: version
       run: |
-        if ("${{ steps.last-commit.outputs.has_tag }}" -eq "false") {
-          $timestamp = Get-Date -Format "yyyyMMddHHmmss"
-          echo "version=$timestamp" >> $env:GITHUB_OUTPUT
-          echo "create_tag=true" >> $env:GITHUB_OUTPUT
-        } else {
-          echo "version=${{ steps.last-commit.outputs.tag_name }}" >> $env:GITHUB_OUTPUT
-          echo "create_tag=false" >> $env:GITHUB_OUTPUT
-        }
+        $version = Get-Content "version.txt" -Raw
+        $version = $version.Trim()
+        echo "version=$version" >> $env:GITHUB_OUTPUT
+        
+        # Update package.json version
+        $packageJson = Get-Content "package.json" -Raw | ConvertFrom-Json
+        $packageJson.version = $version
+        $packageJson | ConvertTo-Json -Depth 10 | Set-Content "package.json"
+        
+        # Update Cargo.toml version
+        $cargoToml = Get-Content "src-tauri/Cargo.toml" -Raw
+        $cargoToml = $cargoToml -replace 'version = ".*?"', "version = `"$version`""
+        Set-Content "src-tauri/Cargo.toml" $cargoToml
+        
+        echo "Updated package.json and Cargo.toml with version: $version"
 
-    - name: Create Release
-      if: steps.version.outputs.create_tag == 'true'
-      uses: softprops/action-gh-release@v1
-      with:
-        tag_name: ${{ steps.version.outputs.version }}
-        name: Release ${{ steps.version.outputs.version }}
-        generate_release_notes: true
-        draft: false
-        prerelease: false
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Check if release exists and has asset
+    - name: Check if release exists
       id: check-release
       uses: actions/github-script@v7
       with:
         script: |
+          try {
             const release = await github.rest.repos.getReleaseByTag({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -67,9 +47,27 @@ jobs:
             const hasAsset = release.data.assets.some(asset => 
               asset.name === 'mflow-tauri-app.exe'
             );
+            
+            core.setOutput('release_exists', 'true');
             core.setOutput('has_asset', hasAsset.toString());
             core.setOutput('release_id', release.data.id.toString());
             core.setOutput('upload_url', release.data.upload_url);
+          } catch (error) {
+            core.setOutput('release_exists', 'false');
+            core.setOutput('has_asset', 'false');
+          }
+
+    - name: Create Release
+      if: steps.check-release.outputs.release_exists != 'true'
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ steps.version.outputs.version }}
+        name: Release ${{ steps.version.outputs.version }}
+        generate_release_notes: true
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
          
 
     - name: Setup Node.js
@@ -97,7 +95,7 @@ jobs:
         yarn tauri build
 
     - name: Upload asset to existing release
-      if: steps.check-release.outputs.has_asset != 'true'
+      if: steps.check-release.outputs.release_exists == 'true' && steps.check-release.outputs.has_asset != 'true'
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
