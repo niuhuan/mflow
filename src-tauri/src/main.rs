@@ -1,5 +1,5 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
-#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+// #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use base64::Engine;
 use std::path::Path;
@@ -10,6 +10,10 @@ use winreg::enums::*;
 use winreg::RegKey;
 
 mod config;
+
+// if release
+#[cfg(not(debug_assertions))]
+mod win;
 
 #[tauri::command]
 async fn daily_mission() -> Result<(), ()> {
@@ -342,6 +346,14 @@ pub(crate) fn join_paths<P: AsRef<Path>>(paths: Vec<P>) -> String {
 }
 
 fn main() {
+    #[cfg(not(debug_assertions))]
+    {
+        if !win::is_elevated() {
+            win::run_as_admin();
+            return;
+        }
+    }
+
     tracing_subscriber::fmt()
     .with_max_level(tracing::Level::INFO)
     .with_test_writer()

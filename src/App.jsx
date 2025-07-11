@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import BlocklyComponent from './components/BlocklyComponent';
 import './blocks/customBlocks';
 import './blocks/generators';
@@ -116,14 +116,14 @@ function App() {
     </xml>
   `;
 
-  const [code, setCode] = useState<string>('');
-  const [consoleMessages, setConsoleMessages] = useState<string[]>([]);
-  const [init, setInit] = useState<number>(0);
-  const [filePath, setFilePath] = useState<string>('');
-  const [fileContent, setFileContent] = useState<string>(initialXml);
-  const [isRunning, setIsRunning] = useState<boolean>(false);
+  const [code, setCode] = useState('');
+  const [consoleMessages, setConsoleMessages] = useState([]);
+  const [init, setInit] = useState(0);
+  const [filePath, setFilePath] = useState('');
+  const [fileContent, setFileContent] = useState(initialXml);
+  const [isRunning, setIsRunning] = useState(false);
 
-  const saveToFile = async (xmlContent: string) => {
+  const saveToFile = async (xmlContent) => {
     if (filePath) {
       await writeTextFile(filePath, xmlContent);
       putConsoleMessage(`> 保存到文件: ${filePath}`);
@@ -136,7 +136,7 @@ function App() {
     await saveToFile(xmlText);
   }
 
-  const openFromPath = async (path: string) => {
+  const openFromPath = async (path) => {
     if (!await exists(path)) {
       await writeTextFile(path, initialXml);
     }
@@ -148,7 +148,7 @@ function App() {
     setInit(100);
   }
 
-  const initFromTemaplate = async (path: string, template: string) => {
+  const initFromTemaplate = async (path, template) => {
     await writeTextFile(path, template);
     const fileContent = await readTextFile(path);
     setFilePath(path);
@@ -158,7 +158,7 @@ function App() {
     setInit(100);
   }
 
-  const putConsoleMessage = (message: string) => {
+  const putConsoleMessage = (message) => {
     const datetime = new Date().toLocaleString();
     message = `${datetime} ${message}`;
     setConsoleMessages(prev => prev.length > 100 ? [...prev.slice(1), message] : [...prev, message]);
@@ -172,7 +172,7 @@ function App() {
 
     setIsRunning(true);
 
-    const log = (message: string) => {
+    const log = (message) => {
       putConsoleMessage(message);
     }
 
@@ -210,18 +210,20 @@ function App() {
       return;
     }
 
-    const loadAccount = async (name: string) => {
+    const loadAccount = async (name) => {
       log('加载账号数据: ' + name);
       await invoke('load_account', { name: name });
     }
+    window['loadAccount'] = loadAccount;
 
-    const saveAccount = async (name: string) => {
+    const saveAccount = async (name) => {
       log('保存账号数据: ' + name);
       await invoke('save_account', { name: name });
     }
+    window['saveAccount'] = saveAccount;
 
-    const wait = (timeValue: number, timeUnit: string = 'SECONDS') => {
-      return new Promise<void>(resolve => {
+    const wait = (timeValue, timeUnit = 'SECONDS') => {
+      return new Promise(resolve => {
         let seconds = timeValue;
         let unitText = '秒';
 
@@ -246,37 +248,43 @@ function App() {
         }, seconds * 1000);
       });
     }
+    window['wait'] = wait;
 
     const dailyMission = async () => {
       log('执行每日任务...');
       await invoke('daily_mission');
     }
+    window['dailyMission'] = dailyMission;
 
     const refreshStamina = async () => {
       log('刷体力...');
       await invoke('refresh_stamina');
     }
+    window['refreshStamina'] = refreshStamina;
 
     const simulatedUniverse = async () => {
       log('执行模拟宇宙...');
       await invoke('simulated_universe');
     }
+    window['simulatedUniverse'] = simulatedUniverse;
 
     const farming = async () => {
       log('锄大地...');
       await invoke('farming');
     }
+    window['farming'] = farming;
 
     const closeGame = async () => {
       log('关闭游戏...');
       await invoke('close_game');
     }
+    window['closeGame'] = closeGame;
 
     const execute = async () => {
       try {
         await eval(`(async () => { ${codeToRun} })()`);
         log('运行完成。');
-      } catch (e: any) {
+      } catch (e) {
         log('运行失败: ' + e);
       } finally {
         setIsRunning(false);

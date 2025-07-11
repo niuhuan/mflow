@@ -30,6 +30,8 @@ function OpenSaveProject({ goSetting, goExport, openFromPath, initFromTemaplate 
             default:
                 return;
         }
+
+        console.log(templateName);
         
         const path = await save({
             filters: [

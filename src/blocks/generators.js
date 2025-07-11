@@ -8,39 +8,39 @@ javascriptGenerator.forBlock['start_flow'] = function(block) {
 
 javascriptGenerator.forBlock['load_account'] = function(block) {
   var accountName = javascriptGenerator.valueToCode(block, 'ACCOUNT_NAME', Order.ATOMIC) || "''";
-  var code = `await loadAccount(${accountName});\n`;
+  var code = `await window.loadAccount(${accountName});\n`;
   return code;
 };
 
 javascriptGenerator.forBlock['save_account'] = function(block) {
   var saveName = javascriptGenerator.valueToCode(block, 'SAVE_NAME', Order.ATOMIC) || "''";
-  return `await saveAccount(${saveName});\n`;
+  return `await window.saveAccount(${saveName});\n`;
 };
 
 javascriptGenerator.forBlock['wait_seconds'] = function(block) {
   var timeValue = block.getFieldValue('TIME_VALUE');
   var timeUnit = block.getFieldValue('TIME_UNIT');
-  return `await wait(${timeValue}, '${timeUnit}');\n`;
+  return `await window.wait(${timeValue}, '${timeUnit}');\n`;
 };
 
 javascriptGenerator.forBlock['daily_mission'] = function(block) {
-  return 'await dailyMission();\n';
+  return 'await window.dailyMission();\n';
 };
 
 javascriptGenerator.forBlock['refresh_stamina'] = function(block) {
-  return 'await refreshStamina();\n';
+  return 'await window.refreshStamina();\n';
 };
 
 javascriptGenerator.forBlock['simulated_universe'] = function(block) {
-  return 'await simulatedUniverse();\n';
+  return 'await window.simulatedUniverse();\n';
 };
 
 javascriptGenerator.forBlock['farming'] = function(block) {
-  return 'await farming();\n';
+  return 'await window.farming();\n';
 };
 
 javascriptGenerator.forBlock['close_game'] = function(block) {
-  return 'closeGame();\n';
+  return 'await window.closeGame();\n';
 };
 
 javascriptGenerator.forBlock['controls_whileUntil'] = function(block) {
@@ -71,7 +71,8 @@ javascriptGenerator.forBlock['logic_negate'] = function(block) {
 };
 
 javascriptGenerator.forBlock['logic_compare'] = function(block) {
-  var OPERATORS: { [key: string]: string } = {
+  // : { [key: string]: string }
+  var OPERATORS = {
     'EQ': '==',
     'NEQ': '!=',
     'LT': '<',

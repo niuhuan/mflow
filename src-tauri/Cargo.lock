@@ -2033,6 +2033,7 @@ dependencies = [
  "tokio",
  "tracing",
  "tracing-subscriber",
+ "winapi",
  "winreg 0.52.0",
 ]
 
