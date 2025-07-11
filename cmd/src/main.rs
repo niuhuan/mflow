@@ -40,10 +40,12 @@ fn to_wide(s: &str) -> Vec<u16> {
 
 fn run_as_admin() {
     let exe_path = env::current_exe().unwrap();
-    let exe_str = exe_path.to_str().unwrap();
-
-    // 收集当前命令行参数（不包括程序名）
-    let args: Vec<String> = env::args().skip(1).collect();
+    let mut exe_str = exe_path.to_str().unwrap();
+    let mut args: Vec<String> = env::args().skip(1).collect();
+    if where_wt_exe() {
+        args.insert(0, exe_str.to_string());
+        exe_str = "wt.exe";
+    }
     let args_joined = args.join(" ");
 
     let operation = to_wide("runas");
@@ -64,6 +66,17 @@ fn run_as_admin() {
             SW_SHOW,
         );
     }
+}
+
+fn where_wt_exe() -> bool {
+    let mut cmd = process::Command::new("where");
+    cmd.arg("wt.exe");
+    cmd.stdin(process::Stdio::inherit());
+    cmd.stdout(process::Stdio::inherit());
+    cmd.stderr(process::Stdio::inherit());
+    let mut child = cmd.spawn().expect("failed to spawn process");
+    let status = child.wait().expect("failed to wait on child");
+    status.success()
 }
 
 fn main() {
