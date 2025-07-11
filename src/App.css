@@ -176,3 +176,9 @@ body, #root {
   margin: 0;
   padding: 2px 0;
 }
+
+.scrollRoot {
+  height: 100%;
+  width: 100%;
+  overflow-y: auto;
+}

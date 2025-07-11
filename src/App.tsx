@@ -300,9 +300,9 @@ function App() {
     }} />;
   }
   if (init === 70) {
-    return <AppExport backToOpenSaveProject={() => {
+    return <div className='scrollRoot'> <AppExport backToOpenSaveProject={() => {
       setInit(20);
-    }} />;
+    }} /> </div>;
   }
 
   if (init === 100) {
