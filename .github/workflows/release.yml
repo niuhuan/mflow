@@ -27,7 +27,7 @@ jobs:
         
         # Update Cargo.toml version
         $cargoToml = Get-Content "src-tauri/Cargo.toml" -Raw
-        $cargoToml = $cargoToml -replace 'version = ".*?"', "version = `"$version`""
+        $cargoToml = $cargoToml -replace 'version = "0.0.0"', "version = `"$version`""
         Set-Content "src-tauri/Cargo.toml" $cargoToml
         
         echo "Updated package.json and Cargo.toml with version: $version"
