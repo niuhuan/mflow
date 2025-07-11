@@ -91,6 +91,12 @@ button {
   outline: none;
 }
 
+button:disabled {
+  border-color: #ccc;
+  background-color: #f0f0f0;
+  cursor: not-allowed;
+}
+
 #greet-input {
   margin-right: 5px;
 }

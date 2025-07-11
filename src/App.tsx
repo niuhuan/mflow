@@ -120,6 +120,7 @@ function App() {
   const [init, setInit] = useState<number>(0);
   const [filePath, setFilePath] = useState<string>('');
   const [fileContent, setFileContent] = useState<string>(initialXml);
+  const [isRunning, setIsRunning] = useState<boolean>(false);
 
   const saveToFile = async (xmlContent: string) => {
     if (filePath) {
@@ -165,12 +166,16 @@ function App() {
   }
 
   const runCode = async () => {
+
+    setIsRunning(true);
+
     const log = (message: string) => {
       putConsoleMessage(message);
     }
 
     const workspace = Blockly.getMainWorkspace();
     if (!workspace) {
+      setIsRunning(false);
       return;
     }
 
@@ -181,10 +186,12 @@ function App() {
     const startBlocks = workspace.getBlocksByType('start_flow', false);
     if (startBlocks.length === 0) {
       log('执行失败: 找不到"开始"积木。');
+      setIsRunning(false);
       return;
     }
     if (startBlocks.length > 1) {
       log('执行失败: 只能有一个"开始"积木，请移除多余的。');
+      setIsRunning(false);
       return;
     }
 
@@ -196,6 +203,7 @@ function App() {
     const cfg = await load_backend_config();
     if (!cfg.m7_source_path) {
       log('执行失败: 三月七小助手源代码路径未设置。');
+      setIsRunning(false);
       return;
     }
 
@@ -249,6 +257,8 @@ function App() {
         log('运行完成。');
       } catch (e: any) {
         log('运行失败: ' + e.message);
+      } finally {
+        setIsRunning(false);
       }
     }
 
@@ -309,7 +319,7 @@ function App() {
     return (
       <div id="boo">
         <div id="top" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <button onClick={async () => {
+          <button disabled={isRunning} onClick={async () => {
             frontendConfig.lastFile = '';
             await saveConfig();
             setInit(20);
@@ -318,12 +328,12 @@ function App() {
           </button>
           <input type="text" value={filePath} disabled={true}
             style={{ flexGrow: 1, border: 'none', outline: 'none', backgroundColor: 'transparent' }} />
-          <button onClick={() => {
+          <button disabled={isRunning} onClick={() => {
             saveFlow();
           }}>
             保存
           </button>
-          <button onClick={() => {
+          <button disabled={isRunning} onClick={() => {
             setInit(30);
           }}>
             配置
@@ -334,7 +344,9 @@ function App() {
             <BlocklyComponent initialXml={fileContent} toolboxXml={toolboxXml} />
           </div>
           <div className="controls-container">
-            <button onClick={runCode} className="run-button">保存并运行</button>
+            <button onClick={runCode} className="run-button" disabled={isRunning} >
+              {isRunning ? '运行中...' : '保存并运行'}
+            </button>
             <div className="console">
               {consoleMessages.map((msg, i) => <p key={i}>{msg}</p>)}
             </div>
