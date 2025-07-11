@@ -1,7 +1,11 @@
-# Tauri + React + Typescript
+# 三月七小助手工作流
 
-This template should help get you started developing with Tauri, React and Typescript in Vite.
+三月七小助手工作流, 主要解决多账号任务编排问题
 
-## Recommended IDE Setup
+#### 相关项目
 
-- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+- [三月七小助手(March7thAssistant)](https://github.com/moesnow/March7thAssistant)
+
+## 截图
+
+![main.png](images/main.png)
