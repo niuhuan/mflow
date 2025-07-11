@@ -9,7 +9,9 @@
     "preview": "vite preview",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
-    "cmd": "cargo run --manifest-path .\\cmd\\Cargo.toml -- --dev"
+    "cmd": "cargo run --manifest-path .\\cmd\\Cargo.toml -- --dev",
+    "cmd:build": "cargo build --release --manifest-path .\\cmd\\Cargo.toml",
+    "copybuild": "powershell /c if (!(test-path -path build)) {new-item -path build -itemtype directory} && powershell /c cp .\\cmd\\target\\release\\mflow-cmd.exe .\\build\\ && powershell /c cp .\\src-tauri\\target\\release\\mflow-tauri-app.exe .\\build\\"
   },
   "dependencies": {
     "@tauri-apps/api": "^2",
