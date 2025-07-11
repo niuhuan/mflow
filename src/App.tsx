@@ -125,8 +125,8 @@ function App() {
 
   const saveToFile = async (xmlContent: string) => {
     if (filePath) {
-      setConsoleMessages(prev => [...prev, `> 保存到文件: ${filePath}`]);
       await writeTextFile(filePath, xmlContent);
+      putConsoleMessage(`> 保存到文件: ${filePath}`);
     }
   }
 
@@ -159,6 +159,8 @@ function App() {
   }
 
   const putConsoleMessage = (message: string) => {
+    const datetime = new Date().toLocaleString();
+    message = `${datetime} ${message}`;
     setConsoleMessages(prev => prev.length > 100 ? [...prev.slice(1), message] : [...prev, message]);
     const consoleContainer = document.querySelector('.console');
     if (consoleContainer) {
@@ -208,21 +210,21 @@ function App() {
       return;
     }
 
-    const loadAccount = (name: string) => {
+    const loadAccount = async (name: string) => {
       log('加载账号数据: ' + name);
-      return invoke('load_account', { name });
+      await invoke('load_account', { name: name });
     }
 
-    const saveAccount = (name: string) => {
+    const saveAccount = async (name: string) => {
       log('保存账号数据: ' + name);
-      return invoke('save_account', { name });
+      await invoke('save_account', { name: name });
     }
 
     const wait = (timeValue: number, timeUnit: string = 'SECONDS') => {
       return new Promise<void>(resolve => {
         let seconds = timeValue;
         let unitText = '秒';
-        
+
         switch (timeUnit) {
           case 'MINUTES':
             seconds = timeValue * 60;
@@ -236,7 +238,7 @@ function App() {
             unitText = '秒';
             break;
         }
-        
+
         log(`等待 ${timeValue} ${unitText}...`);
         setTimeout(() => {
           log(`等待完成。`);
@@ -245,29 +247,29 @@ function App() {
       });
     }
 
-    const dailyMission = () => {
+    const dailyMission = async () => {
       log('执行每日任务...');
-      return invoke('daily_mission');
+      await invoke('daily_mission');
     }
 
-    const refreshStamina = () => {
+    const refreshStamina = async () => {
       log('刷体力...');
-      return invoke('refresh_stamina');
+      await invoke('refresh_stamina');
     }
 
-    const simulatedUniverse = () => {
+    const simulatedUniverse = async () => {
       log('执行模拟宇宙...');
-      return invoke('simulated_universe');
+      await invoke('simulated_universe');
     }
 
-    const farming = () => {
+    const farming = async () => {
       log('锄大地...');
-      return invoke('farming');
+      await invoke('farming');
     }
 
-    const closeGame = () => {
+    const closeGame = async () => {
       log('关闭游戏...');
-      return invoke('close_game');
+      await invoke('close_game');
     }
 
     const execute = async () => {
@@ -275,7 +277,7 @@ function App() {
         await eval(`(async () => { ${codeToRun} })()`);
         log('运行完成。');
       } catch (e: any) {
-        log('运行失败: ' + e.message);
+        log('运行失败: ' + e);
       } finally {
         setIsRunning(false);
       }
@@ -303,7 +305,7 @@ function App() {
   if (init === 20) {
     return <OpenSaveProject goSetting={() => {
       setInit(40);
-    }}  goExport={async () => {
+    }} goExport={async () => {
       const bc = await load_backend_config();
       if (!bc.m7_source_path) {
         alert('三月七小助手源代码路径未设置。');
