@@ -219,8 +219,8 @@ function App() {
 
     const wait = (seconds: number) => {
       return new Promise<void>(resolve => {
+        log(`Waited for ${seconds} second(s).`);
         setTimeout(() => {
-          log(`Waited for ${seconds} second(s).`);
           resolve();
         }, seconds * 1000);
       });
