@@ -118,6 +118,7 @@ function App() {
         <block type="math_number">
           <field name="NUM">0</field>
         </block>
+        <block type="current_hour_24"></block>
         <block type="text"></block>
       </category>
       <sep></sep>

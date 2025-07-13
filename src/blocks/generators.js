@@ -126,3 +126,8 @@ javascriptGenerator.forBlock['math_number'] = function(block) {
   var code = String(block.getFieldValue('NUM'));
   return [code, Order.ATOMIC];
 };
+
+javascriptGenerator.forBlock['current_hour_24'] = function(block) {
+  var code = 'new Date().getHours()';
+  return [code, Order.ATOMIC];
+};

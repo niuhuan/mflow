@@ -301,6 +301,14 @@ Blockly.defineBlocksWithJsonArray([
     "helpUrl": ""
   },
   {
+    "type": "current_hour_24",
+    "message0": "当前时间取小时(24H)",
+    "output": "Number",
+    "colour": 160,
+    "tooltip": "获取当前时间的小时数（24小时制）",
+    "helpUrl": ""
+  },
+  {
     "type": "run_better_gi",
     "message0": "运行BetterGI一条龙",
     "previousStatement": null,
