@@ -211,7 +211,7 @@ function App() {
     log('开始运行...');
 
     const cfg = await load_backend_config();
-    if (!cfg.m7_source_path) {
+    if (!cfg.m7_path) {
       log('执行失败: 三月七小助手源代码路径未设置。');
       setIsRunning(false);
       return;
@@ -340,7 +340,7 @@ function App() {
       setInit(40);
     }} goExport={async () => {
       const bc = await load_backend_config();
-      if (!bc.m7_source_path) {
+      if (!bc.m7_path) {
         alert('三月七小助手源代码路径未设置。');
         return;
       }

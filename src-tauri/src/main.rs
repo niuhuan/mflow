@@ -183,15 +183,12 @@ async fn save_backend_config(config: config::BackendConfig) -> Result<(), String
 
 async fn run_m7f_command(command: &str) -> Result<(), String> {
     let config = config::load_config().await?;
-    let work_dir = config.m7_source_path;
-    let python_cmd = if config.python_path.is_empty() {
-        "python.exe"
-    } else {
-        config.python_path.as_str()
-    };
-    let python_script = "main.py";
-    let mut cmd = tokio::process::Command::new(python_cmd);
-    cmd.arg(python_script);
+    let work_dir = config.m7_path;
+    let bin = "March7th Assistant.exe";
+    tracing::info!("后台日志: 正在运行命令... {} {} {}", work_dir, bin, command);
+    let mut cmd = tokio::process::Command::new("cmd");
+    cmd.arg("/c");
+    cmd.arg(bin);
     cmd.arg(command);
     cmd.current_dir(work_dir);
     cmd.stdin(Stdio::piped());
@@ -302,10 +299,10 @@ async fn load_account(name: String) -> Result<(), String> {
     tracing::info!("后台日志: 正在加载账号 '{}'...", name);
     let config = config::load_config().await?;
 
-    let m7_source_path = config.m7_source_path;
-    let src_config_path = format!("{}/config.yaml", m7_source_path);
+    let m7_path = config.m7_path;
+    let src_config_path = format!("{}/config.yaml", m7_path);
 
-    let account_folder = format!("{}/m7f_accounts/{}", m7_source_path, name);
+    let account_folder = format!("{}/m7f_accounts/{}", m7_path, name);
     let config_path = format!("{}/config.yaml", account_folder);
     let reg_path = format!("{}/account.reg", account_folder);
 
@@ -341,20 +338,20 @@ async fn export_account_a(
 ) -> Result<(), String> {
     let uid = get_account_uid().await.map_err(|_| "获取账号UID失败".to_string())?;
     let config = config::load_config().await?;
-    let m7_source_path = config.m7_source_path;
-    let account_folder = format!("{}/m7f_accounts/{}", m7_source_path, account_name);
+    let m7_path = config.m7_path;
+    let account_folder = format!("{}/m7f_accounts/{}", m7_path, account_name);
     tokio::fs::create_dir_all(&account_folder)
         .await
         .map_err(|_| "创建账号文件夹失败".to_string())?;
     let reg_path = format!("{}/account.reg", account_folder);
     export_reg(reg_path.as_str()).await.map_err(|_| "导出注册表失败".to_string())?;
-    let src_config_path = format!("{}/config.yaml", m7_source_path);
+    let src_config_path = format!("{}/config.yaml", m7_path);
     let config_path = format!("{}/config.yaml", account_folder);
     tokio::fs::copy(src_config_path, config_path)
         .await
         .map_err(|_| "复制配置文件失败".to_string())?;
     if username.len() > 0 && password.len() > 0 {
-        let data_dir = format!("{}/settings/accounts", m7_source_path);
+        let data_dir = format!("{}/settings/accounts", m7_path);
         let data_reg_path = format!("{}/{}.reg", data_dir, uid);
         tokio::fs::copy(reg_path, data_reg_path)
             .await

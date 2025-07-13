@@ -4,9 +4,7 @@ use crate::join_paths;
 #[derive(Serialize, Deserialize, Clone, Debug, Default)]
 pub struct BackendConfig {
     #[serde(default)]
-    pub m7_source_path: String,
-    #[serde(default)]
-    pub python_path: String,
+    pub m7_path: String,
     #[serde(default)]
     pub better_gi_path: String,
 }

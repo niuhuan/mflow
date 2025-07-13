@@ -33,8 +33,7 @@ export async function save_backend_config(config: BackendConfig) {
 }   
 
 export interface BackendConfig {
-    m7_source_path: string;
-    python_path: string;
+    m7_path: string;
     better_gi_path: string;
 }
 
