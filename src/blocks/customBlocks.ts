@@ -286,6 +286,21 @@ Blockly.defineBlocksWithJsonArray([
     "helpUrl": ""
   },
   {
+    "type": "math_number",
+    "message0": "%1",
+    "args0": [
+      {
+        "type": "field_number",
+        "name": "NUM",
+        "value": 0
+      }
+    ],
+    "output": "Number",
+    "colour": 160,
+    "tooltip": "整数数值",
+    "helpUrl": ""
+  },
+  {
     "type": "run_better_gi",
     "message0": "运行BetterGI一条龙",
     "previousStatement": null,

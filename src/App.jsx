@@ -114,7 +114,10 @@ function App() {
           </value>
         </block>
       </category>
-       <category name="文本" colour="160">
+       <category name="数值" colour="160">
+        <block type="math_number">
+          <field name="NUM">0</field>
+        </block>
         <block type="text"></block>
       </category>
       <sep></sep>
