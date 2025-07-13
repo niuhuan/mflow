@@ -111,3 +111,13 @@ javascriptGenerator.forBlock['custom_parameter'] = function(block) {
 javascriptGenerator.forBlock['run_better_gi'] = function(block) {
   return 'await window.runBetterGi();\n';
 };
+
+javascriptGenerator.forBlock['export_gi_account'] = function(block) {
+  var accountName = javascriptGenerator.valueToCode(block, 'ACCOUNT_NAME', Order.ATOMIC) || "''";
+  return `await window.exportGiAccount(${accountName});\n`;
+};
+
+javascriptGenerator.forBlock['import_gi_account'] = function(block) {
+  var accountName = javascriptGenerator.valueToCode(block, 'ACCOUNT_NAME', Order.ATOMIC) || "''";
+  return `await window.importGiAccount(${accountName});\n`;
+};

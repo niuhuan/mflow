@@ -344,7 +344,7 @@ async fn export_account_a(
         .await
         .map_err(|_| "创建账号文件夹失败".to_string())?;
     let reg_path = format!("{}/account.reg", account_folder);
-    export_reg(reg_path.as_str()).await.map_err(|_| "导出注册表失败".to_string())?;
+    export_reg( "HKEY_CURRENT_USER\\SOFTWARE\\miHoYo\\崩坏：星穹铁道", reg_path.as_str()).await.map_err(|_| "导出注册表失败".to_string())?;
     let src_config_path = format!("{}/config.yaml", m7_path);
     let config_path = format!("{}/config.yaml", account_folder);
     tokio::fs::copy(src_config_path, config_path)
@@ -367,6 +367,69 @@ async fn export_account_a(
             .map_err(|_| "写入账号名称失败".to_string())?;
     }
     Ok(())
+}
+
+#[tauri::command]
+async fn export_gi_account(account_name: String) -> Result<(), String> {
+    let config = config::load_config().await?;
+    let better_gi_path = config.better_gi_path;
+    let account_folder = format!("{}/m7f_accounts/{}", better_gi_path, account_name);
+    tokio::fs::create_dir_all(&account_folder)
+        .await
+        .map_err(|_| "创建账号文件夹失败".to_string())?;
+    let reg_path = format!("{}/account.reg", account_folder);
+    export_reg( "HKEY_CURRENT_USER\\SOFTWARE\\miHoYo\\原神", reg_path.as_str()).await.map_err(|_| "导出注册表失败".to_string())?;
+    let src_config_path = format!("{}/User", better_gi_path);
+    let config_path = format!("{}/User.zip", account_folder);
+    zip_dir(&src_config_path, &config_path).await.map_err(|_| "复制配置文件失败".to_string())?;
+    Ok(())
+}
+
+#[tauri::command]
+async fn import_gi_account(account_name: String) -> Result<(), String> {
+    let config = config::load_config().await?;
+    let better_gi_path = config.better_gi_path;
+    let account_folder = format!("{}/m7f_accounts/{}", better_gi_path, account_name);
+    let config_path = format!("{}/User.zip", account_folder);
+    unzip_file(config_path.as_str(), better_gi_path.as_str()).await.map_err(|_| "解压文件失败".to_string())?;
+    let reg_path = format!("{}/account.reg", account_folder);
+    import_reg(reg_path.as_str()).await?;
+    Ok(())
+}
+
+async fn zip_dir(src_path: &str, dest_path: &str) -> Result<(), String> {
+    let mut cmd = tokio::process::Command::new("powershell");
+    cmd.arg("Compress-Archive")
+        .arg("-Path")
+        .arg(src_path)
+        .arg("-DestinationPath")
+        .arg(dest_path)
+        .arg("-Force");
+    let output = cmd.output().await.map_err(|e| format!("压缩文件夹失败: {}", e))?;
+    tracing::info!("{}", String::from_utf8_lossy(&output.stdout));
+    tracing::info!("{}", String::from_utf8_lossy(&output.stderr));
+    if output.status.success() {
+        Ok(())
+    } else {
+        Err("压缩文件夹失败".to_string())
+    }
+}
+
+async fn unzip_file(zip_path: &str, dest_path: &str) -> Result<(), String> {
+    let mut cmd = tokio::process::Command::new("powershell");
+    cmd.arg("Expand-Archive")
+        .arg("-Path")
+        .arg(zip_path)
+        .arg("-DestinationPath")
+        .arg(dest_path);
+    let output = cmd.output().await.map_err(|e| format!("解压文件失败: {}", e))?;
+    tracing::info!("{}", String::from_utf8_lossy(&output.stdout));
+    tracing::info!("{}", String::from_utf8_lossy(&output.stderr));
+    if output.status.success() {
+        Ok(())
+    } else {
+        Err("解压文件失败".to_string())
+    }
 }
 
 fn xor_encrypt_to_base64(plaintext: String) -> String {
@@ -400,13 +463,11 @@ def xor_encrypt_to_base64(plaintext: str) -> str:
     return base64_encoded
 */
 
-async fn export_reg(reg_path: &str) -> Result<(), String> {
+async fn export_reg(vp: &str,reg_path: &str) -> Result<(), String> {
     // "REG", "EXPORT", "HKEY_CURRENT_USER\\SOFTWARE\\miHoYo\\崩坏：星穹铁道", path, "/y
     let mut cmd = tokio::process::Command::new("REG");
     cmd.arg("EXPORT")
-        .arg(format!(
-            "HKEY_CURRENT_USER\\SOFTWARE\\miHoYo\\崩坏：星穹铁道"
-        ))
+        .arg(vp)
         .arg(reg_path)
         .arg("/y");
     let output = cmd.output().await.map_err(|e| format!("导出注册表失败: {}", e))?;
@@ -448,6 +509,8 @@ async fn clear_game_reg() -> Result<(), String> {
         Err(format!("清除游戏注册表失败: {}", stderr))
     }
 }
+
+
 
 pub(crate) fn join_paths<P: AsRef<Path>>(paths: Vec<P>) -> String {
     match paths.len() {
@@ -515,6 +578,21 @@ async fn task_exists(exe_name: &str) -> Result<bool, String> {
     Ok(std.to_ascii_lowercase().contains(exe_name.to_ascii_lowercase().as_str()))
 }
 
+#[tauri::command]
+async fn clear_gi_reg() -> Result<(), String> {
+    let mut cmd = tokio::process::Command::new("reg");
+    cmd.arg("delete")
+        .arg("HKEY_CURRENT_USER\\SOFTWARE\\miHoYo\\原神")
+        .arg("/f");
+    let output = cmd.output().await.map_err(|e| format!("清除原神注册表失败: {}", e))?;
+    if output.status.success() {
+        Ok(())
+    } else {
+        let stderr = decode_gbk(output.stderr).map_err(|e| e.to_string())?;
+        Err(format!("清除原神注册表失败: {}", stderr))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -522,6 +600,18 @@ mod tests {
     #[tokio::test]
     async fn test_task_exists() {
         let result = task_exists("BetterGI.exe").await;
+        println!("{:?}", result);
+    }
+
+    #[tokio::test]
+    async fn test_zip_dir() {
+        let result = zip_dir("D:\\Repositories\\BetterGI\\User", "D:\\Repositories\\BetterGI\\1\\User.zip").await;
+        println!("{:?}", result);
+    }
+
+    #[tokio::test]
+    async fn test_unzip_file() {
+        let result = unzip_file("D:\\Repositories\\BetterGI\\1\\User.zip", "D:\\Repositories\\BetterGI").await;
         println!("{:?}", result);
     }
 
@@ -566,6 +656,9 @@ fn main() {
             export_account,
             clear_game_reg,
             run_better_gi,
+            export_gi_account,
+            import_gi_account,
+            clear_gi_reg,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

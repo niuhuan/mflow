@@ -52,3 +52,15 @@ export async function clear_game_reg() {
 export async function run_better_gi() {
     return await invoke('run_better_gi');
 }
+
+export async function export_gi_account(accountName: string) {
+    return await invoke('export_gi_account', { accountName });
+}
+
+export async function import_gi_account(accountName: string) {
+    return await invoke('import_gi_account', { accountName });
+}
+
+export async function clear_gi_reg() {
+    return await invoke('clear_gi_reg');
+}

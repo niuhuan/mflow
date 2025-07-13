@@ -5,9 +5,9 @@
 #### 相关项目
 
 - [三月七小助手(March7thAssistant)](https://github.com/moesnow/March7thAssistant)
-- [更好的原神](https://github.com/babalae/better-genshin-impact)
+- [更好的原神(BetterGI)](https://github.com/babalae/better-genshin-impact)
 
-## 运行
+## 开发
 
 ### 环境
 

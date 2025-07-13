@@ -41,10 +41,24 @@ function App() {
         <block type="farming"></block>
         <block type="close_game"></block>
       </category>
-      <category name="原神" colour="230">
+      <category name="原神" colour="30">
         <block type="run_better_gi"></block>
+        <block type="export_gi_account">
+          <value name="ACCOUNT_NAME">
+            <shadow type="text">
+              <field name="TEXT">默认账号</field>
+            </shadow>
+          </value>
+        </block>
+        <block type="import_gi_account">
+          <value name="ACCOUNT_NAME">
+            <shadow type="text">
+              <field name="TEXT">默认账号</field>
+            </shadow>
+          </value>
+        </block>
       </category>
-      <category name="通用" colour="50">
+      <category name="通用" colour="80">
         <block type="wait_seconds">
           <field name="TIME_VALUE">1</field>
           <field name="TIME_UNIT">SECONDS</field>
@@ -64,7 +78,7 @@ function App() {
       <category name="集合" colour="260">
         <block type="lists_create_with"></block>
       </category>
-      <category name="逻辑" colour="210">
+      <category name="逻辑" colour="150">
         <block type="logic_boolean">
           <field name="BOOL">TRUE</field>
         </block>
@@ -105,7 +119,7 @@ function App() {
       </category>
       <sep></sep>
       <category name="变量" colour="%{BKY_VARIABLE_HUE}" custom="VARIABLE"></category>
-      <category name="函数" colour="290">
+      <category name="函数" colour="330">
         <block type="custom_function_def"></block>
         <block type="custom_function_call">
           <value name="ARGS">
@@ -210,21 +224,14 @@ function App() {
 
     log('开始运行...');
 
-    const cfg = await load_backend_config();
-    if (!cfg.m7_path) {
-      log('执行失败: 三月七小助手源代码路径未设置。');
-      setIsRunning(false);
-      return;
-    }
-
     const loadAccount = async (name) => {
-      log('加载账号数据: ' + name);
+      log('加载星铁账号数据: ' + name);
       await invoke('load_account', { name: name });
     }
     window['loadAccount'] = loadAccount;
 
     const saveAccount = async (name) => {
-      log('保存账号数据: ' + name);
+      log('保存星铁账号数据: ' + name);
       await invoke('save_account', { name: name });
     }
     window['saveAccount'] = saveAccount;
@@ -258,40 +265,52 @@ function App() {
     window['wait'] = wait;
 
     const dailyMission = async () => {
-      log('执行每日任务...');
+      log('执行星铁每日任务...');
       await invoke('daily_mission');
     }
     window['dailyMission'] = dailyMission;
 
     const refreshStamina = async () => {
-      log('刷体力...');
+      log('执行星铁刷体力...');
       await invoke('refresh_stamina');
     }
     window['refreshStamina'] = refreshStamina;
 
     const simulatedUniverse = async () => {
-      log('执行模拟宇宙...');
+      log('执行星铁模拟宇宙...');
       await invoke('simulated_universe');
     }
     window['simulatedUniverse'] = simulatedUniverse;
 
     const farming = async () => {
-      log('锄大地...');
+      log('执行星铁锄大地...');
       await invoke('farming');
     }
     window['farming'] = farming;
 
     const closeGame = async () => {
-      log('关闭游戏...');
+      log('关闭星铁...');
       await invoke('close_game');
     }
     window['closeGame'] = closeGame;
 
     const runBetterGi = async () => {
-      log('运行BetterGI一条龙...');
+      log('运行原神一条龙...');
       await invoke('run_better_gi');
     }
     window['runBetterGi'] = runBetterGi;
+
+    const exportGiAccount = async (accountName) => {
+      log('导出原神账号: ' + accountName);
+      await invoke('export_gi_account', { accountName });
+    }
+    window['exportGiAccount'] = exportGiAccount;
+
+    const importGiAccount = async (accountName) => {
+      log('导入原神账号: ' + accountName);
+      await invoke('import_gi_account', { accountName });
+    }
+    window['importGiAccount'] = importGiAccount;
 
     const execute = async () => {
       try {

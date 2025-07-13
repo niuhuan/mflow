@@ -5,13 +5,13 @@ Blockly.defineBlocksWithJsonArray([
     "type": "start_flow",
     "message0": "开始",
     "nextStatement": null,
-    "colour": 230,
+    "colour": 430,
     "tooltip": "流程的开始节点",
     "helpUrl": ""
   },
   {
     "type": "load_account",
-    "message0": "加载星铁账号和配置 %1",
+    "message0": "载入星铁账号和配置 %1",
     "args0": [
       {
         "type": "input_value",
@@ -21,7 +21,7 @@ Blockly.defineBlocksWithJsonArray([
     ],
     "previousStatement": null,
     "nextStatement": null,
-    "colour": 20,
+    "colour": 250,
     "tooltip": "根据账号名称加载一个账号",
     "helpUrl": ""
   },
@@ -37,7 +37,7 @@ Blockly.defineBlocksWithJsonArray([
     ],
     "previousStatement": null,
     "nextStatement": null,
-    "colour": 20,
+    "colour": 250,
     "tooltip": "将当前状态保存为指定名称的存档",
     "helpUrl": ""
   },
@@ -63,13 +63,13 @@ Blockly.defineBlocksWithJsonArray([
     ],
     "previousStatement": null,
     "nextStatement": null,
-    "colour": 50,
+    "colour": 80,
     "tooltip": "暂停流程指定的时间",
     "helpUrl": ""
   },
   {
     "type": "daily_mission",
-    "message0": "每日任务",
+    "message0": "星铁每日任务",
     "previousStatement": null,
     "nextStatement": null,
     "colour": 230,
@@ -78,7 +78,7 @@ Blockly.defineBlocksWithJsonArray([
   },
   {
     "type": "refresh_stamina",
-    "message0": "刷体力",
+    "message0": "星铁刷体力",
     "previousStatement": null,
     "nextStatement": null,
     "colour": 230,
@@ -87,7 +87,7 @@ Blockly.defineBlocksWithJsonArray([
   },
   {
     "type": "simulated_universe",
-    "message0": "模拟宇宙",
+    "message0": "星铁模拟宇宙",
     "previousStatement": null,
     "nextStatement": null,
     "colour": 230,
@@ -96,7 +96,7 @@ Blockly.defineBlocksWithJsonArray([
   },
   {
     "type": "farming",
-    "message0": "锄大地",
+    "message0": "星铁锄大地",
     "previousStatement": null,
     "nextStatement": null,
     "colour": 230,
@@ -108,7 +108,7 @@ Blockly.defineBlocksWithJsonArray([
     "message0": "关闭星铁",
     "previousStatement": null,
     "nextStatement": null,
-    "colour": 10,
+    "colour": 250,
     "tooltip": "结束流程",
     "helpUrl": ""
   },
@@ -146,7 +146,7 @@ Blockly.defineBlocksWithJsonArray([
       }
     ],
     "output": "Boolean",
-    "colour": 210,
+    "colour": 150,
     "tooltip": "布尔值：真或假",
     "helpUrl": ""
   },
@@ -174,7 +174,7 @@ Blockly.defineBlocksWithJsonArray([
       }
     ],
     "output": "Boolean",
-    "colour": 210,
+    "colour": 150,
     "tooltip": "逻辑运算：且、或",
     "helpUrl": ""
   },
@@ -189,7 +189,7 @@ Blockly.defineBlocksWithJsonArray([
       }
     ],
     "output": "Boolean",
-    "colour": 210,
+    "colour": 150,
     "tooltip": "逻辑非运算",
     "helpUrl": ""
   },
@@ -221,7 +221,7 @@ Blockly.defineBlocksWithJsonArray([
       }
     ],
     "output": "Boolean",
-    "colour": 210,
+    "colour": 150,
     "tooltip": "比较两个值",
     "helpUrl": ""
   },
@@ -244,7 +244,7 @@ Blockly.defineBlocksWithJsonArray([
         "name": "DO"
       }
     ],
-    "colour": 290,
+    "colour": 330,
     "tooltip": "自定义函数定义，可填写参数名，用逗号分隔。",
     "helpUrl": "",
     "nextStatement": null,
@@ -264,7 +264,7 @@ Blockly.defineBlocksWithJsonArray([
         "name": "ARGS"
       }
     ],
-    "colour": 290,
+    "colour": 330,
     "tooltip": "调用自定义函数，参数用逗号分隔。",
     "helpUrl": "",
     "previousStatement": null,
@@ -281,7 +281,7 @@ Blockly.defineBlocksWithJsonArray([
       }
     ],
     "output": null,
-    "colour": 290,
+    "colour": 330,
     "tooltip": "引用函数参数",
     "helpUrl": ""
   },
@@ -290,8 +290,40 @@ Blockly.defineBlocksWithJsonArray([
     "message0": "运行BetterGI一条龙",
     "previousStatement": null,
     "nextStatement": null,
-    "colour": 230,
+    "colour": 30,
     "tooltip": "运行BetterGI一条龙",
+    "helpUrl": ""
+  },
+  {
+    "type": "export_gi_account",
+    "message0": "导出原神账号 %1",
+    "args0": [
+      {
+        "type": "input_value",
+        "name": "ACCOUNT_NAME",
+        "check": "String"
+      }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": 50,
+    "tooltip": "导出原神账号",
+    "helpUrl": ""
+  },
+  {
+    "type": "import_gi_account",
+    "message0": "导入原神账号 %1",
+    "args0": [
+      {
+        "type": "input_value",
+        "name": "ACCOUNT_NAME",
+        "check": "String"
+      }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": 50,
+    "tooltip": "导入原神账号",
     "helpUrl": ""
   }
 ]); 
