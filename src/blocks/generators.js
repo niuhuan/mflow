@@ -131,3 +131,9 @@ javascriptGenerator.forBlock['current_hour_24'] = function(block) {
   var code = 'new Date().getHours()';
   return [code, Order.ATOMIC];
 };
+
+javascriptGenerator.forBlock['wait_until_time'] = function(block) {
+  var hour = block.getFieldValue('HOUR');
+  var minute = block.getFieldValue('MINUTE');
+  return `await window.waitUntilTime(${hour}, ${minute});\n`;
+};

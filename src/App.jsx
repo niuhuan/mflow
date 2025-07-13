@@ -63,6 +63,10 @@ function App() {
           <field name="TIME_VALUE">1</field>
           <field name="TIME_UNIT">SECONDS</field>
         </block>
+        <block type="wait_until_time">
+          <field name="HOUR">4</field>
+          <field name="MINUTE">10</field>
+        </block>
       </category>
       <category name="循环" colour="120">
         <block type="controls_whileUntil"></block>
@@ -267,6 +271,27 @@ function App() {
       });
     }
     window['wait'] = wait;
+
+    const waitUntilTime = (targetHour, targetMinute) => {
+      return new Promise(resolve => {
+        const checkTime = () => {
+          const now = new Date();
+          const currentHour = now.getHours();
+          const currentMinute = now.getMinutes();
+          
+          if (currentHour === targetHour && currentMinute === targetMinute) {
+            log(`已到达指定时间 ${targetHour}:${targetMinute.toString().padStart(2, '0')}`);
+            resolve();
+          } else {
+            // log(`等待到 ${targetHour}:${targetMinute.toString().padStart(2, '0')}，当前时间 ${currentHour}:${currentMinute.toString().padStart(2, '0')}`);
+            setTimeout(checkTime, 60000); // 每分钟检查一次
+          }
+        };
+        
+        checkTime();
+      });
+    }
+    window['waitUntilTime'] = waitUntilTime;
 
     const dailyMission = async () => {
       log('执行星铁每日任务...');

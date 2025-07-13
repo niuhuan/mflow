@@ -309,6 +309,31 @@ Blockly.defineBlocksWithJsonArray([
     "helpUrl": ""
   },
   {
+    "type": "wait_until_time",
+    "message0": "等待到%1点%2分",
+    "args0": [
+      {
+        "type": "field_number",
+        "name": "HOUR",
+        "value": 4,
+        "min": 0,
+        "max": 23
+      },
+      {
+        "type": "field_number",
+        "name": "MINUTE",
+        "value": 10,
+        "min": 0,
+        "max": 59
+      }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": 80,
+    "tooltip": "等待到指定的时间点",
+    "helpUrl": ""
+  },
+  {
     "type": "run_better_gi",
     "message0": "运行BetterGI一条龙",
     "previousStatement": null,
