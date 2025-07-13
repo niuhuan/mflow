@@ -8,7 +8,7 @@ import './App.css';
 import { invoke } from '@tauri-apps/api/core';
 import OpenSaveProject from './OpenSaveProject';
 import { frontendConfig, loadConfig, saveConfig } from './config';
-import { exists, get_account_uid, load_backend_config, readTextFile, writeTextFile } from './fromTauri';
+import { exists, get_account_uid, load_backend_config, readTextFile, writeTextFile, get_version, get_new_version } from './fromTauri';
 import { AppConfig } from './AppConfig';
 import { AppExport } from './AppExport';
 
@@ -20,7 +20,7 @@ function App() {
 
   const toolboxXml = `
     <xml>
-      <category name="流程" colour="230">
+      <category name="星铁" colour="230">
         <block type="load_account">
           <value name="ACCOUNT_NAME">
             <shadow type="text">
@@ -39,13 +39,15 @@ function App() {
         <block type="refresh_stamina"></block>
         <block type="simulated_universe"></block>
         <block type="farming"></block>
+        <block type="close_game"></block>
+      </category>
+      <category name="通用" colour="50">
         <block type="wait_seconds">
           <field name="TIME_VALUE">1</field>
           <field name="TIME_UNIT">SECONDS</field>
         </block>
-        <block type="close_game"></block>
       </category>
-      <category name="循环控制" colour="120">
+      <category name="循环" colour="120">
         <block type="controls_whileUntil"></block>
         <block type="controls_repeat_ext">
           <value name="TIMES">
@@ -55,6 +57,9 @@ function App() {
           </value>
         </block>
         <block type="controls_forEach"></block>
+      </category>
+      <category name="集合" colour="260">
+        <block type="lists_create_with"></block>
       </category>
       <category name="逻辑" colour="210">
         <block type="logic_boolean">
@@ -92,9 +97,6 @@ function App() {
           </value>
         </block>
       </category>
-      <category name="列表" colour="260">
-        <block type="lists_create_with"></block>
-      </category>
        <category name="文本" colour="160">
         <block type="text"></block>
       </category>
@@ -116,6 +118,8 @@ function App() {
     </xml>
   `;
 
+  const [version, setVersion] = useState('');
+  const [newVersion, setNewVersion] = useState('');
   const [code, setCode] = useState('');
   const [consoleMessages, setConsoleMessages] = useState([]);
   const [init, setInit] = useState(0);
@@ -308,6 +312,18 @@ function App() {
       }
     };
     a();
+
+    const getVersion = async () => {
+      const version = await get_version();
+      setVersion(version);
+    }
+    getVersion();
+
+    const getNewVersion = async () => {
+      const newVersion = await get_new_version();
+      setNewVersion(newVersion);
+    }
+    getNewVersion();
   }, []);
 
   if (init === 20) {
@@ -325,7 +341,7 @@ function App() {
       } catch (e) {
         alert('获取账号UID失败。');
       }
-    }} openFromPath={openFromPath} initFromTemaplate={initFromTemaplate} />;
+    }} openFromPath={openFromPath} initFromTemaplate={initFromTemaplate} version={version} newVersion={newVersion} />;
   }
 
   if (init === 30) {

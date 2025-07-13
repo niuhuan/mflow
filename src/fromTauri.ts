@@ -1,5 +1,13 @@
 import { invoke } from "@tauri-apps/api/core";
 
+export async function get_version() {
+    return await invoke('get_version') as string;
+}
+
+export async function get_new_version() {
+    return await invoke('get_new_version') as string | null;
+}
+
 export async function exists(path: string) {
     return await invoke('exists', { path });
 }

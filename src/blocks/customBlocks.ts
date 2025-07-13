@@ -11,7 +11,7 @@ Blockly.defineBlocksWithJsonArray([
   },
   {
     "type": "load_account",
-    "message0": "加载账号 %1",
+    "message0": "加载星铁账号和配置 %1",
     "args0": [
       {
         "type": "input_value",
@@ -21,13 +21,13 @@ Blockly.defineBlocksWithJsonArray([
     ],
     "previousStatement": null,
     "nextStatement": null,
-    "colour": 120,
+    "colour": 20,
     "tooltip": "根据账号名称加载一个账号",
     "helpUrl": ""
   },
   {
     "type": "save_account",
-    "message0": "保存账号数据 %1",
+    "message0": "保存星铁账号和配置 %1",
     "args0": [
       {
         "type": "input_value",
@@ -37,7 +37,7 @@ Blockly.defineBlocksWithJsonArray([
     ],
     "previousStatement": null,
     "nextStatement": null,
-    "colour": 160,
+    "colour": 20,
     "tooltip": "将当前状态保存为指定名称的存档",
     "helpUrl": ""
   },
@@ -72,7 +72,7 @@ Blockly.defineBlocksWithJsonArray([
     "message0": "每日任务",
     "previousStatement": null,
     "nextStatement": null,
-    "colour": 290,
+    "colour": 230,
     "tooltip": "执行每日任务流程",
     "helpUrl": ""
   },
@@ -81,7 +81,7 @@ Blockly.defineBlocksWithJsonArray([
     "message0": "刷体力",
     "previousStatement": null,
     "nextStatement": null,
-    "colour": 290,
+    "colour": 230,
     "tooltip": "执行刷体力流程",
     "helpUrl": ""
   },
@@ -90,7 +90,7 @@ Blockly.defineBlocksWithJsonArray([
     "message0": "模拟宇宙",
     "previousStatement": null,
     "nextStatement": null,
-    "colour": 290,
+    "colour": 230,
     "tooltip": "执行模拟宇宙流程",
     "helpUrl": ""
   },
@@ -99,16 +99,16 @@ Blockly.defineBlocksWithJsonArray([
     "message0": "锄大地",
     "previousStatement": null,
     "nextStatement": null,
-    "colour": 290,
+    "colour": 230,
     "tooltip": "执行锄大地流程",
     "helpUrl": ""
   },
   {
     "type": "close_game",
-    "message0": "关闭游戏",
+    "message0": "关闭星铁",
     "previousStatement": null,
     "nextStatement": null,
-    "colour": 0,
+    "colour": 10,
     "tooltip": "结束流程",
     "helpUrl": ""
   },

@@ -389,3 +389,17 @@
         font-size: 20px;
     }
 } 
+
+.version-info {
+    display: flex;
+    gap: 16px;
+    font-size: 14px;
+    color: #718096;
+    position: absolute;
+    top: 30px;
+    right: 30px;
+    text-align: center;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 12px 12px 12px 12px;
+}

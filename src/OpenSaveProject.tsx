@@ -8,7 +8,7 @@ const blankXml = `<xml xmlns="https://developers.google.com/blockly/xml">
 
 import mutilAccountXml from './assets/mutil-account.xml?raw';
 
-function OpenSaveProject({ goSetting, goExport, openFromPath, initFromTemaplate }: { goSetting: () => void, goExport: () => void, openFromPath: (path: string) => void, initFromTemaplate: (path: string, template: string) => void }) {
+function OpenSaveProject({ goSetting, goExport, openFromPath, initFromTemaplate, version, newVersion }: { goSetting: () => void, goExport: () => void, openFromPath: (path: string) => void, initFromTemaplate: (path: string, template: string) => void, version: string, newVersion: string }) {
     
     const [showTemplateModal, setShowTemplateModal] = useState(false);
     
@@ -111,7 +111,7 @@ function OpenSaveProject({ goSetting, goExport, openFromPath, initFromTemaplate 
                     </div>
                 </div>
             )}
-            
+
             <div className="button-group">
                 <button 
                     className="action-button open-button"
@@ -187,6 +187,13 @@ function OpenSaveProject({ goSetting, goExport, openFromPath, initFromTemaplate 
                     </svg>
                     <span>清除游戏注册表</span>
                 </button>
+            </div>
+
+            <div className="version-info">
+                {newVersion && (
+                    <span style={{ color: 'white' }}>最新版本: {newVersion}</span>
+                )}
+                <span style={{ color: 'white' }}>当前版本: {version}</span>
             </div>
         </div>
     );
