@@ -107,3 +107,7 @@ javascriptGenerator.forBlock['custom_parameter'] = function(block) {
   var paramName = block.getFieldValue('PARAM_NAME') || 'param1';
   return [paramName, Order.ATOMIC];
 }; 
+
+javascriptGenerator.forBlock['run_better_gi'] = function(block) {
+  return 'await window.runBetterGi();\n';
+};

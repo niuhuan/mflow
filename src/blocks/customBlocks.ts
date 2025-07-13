@@ -284,5 +284,14 @@ Blockly.defineBlocksWithJsonArray([
     "colour": 290,
     "tooltip": "引用函数参数",
     "helpUrl": ""
+  },
+  {
+    "type": "run_better_gi",
+    "message0": "运行BetterGI一条龙",
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": 230,
+    "tooltip": "运行BetterGI一条龙",
+    "helpUrl": ""
   }
 ]); 

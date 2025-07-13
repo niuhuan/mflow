@@ -41,6 +41,9 @@ function App() {
         <block type="farming"></block>
         <block type="close_game"></block>
       </category>
+      <category name="原神" colour="230">
+        <block type="run_better_gi"></block>
+      </category>
       <category name="通用" colour="50">
         <block type="wait_seconds">
           <field name="TIME_VALUE">1</field>
@@ -283,6 +286,12 @@ function App() {
       await invoke('close_game');
     }
     window['closeGame'] = closeGame;
+
+    const runBetterGi = async () => {
+      log('运行BetterGI一条龙...');
+      await invoke('run_better_gi');
+    }
+    window['runBetterGi'] = runBetterGi;
 
     const execute = async () => {
       try {

@@ -206,17 +206,16 @@ async fn run_m7f_command(command: &str) -> Result<(), String> {
 
 #[tauri::command]
 async fn close_game() -> Result<(), String> {
-    tracing::info!("后台日志: 正在关闭游戏...");
-    // "cmd", "/c", "TASKKILL", "/f", "/im", "StarRail.exe"
-    let mut cmd = tokio::process::Command::new("cmd");
-    cmd.arg("/c")
-        .arg("TASKKILL")
-        .arg("/f")
+    taskkill("StarRail.exe").await
+}
+
+async fn taskkill(exe_name: &str) -> Result<(), String> {
+    tracing::info!("后台日志: 正在关闭游戏... {}", exe_name);
+    let mut cmd = tokio::process::Command::new("taskkill");
+    cmd.arg("/f")
         .arg("/im")
-        .arg("StarRail.exe");
-    let output = cmd.output().await.map_err(|e| format!("关闭游戏失败: {}", e))?;
-    tracing::info!("{}", String::from_utf8_lossy(&output.stdout));
-    tracing::info!("{}", String::from_utf8_lossy(&output.stderr));
+        .arg(exe_name);
+    let _output = cmd.output().await.map_err(|e| format!("关闭任务失败: {}", e))?;
     Ok(())
 }
 
@@ -437,6 +436,22 @@ async fn import_reg(reg_path: &str) -> Result<(), String> {
     }
 }
 
+#[tauri::command]
+async fn clear_game_reg() -> Result<(), String> {
+    // reg delete "HKEY_CURRENT_USER\SOFTWARE\miHoYo\崩坏：星穹铁道" /f
+    let mut cmd = tokio::process::Command::new("reg");
+    cmd.arg("delete")
+        .arg("HKEY_CURRENT_USER\\SOFTWARE\\miHoYo\\崩坏：星穹铁道")
+        .arg("/f");
+    let output = cmd.output().await.map_err(|e| format!("清除游戏注册表失败: {}", e))?;
+    if output.status.success() {
+        Ok(())
+    } else {
+        let stderr = decode_gbk(output.stderr).map_err(|e| e.to_string())?;
+        Err(format!("清除游戏注册表失败: {}", stderr))
+    }
+}
+
 pub(crate) fn join_paths<P: AsRef<Path>>(paths: Vec<P>) -> String {
     match paths.len() {
         0 => String::default(),
@@ -448,6 +463,71 @@ pub(crate) fn join_paths<P: AsRef<Path>>(paths: Vec<P>) -> String {
             return path.to_str().unwrap().to_string();
         }
     }
+}
+
+fn decode_gbk(bytes: Vec<u8>) -> Result<String, String> {
+    let (cow, _, had_errors) = encoding_rs::GBK.decode(&bytes);
+    if had_errors {
+        Err("Failed to decode GBK".to_string())
+    } else {
+        Ok(cow.into_owned())
+    }
+}
+
+#[tauri::command]
+async fn run_better_gi() -> Result<(), String> {
+    let config = config::load_config().await?;
+    let better_gi_path = config.better_gi_path;
+    if better_gi_path.is_empty() {
+        return Err("BetterGI路径为空".to_string());
+    }
+    let mut cmd = tokio::process::Command::new(better_gi_path + "\\BetterGI.exe");
+    cmd.arg("startOneDragon");
+    cmd.spawn().map_err(|e| format!("启动BetterGI失败: {}", e))?;
+    tracing::info!("启动BetterGI成功");
+    let start_time = std::time::Instant::now();
+    while start_time.elapsed() < std::time::Duration::from_secs(30 * 60) {
+        tokio::time::sleep(std::time::Duration::from_secs(100)).await;
+        let task_exists = task_exists("BetterGI.exe").await;
+        match task_exists {
+            Ok(true) => {
+                tracing::info!("BetterGI仍在运行");
+                continue;
+            }
+            Ok(false) => {
+                tracing::info!("BetterGI已停止");
+                break;
+            }
+            Err(e) => {
+                tracing::error!("检查BetterGI状态失败: {}", e);
+                break;
+            }
+        }
+    }
+    taskkill("BetterGI.exe").await?;
+    taskkill("YuanShen.exe").await?;
+    Ok(())
+}
+
+async fn task_exists(exe_name: &str) -> Result<bool, String> {
+    let mut cmd = tokio::process::Command::new("tasklist");
+    cmd.arg("/fi")
+        .arg(format!("imagename eq {}", exe_name));
+    let output = cmd.output().await.map_err(|e| format!("检查任务状态失败: {}", e))?;
+    let std = decode_gbk(output.stdout).unwrap();
+    Ok(std.to_ascii_lowercase().contains(exe_name.to_ascii_lowercase().as_str()))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_task_exists() {
+        let result = task_exists("BetterGI.exe").await;
+        println!("{:?}", result);
+    }
+
 }
 
 fn main() {
@@ -487,6 +567,8 @@ fn main() {
             close_game,
             get_account_uid,
             export_account,
+            clear_game_reg,
+            run_better_gi,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

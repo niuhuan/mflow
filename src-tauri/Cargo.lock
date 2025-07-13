@@ -2111,6 +2111,7 @@ name = "mflow-tauri-app"
 version = "0.0.0"
 dependencies = [
  "base64 0.22.1",
+ "encoding_rs",
  "regex",
  "reqwest",
  "serde",

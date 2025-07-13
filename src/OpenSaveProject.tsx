@@ -1,6 +1,7 @@
 import { open, save } from '@tauri-apps/plugin-dialog';
 import { useState } from 'react';
 import './OpenSaveProject.css';
+import { clear_game_reg } from './fromTauri';
 
 const blankXml = `<xml xmlns="https://developers.google.com/blockly/xml">
     <block type="start_flow" id="start" x="100" y="100"></block>
@@ -177,7 +178,14 @@ function OpenSaveProject({ goSetting, goExport, openFromPath, initFromTemaplate,
                 
                 <button 
                     className="action-button danger-button"
-                    onClick={() => { alert('清除游戏注册表功能待实现'); }}
+                    onClick={async () => { 
+                        try {
+                            await clear_game_reg();
+                            alert('清除游戏注册表成功');
+                        } catch (error) {
+                            alert(error);
+                        }
+                     }}
                 >
                     <svg className="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <polyline points="3,6 5,6 21,6"/>

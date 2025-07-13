@@ -35,6 +35,7 @@ export async function save_backend_config(config: BackendConfig) {
 export interface BackendConfig {
     m7_source_path: string;
     python_path: string;
+    better_gi_path: string;
 }
 
 export async function get_account_uid() {
@@ -43,4 +44,12 @@ export async function get_account_uid() {
 
 export async function export_account(accountName: string, username: string, password: string) {
     return await invoke('export_account', { accountName, username, password });
+}
+
+export async function clear_game_reg() {
+    return await invoke('clear_game_reg');
+}
+
+export async function run_better_gi() {
+    return await invoke('run_better_gi');
 }
