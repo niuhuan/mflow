@@ -43,6 +43,7 @@ function App() {
       </category>
       <category name="原神" colour="30">
         <block type="run_better_gi"></block>
+        <block type="close_gi"></block>
         <block type="export_gi_account">
           <value name="ACCOUNT_NAME">
             <shadow type="text">
@@ -66,6 +67,13 @@ function App() {
         <block type="wait_until_time">
           <field name="HOUR">4</field>
           <field name="MINUTE">10</field>
+        </block>
+        <block type="print_variable">
+          <value name="VALUE">
+            <shadow type="text">
+              <field name="TEXT">变量名</field>
+            </shadow>
+          </value>
         </block>
       </category>
       <category name="循环" colour="120">
@@ -123,6 +131,7 @@ function App() {
           <field name="NUM">0</field>
         </block>
         <block type="current_hour_24"></block>
+        <block type="current_time_minus_4h_day_of_week"></block>
         <block type="text"></block>
       </category>
       <sep></sep>
@@ -204,6 +213,7 @@ function App() {
     const log = (message) => {
       putConsoleMessage(message);
     }
+    window['log'] = log;
 
     const workspace = Blockly.getMainWorkspace();
     if (!workspace) {
@@ -328,6 +338,12 @@ function App() {
       await invoke('run_better_gi');
     }
     window['runBetterGi'] = runBetterGi;
+
+    const closeGi = async () => {
+      log('关闭原神...');
+      await invoke('close_gi');
+    }
+    window['closeGi'] = closeGi;
 
     const exportGiAccount = async (accountName) => {
       log('导出原神账号: ' + accountName);

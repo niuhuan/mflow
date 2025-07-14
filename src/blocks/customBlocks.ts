@@ -309,6 +309,14 @@ Blockly.defineBlocksWithJsonArray([
     "helpUrl": ""
   },
   {
+    "type": "current_time_minus_4h_day_of_week",
+    "message0": "当前时间减4小时取周几",
+    "output": "Number",
+    "colour": 160,
+    "tooltip": "获取当前时间减去4小时后的星期几（0=周日，1=周一，...，6=周六）",
+    "helpUrl": ""
+  },
+  {
     "type": "wait_until_time",
     "message0": "等待到%1点%2分",
     "args0": [
@@ -334,12 +342,37 @@ Blockly.defineBlocksWithJsonArray([
     "helpUrl": ""
   },
   {
+    "type": "print_variable",
+    "message0": "打印变量 %1",
+    "args0": [
+      {
+        "type": "input_value",
+        "name": "VALUE",
+        "check": null
+      }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": 80,
+    "tooltip": "在控制台打印变量或表达式的值",
+    "helpUrl": ""
+  },
+  {
     "type": "run_better_gi",
     "message0": "运行BetterGI一条龙",
     "previousStatement": null,
     "nextStatement": null,
     "colour": 30,
     "tooltip": "运行BetterGI一条龙",
+    "helpUrl": ""
+  },
+  {
+    "type": "close_gi",
+    "message0": "关闭原神",
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": 30,
+    "tooltip": "关闭原神游戏",
     "helpUrl": ""
   },
   {

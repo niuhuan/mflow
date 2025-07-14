@@ -579,6 +579,11 @@ async fn task_exists(exe_name: &str) -> Result<bool, String> {
 }
 
 #[tauri::command]
+async fn close_gi() -> Result<(), String> {
+    taskkill("YuanShen.exe").await
+}
+
+#[tauri::command]
 async fn clear_gi_reg() -> Result<(), String> {
     let mut cmd = tokio::process::Command::new("reg");
     cmd.arg("delete")
@@ -656,6 +661,7 @@ fn main() {
             export_account,
             clear_game_reg,
             run_better_gi,
+            close_gi,
             export_gi_account,
             import_gi_account,
             clear_gi_reg,

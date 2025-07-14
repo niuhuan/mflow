@@ -112,6 +112,10 @@ javascriptGenerator.forBlock['run_better_gi'] = function(block) {
   return 'await window.runBetterGi();\n';
 };
 
+javascriptGenerator.forBlock['close_gi'] = function(block) {
+  return 'await window.closeGi();\n';
+};
+
 javascriptGenerator.forBlock['export_gi_account'] = function(block) {
   var accountName = javascriptGenerator.valueToCode(block, 'ACCOUNT_NAME', Order.ATOMIC) || "''";
   return `await window.exportGiAccount(${accountName});\n`;
@@ -132,8 +136,18 @@ javascriptGenerator.forBlock['current_hour_24'] = function(block) {
   return [code, Order.ATOMIC];
 };
 
+javascriptGenerator.forBlock['current_time_minus_4h_day_of_week'] = function(block) {
+  var code = '(function() { var date = new Date(); date.setTime(date.getTime() - 4 * 60 * 60 * 1000); return date.getDay(); })()';
+  return [code, Order.ATOMIC];
+};
+
 javascriptGenerator.forBlock['wait_until_time'] = function(block) {
   var hour = block.getFieldValue('HOUR');
   var minute = block.getFieldValue('MINUTE');
   return `await window.waitUntilTime(${hour}, ${minute});\n`;
+};
+
+javascriptGenerator.forBlock['print_variable'] = function(block) {
+  var value = javascriptGenerator.valueToCode(block, 'VALUE', Order.NONE) || "''";
+  return `window.log('打印变量: ' + ${value});\n`;
 };

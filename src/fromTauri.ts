@@ -53,6 +53,10 @@ export async function run_better_gi() {
     return await invoke('run_better_gi');
 }
 
+export async function close_gi() {
+    return await invoke('close_gi');
+}
+
 export async function export_gi_account(accountName: string) {
     return await invoke('export_gi_account', { accountName });
 }
