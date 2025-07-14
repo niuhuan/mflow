@@ -402,4 +402,61 @@
     padding: 10px;
     background: rgba(0, 0, 0, 0.1);
     border-radius: 12px 12px 12px 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.version-info:hover {
+    background: rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+}
+
+.update-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+    border-radius: 20px;
+    color: white;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+    animation: pulse 2s infinite;
+}
+
+.update-icon {
+    width: 14px;
+    height: 14px;
+    animation: bounce 1s infinite;
+}
+
+.update-text {
+    white-space: nowrap;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+    }
+    50% {
+        box-shadow: 0 4px 20px rgba(255, 107, 107, 0.6);
+    }
+    100% {
+        box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+    }
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-3px);
+    }
+    60% {
+        transform: translateY(-1px);
+    }
 }

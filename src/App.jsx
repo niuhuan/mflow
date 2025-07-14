@@ -8,7 +8,7 @@ import './App.css';
 import { invoke } from '@tauri-apps/api/core';
 import OpenSaveProject from './OpenSaveProject';
 import { frontendConfig, loadConfig, saveConfig } from './config';
-import { exists, get_account_uid, load_backend_config, readTextFile, writeTextFile, get_version, get_new_version } from './fromTauri';
+import { exists, get_account_uid, load_backend_config, readTextFile, writeTextFile, get_version, get_new_version, open_release_page } from './fromTauri';
 import { AppConfig } from './AppConfig';
 import { AppExport } from './AppExport';
 
@@ -458,6 +458,21 @@ function App() {
           }}>
             配置
           </button>
+          <div className="version-info" onClick={() => {
+            open_release_page();
+          }}>
+            {newVersion && (
+              <div className="update-badge">
+                <svg className="update-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="7,10 12,15 17,10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+                <span className="update-text">有新版本</span>
+              </div>
+            )}
+            <span style={{ color: 'white' }}>v{version}</span>
+          </div>
         </div>
         <div className="app-container">
           <div className="editor-container">
