@@ -1,7 +1,7 @@
 import { open, save } from '@tauri-apps/plugin-dialog';
 import { useState } from 'react';
 import './OpenSaveProject.css';
-import { clear_game_reg, clear_gi_reg, export_gi_account, list_accounts, list_gi_accounts } from './fromTauri';
+import { clear_game_reg, clear_gi_reg, export_gi_account, list_accounts, list_gi_accounts, open_release_page } from './fromTauri';
 
 const blankXml = `<xml xmlns="https://developers.google.com/blockly/xml">
     <block type="start_flow" id="start" x="100" y="100"></block>
@@ -481,7 +481,7 @@ function OpenSaveProject({ goSetting, goExport, openFromPath, initFromTemaplate,
             </div>
 
 
-            <div className="version-info">
+            <div className="version-info" onClick={() => open_release_page()}>
                 {newVersion && (
                     <span style={{ color: 'white' }}>最新版本: {newVersion}</span>
                 )}

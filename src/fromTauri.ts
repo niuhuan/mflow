@@ -76,3 +76,7 @@ export async function list_accounts() {
 export async function list_gi_accounts() {
     return await invoke('list_gi_accounts') as string[];
 }
+
+export async function open_release_page() {
+    return await invoke('open_release_page');
+}

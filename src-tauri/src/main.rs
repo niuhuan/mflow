@@ -631,6 +631,17 @@ async fn list_gi_accounts() -> Result<Vec<String>, String> {
     Ok(accounts)
 }
 
+#[tauri::command]
+async fn open_release_page() -> Result<(), String> {
+    let repo = option_env!("GITHUB_REPOSITORY");
+    if repo.is_none() {
+        return Err("仓库为空".to_string());
+    }
+    let url = format!("https://github.com/{}/releases", repo.unwrap());
+    opener::open(url.as_str()).map_err(|e| format!("打开浏览器失败: {}", e))?;
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -700,6 +711,7 @@ fn main() {
             clear_gi_reg,
             list_accounts,
             list_gi_accounts,
+            open_release_page,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
