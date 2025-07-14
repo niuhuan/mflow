@@ -68,3 +68,11 @@ export async function import_gi_account(accountName: string) {
 export async function clear_gi_reg() {
     return await invoke('clear_gi_reg');
 }
+
+export async function list_accounts() {
+    return await invoke('list_accounts') as string[];
+}
+
+export async function list_gi_accounts() {
+    return await invoke('list_gi_accounts') as string[];
+}

@@ -1,13 +1,14 @@
 import { open, save } from '@tauri-apps/plugin-dialog';
 import { useState } from 'react';
 import './OpenSaveProject.css';
-import { clear_game_reg, clear_gi_reg, export_gi_account } from './fromTauri';
+import { clear_game_reg, clear_gi_reg, export_gi_account, list_accounts, list_gi_accounts } from './fromTauri';
 
 const blankXml = `<xml xmlns="https://developers.google.com/blockly/xml">
     <block type="start_flow" id="start" x="100" y="100"></block>
   </xml>`;
 
 import mutilAccountXml from './assets/mutil-account.xml?raw';
+import { invoke } from '@tauri-apps/api/core';
 
 function OpenSaveProject({ goSetting, goExport, openFromPath, initFromTemaplate, version, newVersion }: { goSetting: () => void, goExport: () => void, openFromPath: (path: string) => void, initFromTemaplate: (path: string, template: string) => void, version: string, newVersion: string }) {
 
@@ -65,6 +66,174 @@ function OpenSaveProject({ goSetting, goExport, openFromPath, initFromTemaplate,
             } catch (error) {
                 alert(error);
             }
+        }
+    }
+
+    const selectOne = async (list: string[]) => {
+        return new Promise<string | null>((resolve) => {
+            // 创建模态对话框
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+            `;
+
+            const dialog = document.createElement('div');
+            dialog.style.cssText = `
+                background-color: white;
+                border-radius: 8px;
+                padding: 20px;
+                min-width: 300px;
+                max-width: 500px;
+                max-height: 400px;
+                overflow-y: auto;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            `;
+
+            const title = document.createElement('h3');
+            title.textContent = '请选择一个项目';
+            title.style.cssText = `
+                margin: 0 0 15px 0;
+                color: #333;
+            `;
+
+            const listContainer = document.createElement('div');
+            listContainer.style.cssText = `
+                margin-bottom: 15px;
+            `;
+
+            // 创建选项列表
+            list.forEach((item, index) => {
+                const option = document.createElement('div');
+                option.textContent = item;
+                option.style.cssText = `
+                    padding: 10px;
+                    margin: 5px 0;
+                    border: 1px solid #ddd;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    transition: background-color 0.2s;
+                `;
+
+                option.addEventListener('mouseenter', () => {
+                    option.style.backgroundColor = '#f5f5f5';
+                });
+
+                option.addEventListener('mouseleave', () => {
+                    option.style.backgroundColor = 'white';
+                });
+
+                option.addEventListener('click', () => {
+                    resolve(item);
+                    document.body.removeChild(modal);
+                });
+
+                listContainer.appendChild(option);
+            });
+
+            const cancelButton = document.createElement('button');
+            cancelButton.textContent = '取消';
+            cancelButton.style.cssText = `
+                padding: 8px 16px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                background-color: #f8f9fa;
+                cursor: pointer;
+                margin-right: 10px;
+            `;
+
+            cancelButton.addEventListener('click', () => {
+                resolve(null);
+                document.body.removeChild(modal);
+            });
+
+            const buttonContainer = document.createElement('div');
+            buttonContainer.style.cssText = `
+                text-align: right;
+            `;
+            buttonContainer.appendChild(cancelButton);
+
+            dialog.appendChild(title);
+            dialog.appendChild(listContainer);
+            dialog.appendChild(buttonContainer);
+            modal.appendChild(dialog);
+            document.body.appendChild(modal);
+
+            // 点击模态背景关闭
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    resolve(null);
+                    document.body.removeChild(modal);
+                }
+            });
+
+            // ESC键关闭
+            const handleKeyDown = (e: KeyboardEvent) => {
+                if (e.key === 'Escape') {
+                    resolve(null);
+                    document.body.removeChild(modal);
+                    document.removeEventListener('keydown', handleKeyDown);
+                }
+            };
+            document.addEventListener('keydown', handleKeyDown);
+        });
+    }
+
+    const handleImportAccount = async () => {
+        try {
+            let list = await list_accounts();
+            console.log(list);
+            if (list.length === 0) {
+                alert('没有星铁账号');
+                return;
+            }
+            let accountName = await selectOne(list);
+            if (!accountName) {
+                return;
+            }
+            
+            const confirmed = confirm(`确定要导入星铁账号 "${accountName}" 吗？这将覆盖当前的三月七小助手配置文件，以及游戏注册表。`);
+            if (!confirmed) {
+                return;
+            }
+            
+            await invoke('load_account', { name: accountName });
+            alert('导入星铁账号成功');
+        } catch (error) {
+            alert(error);
+        }
+    }
+
+    const handleImportGiAccount = async () => {
+        try {
+            let list = await list_gi_accounts();
+            console.log(list);
+            if (list.length === 0) {
+                alert('没有原神账号');
+                return;
+            }
+            let accountName = await selectOne(list);
+            if (!accountName) {
+                return;
+            }
+            
+            const confirmed = confirm(`确定要导入原神账号 "${accountName}" 吗？这将覆盖当前的更好的原神配置文件，以及游戏注册表。`);
+            if (!confirmed) {
+                return;
+            }
+            
+            await invoke('import_gi_account', { accountName });
+            alert('导入原神账号成功');
+        } catch (error) {
+            alert(error);
         }
     }
 
@@ -202,9 +371,14 @@ function OpenSaveProject({ goSetting, goExport, openFromPath, initFromTemaplate,
 
                 <button
                     className="action-button export-button"
-                    onClick={onExportGiAccount}
+                    onClick={handleImportAccount}
                 >
-                    <span>导出原神账号</span>
+                    <svg className="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="17,8 12,3 7,8" />
+                        <line x1="12" y1="3" x2="12" y2="15" />
+                    </svg>
+                    <span>导入星铁账号</span>
                 </button>
 
                 <button
@@ -227,6 +401,37 @@ function OpenSaveProject({ goSetting, goExport, openFromPath, initFromTemaplate,
                     <span>清除星铁游戏注册表</span>
                 </button>
 
+
+            </div>
+
+            <div className="button-group">  
+
+            <button
+                    className="action-button export-button"
+                    onClick={onExportGiAccount}
+                >
+                    <svg className="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="7,10 12,15 17,10" />
+                        <line x1="12" y1="15" x2="12" y2="3" />
+                        <path d="M12 3v12" />
+                    </svg>
+                    <span>导出原神账号</span>
+                </button>
+
+                
+                <button
+                    className="action-button export-button"
+                    onClick={handleImportGiAccount}
+                >
+                    <svg className="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="17,8 12,3 7,8" />
+                        <line x1="12" y1="3" x2="12" y2="15" />
+                    </svg>
+                    <span>导入原神账号</span>
+                </button>
+
                 <button
                     className="action-button danger-button"
                     onClick={async () => {
@@ -238,6 +443,12 @@ function OpenSaveProject({ goSetting, goExport, openFromPath, initFromTemaplate,
                         }
                     }}
                 >
+                    <svg className="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polyline points="3,6 5,6 21,6" />
+                        <path d="M19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2" />
+                        <line x1="10" y1="11" x2="10" y2="17" />
+                        <line x1="14" y1="11" x2="14" y2="17" />
+                    </svg>
                     <span>清除原神注册表</span>
                 </button>
             </div>

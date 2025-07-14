@@ -294,6 +294,23 @@ async fn get_account_uid() -> Result<i64, String> {
     }
 }
 
+
+#[tauri::command]
+async fn list_accounts() -> Result<Vec<String>, String> {
+    let config = config::load_config().await?;
+    let m7_path = config.m7_path;
+    let account_folder = format!("{}/m7f_accounts", m7_path);
+    let mut accounts = Vec::new();
+    let mut rd = tokio::fs::read_dir(account_folder).await.map_err(|e| e.to_string())?;
+    while let Some(entry) = rd.next_entry().await.map_err(|e| e.to_string())? {
+        let path = entry.path();
+        if path.is_dir() {
+            accounts.push(path.file_name().unwrap().to_str().unwrap().to_string());
+        }
+    }
+    Ok(accounts)
+}
+
 #[tauri::command]
 async fn load_account(name: String) -> Result<(), String> {
     tracing::info!("后台日志: 正在加载账号 '{}'...", name);
@@ -598,6 +615,22 @@ async fn clear_gi_reg() -> Result<(), String> {
     }
 }
 
+#[tauri::command]
+async fn list_gi_accounts() -> Result<Vec<String>, String> {
+    let config = config::load_config().await?;
+    let better_gi_path = config.better_gi_path;
+    let account_folder = format!("{}/m7f_accounts", better_gi_path);
+    let mut accounts = Vec::new();
+    let mut rd = tokio::fs::read_dir(account_folder).await.map_err(|e| e.to_string())?;
+    while let Some(entry) = rd.next_entry().await.map_err(|e| e.to_string())? {
+        let path = entry.path();
+        if path.is_dir() {
+            accounts.push(path.file_name().unwrap().to_str().unwrap().to_string());
+        }
+    }
+    Ok(accounts)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -665,6 +698,8 @@ fn main() {
             export_gi_account,
             import_gi_account,
             clear_gi_reg,
+            list_accounts,
+            list_gi_accounts,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
