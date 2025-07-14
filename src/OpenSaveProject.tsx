@@ -7,6 +7,7 @@ const blankXml = `<xml xmlns="https://developers.google.com/blockly/xml">
     <block type="start_flow" id="start" x="100" y="100"></block>
   </xml>`;
 
+import singleUserXml from './assets/single-user.xml?raw';
 import mutilAccountXml from './assets/mutil-account.xml?raw';
 import { invoke } from '@tauri-apps/api/core';
 
@@ -24,6 +25,10 @@ function OpenSaveProject({ goSetting, goExport, openFromPath, initFromTemaplate,
             case 'blank':
                 selectedTemplate = blankXml;
                 templateName = '空白模板';
+                break;
+            case 'single':
+                selectedTemplate = singleUserXml;
+                templateName = '单个账号模板';
                 break;
             case 'multi':
                 selectedTemplate = mutilAccountXml;
@@ -273,6 +278,28 @@ function OpenSaveProject({ goSetting, goExport, openFromPath, initFromTemaplate,
                                 <p>从零开始创建项目，只包含一个开始积木</p>
                                 <div className="template-preview">
                                     <div className="preview-block start-block">开始</div>
+                                </div>
+                            </div>
+
+                            <div
+                                className="template-card"
+                                onClick={() => handleCreateFromTemplate('single')}
+                            >
+                                <div className="template-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <circle cx="12" cy="12" r="3" />
+                                        <path d="M20.21 16.89A5 5 0 0 0 18 11h-1.26a8 8 0 1 0-11.62 9" />
+                                        <polyline points="16 16 14 14 16 12" />
+                                        <polyline points="8 16 10 14 8 12" />
+                                    </svg>
+                                </div>
+                                <h3>单个账号模板</h3>
+                                <p>编排原神和星铁的自动化流程，适合单个账号使用</p>
+                                <div className="template-preview">
+                                    <div className="preview-block start-block">开始</div>
+                                    <div className="preview-block function-block">星铁自动化</div>
+                                    <div className="preview-block function-block">原神自动化</div>
+                                    <div className="preview-block loop-block">循环执行</div>
                                 </div>
                             </div>
 

@@ -48,7 +48,7 @@ Blockly.defineBlocksWithJsonArray([
       {
         "type": "field_number",
         "name": "TIME_VALUE",
-        "value": 1,
+        "value": 10,
         "min": 0
       },
       {
@@ -130,6 +130,50 @@ Blockly.defineBlocksWithJsonArray([
     "nextStatement": null,
     "colour": 120,
     "tooltip": "当条件为真时重复执行",
+    "helpUrl": ""
+  },
+  {
+    "type": "controls_if",
+    "message0": "如果 %1 则执行 %2",
+    "args0": [
+      {
+        "type": "input_value",
+        "name": "IF0",
+        "check": "Boolean"
+      },
+      {
+        "type": "input_statement",
+        "name": "DO0"
+      }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": 120,
+    "tooltip": "如果条件为真则执行代码块",
+    "helpUrl": ""
+  },
+  {
+    "type": "controls_if_else",
+    "message0": "如果 %1 则执行 %2 否则执行 %3",
+    "args0": [
+      {
+        "type": "input_value",
+        "name": "IF0",
+        "check": "Boolean"
+      },
+      {
+        "type": "input_statement",
+        "name": "DO0"
+      },
+      {
+        "type": "input_statement",
+        "name": "ELSE"
+      }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": 120,
+    "tooltip": "如果条件为真则执行代码块，否则执行另一个代码块",
     "helpUrl": ""
   },
   {
@@ -407,4 +451,5 @@ Blockly.defineBlocksWithJsonArray([
     "tooltip": "导入原神账号",
     "helpUrl": ""
   }
-]); 
+]);
+

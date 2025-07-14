@@ -50,6 +50,26 @@ javascriptGenerator.forBlock['controls_whileUntil'] = function(block) {
   return code;
 };
 
+javascriptGenerator.forBlock['controls_if'] = function(block) {
+  var n = 0;
+  var code = '', branchCode, conditionCode;
+  do {
+    conditionCode = javascriptGenerator.valueToCode(block, 'IF' + n, Order.NONE) || 'false';
+    branchCode = javascriptGenerator.statementToCode(block, 'DO' + n);
+    code += (n == 0 ? 'if (' : 'else if (') + conditionCode + ') {\n' + branchCode + '}\n';
+    n++;
+  } while (block.getInput('IF' + n));
+  return code;
+};
+
+javascriptGenerator.forBlock['controls_if_else'] = function(block) {
+  var conditionCode = javascriptGenerator.valueToCode(block, 'IF0', Order.NONE) || 'false';
+  var thenCode = javascriptGenerator.statementToCode(block, 'DO0');
+  var elseCode = javascriptGenerator.statementToCode(block, 'ELSE');
+  var code = 'if (' + conditionCode + ') {\n' + thenCode + '} else {\n' + elseCode + '}\n';
+  return code;
+};
+
 javascriptGenerator.forBlock['logic_boolean'] = function(block) {
   var code = (block.getFieldValue('BOOL') == 'TRUE') ? 'true' : 'false';
   return [code, Order.ATOMIC];

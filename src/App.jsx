@@ -61,7 +61,7 @@ function App() {
       </category>
       <category name="通用" colour="80">
         <block type="wait_seconds">
-          <field name="TIME_VALUE">1</field>
+          <field name="TIME_VALUE">10</field>
           <field name="TIME_UNIT">SECONDS</field>
         </block>
         <block type="wait_until_time">
@@ -76,7 +76,7 @@ function App() {
           </value>
         </block>
       </category>
-      <category name="循环" colour="120">
+      <category name="流程" colour="120">
         <block type="controls_whileUntil"></block>
         <block type="controls_repeat_ext">
           <value name="TIMES">
@@ -85,10 +85,9 @@ function App() {
             </shadow>
           </value>
         </block>
+        <block type="controls_if"></block>
+        <block type="controls_if_else"></block>
         <block type="controls_forEach"></block>
-      </category>
-      <category name="集合" colour="260">
-        <block type="lists_create_with"></block>
       </category>
       <category name="逻辑" colour="150">
         <block type="logic_boolean">
@@ -148,6 +147,9 @@ function App() {
         <block type="custom_parameter">
           <field name="PARAM_NAME">param1</field>
         </block>
+      </category>
+      <category name="集合" colour="260">
+        <block type="lists_create_with"></block>
       </category>
     </xml>
   `;
