@@ -116,7 +116,7 @@ function OpenSaveProject({ goSetting, goExport, openFromPath, initFromTemaplate,
             `;
 
             // 创建选项列表
-            list.forEach((item, index) => {
+            list.forEach((item, _index) => {
                 const option = document.createElement('div');
                 option.textContent = item;
                 option.style.cssText = `
