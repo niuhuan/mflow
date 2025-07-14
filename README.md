@@ -33,5 +33,7 @@ yarn cmd
 
 ![templates.png](images/templates.png)
 
+![single.png](images/single.png)
+
 ![main.png](images/main.png)
 
