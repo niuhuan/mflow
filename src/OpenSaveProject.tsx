@@ -274,7 +274,7 @@ function OpenSaveProject({ goSetting, goExport, openFromPath, initFromTemaplate,
                                         <polyline points="10,9 9,9 8,9" />
                                     </svg>
                                 </div>
-                                <h3>空白模板</h3>
+                                <h3>空白</h3>
                                 <p>从零开始创建项目，只包含一个开始积木</p>
                                 <div className="template-preview">
                                     <div className="preview-block start-block">开始</div>
@@ -293,8 +293,8 @@ function OpenSaveProject({ goSetting, goExport, openFromPath, initFromTemaplate,
                                         <polyline points="8 16 10 14 8 12" />
                                     </svg>
                                 </div>
-                                <h3>单个账号模板</h3>
-                                <p>编排原神和星铁的自动化流程，适合单个账号使用</p>
+                                <h3>原神星铁任务编排</h3>
+                                <p>编排原神和星铁的自动化流程，不需要切换账号</p>
                                 <div className="template-preview">
                                     <div className="preview-block start-block">开始</div>
                                     <div className="preview-block function-block">星铁自动化</div>
@@ -315,8 +315,8 @@ function OpenSaveProject({ goSetting, goExport, openFromPath, initFromTemaplate,
                                         <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                                     </svg>
                                 </div>
-                                <h3>多账户模板</h3>
-                                <p>包含完整的多账户工作流程和函数定义</p>
+                                <h3>多游戏多账户</h3>
+                                <p>包含完整的多游戏多账户工作流程和函数定义</p>
                                 <div className="template-preview">
                                     <div className="preview-block start-block">开始</div>
                                     <div className="preview-block function-block">刷体力做每日</div>
