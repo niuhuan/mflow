@@ -286,6 +286,7 @@ function App() {
 
     const waitUntilTime = (targetHour, targetMinute) => {
       return new Promise(resolve => {
+        log(`等待到 ${targetHour.toString().padStart(2, '0')}:${targetMinute.toString().padStart(2, '0')}`);
         const checkTime = () => {
           const now = new Date();
           const currentHour = now.getHours();

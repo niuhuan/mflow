@@ -80,3 +80,7 @@ export async function list_gi_accounts() {
 export async function open_release_page() {
     return await invoke('open_release_page');
 }
+
+export async function run_m7_launcher() {
+    return await invoke('run_m7_launcher');
+}

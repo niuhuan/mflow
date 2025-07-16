@@ -202,6 +202,21 @@ async fn run_m7f_command(command: &str) -> Result<(), String> {
 }
 
 #[tauri::command]
+async fn run_m7_launcher() -> Result<(), String> {
+    let config = config::load_config().await?;
+    let work_dir = config.m7_path;
+    let bin_name = "March7th Launcher.exe";
+    let mut cmd = tokio::process::Command::new("cmd");
+    cmd.arg("/c");
+    cmd.arg(bin_name);
+    cmd.current_dir(work_dir);
+    let _ = cmd.spawn().map_err(|e| format!("运行命令失败: {}", e))?;
+    Ok(())
+}
+
+
+
+#[tauri::command]
 async fn close_game() -> Result<(), String> {
     taskkill("StarRail.exe").await
 }
@@ -712,6 +727,7 @@ fn main() {
             list_accounts,
             list_gi_accounts,
             open_release_page,
+            run_m7_launcher,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
