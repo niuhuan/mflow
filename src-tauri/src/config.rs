@@ -7,6 +7,8 @@ pub struct BackendConfig {
     pub m7_path: String,
     #[serde(default)]
     pub better_gi_path: String,
+    #[serde(default)]
+    pub zzzod_path: String,
 }
 
 pub async fn load_config() -> Result<BackendConfig, String> {

@@ -7,6 +7,7 @@ export function AppConfig({ backToEditor }: { backToEditor: () => void }) {
     const [backendConfig, setBackendConfig] = useState<BackendConfig>({
         m7_path: '',
         better_gi_path: '',
+        zzzod_path: '',
     });
     const [isLoading, setIsLoading] = useState(false);
     const [hasChanges, setHasChanges] = useState(false);
@@ -97,6 +98,27 @@ export function AppConfig({ backToEditor }: { backToEditor: () => void }) {
                             placeholder="留空则使用默认BetterGI.exe"
                         />
                         <div className="input-hint">指定BetterGI路径，用于原神自动化操作</div>
+                    </div>
+
+                    <div className="form-group">
+                        <label className="form-label">
+                            <svg className="label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M9 12l2 2 4-4"/>
+                                <path d="M21 12c-1 0-2-1-2-2s1-2 2-2 2 1 2 2-1 2-2 2z"/>
+                                <path d="M3 12c1 0 2-1 2-2s-1-2-2-2-2 1-2 2 1 2 2 2z"/>
+                                <path d="M12 3c0 1-1 2-2 2s-2-1-2-2 1-2 2-2 2 1 2 2z"/>
+                                <path d="M12 21c0-1 1-2 2-2s2 1 2 2-1 2-2 2-2-1-2-2z"/>
+                            </svg>
+                            ZZZOD路径
+                        </label>
+                        <input 
+                            type="text" 
+                            className="form-input"
+                            value={backendConfig.zzzod_path} 
+                            onChange={(e) => handleInputChange('zzzod_path', e.target.value)}
+                            placeholder="绝区零一条龙文件夹路径"
+                        />
+                        <div className="input-hint">指定绝区零一条龙文件夹路径，用于绝区零自动化操作</div>
                     </div>
                 </div>
 

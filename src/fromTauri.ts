@@ -35,6 +35,7 @@ export async function save_backend_config(config: BackendConfig) {
 export interface BackendConfig {
     m7_path: string;
     better_gi_path: string;
+    zzzod_path: string;
 }
 
 export async function get_account_uid() {
@@ -88,3 +89,12 @@ export async function run_m7_launcher() {
 export async function run_better_gi_gui() {
     return await invoke('run_better_gi_gui');
 }
+
+export async function run_zzzod() {
+    return await invoke('run_zzzod');
+}
+
+export async function run_zzzod_gui() {
+    return await invoke('run_zzzod_gui');
+}
+

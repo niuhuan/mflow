@@ -228,6 +228,18 @@ async fn run_better_gi_gui() -> Result<(), String> {
 }
 
 #[tauri::command]
+async fn run_zzzod_gui() -> Result<(), String> {
+    let config = config::load_config().await?;
+    let work_dir = config.zzzod_path;
+    let bin_name = "OneDragon-Launcher.exe";
+    let mut cmd = tokio::process::Command::new("cmd");
+    cmd.arg(bin_name);
+    cmd.current_dir(work_dir);
+    let _ = cmd.spawn().map_err(|e| format!("运行命令失败: {}", e))?;
+    Ok(())
+}
+
+#[tauri::command]
 async fn close_game() -> Result<(), String> {
     taskkill("StarRail.exe").await
 }
@@ -613,6 +625,53 @@ async fn run_better_gi() -> Result<(), String> {
     Ok(())
 }
 
+
+#[tauri::command]
+async fn run_zzzod() -> Result<(), String> {
+    let config = config::load_config().await?;
+    let work_dir = config.zzzod_path;
+
+    let env_dir = work_dir.clone() + "\\.install";
+    let python_path = work_dir.clone() + "\\src";
+    let py_exe = work_dir.clone() + "\\.venv\\scripts\\python.exe";
+    let py_app = work_dir.clone() + "\\src\\zzz_od\\application\\zzz_one_dragon_app.py";
+
+    let mut cmd = tokio::process::Command::new(py_exe);
+    cmd.arg(py_app);
+    cmd.arg("-o");
+    cmd.arg("-c");
+    cmd.current_dir(work_dir);
+    cmd.env("PYTHONPATH", python_path);
+    cmd.env("ENV_DIR", env_dir);
+    cmd.stdin(Stdio::inherit());
+    cmd.stdout(Stdio::inherit());
+    cmd.stderr(Stdio::inherit());
+    cmd.kill_on_drop(true);
+    cmd.spawn().map_err(|e| format!("启动绝区零一条龙失败: {}", e))?;
+    tracing::info!("启动绝区零一条龙成功");
+    let start_time = std::time::Instant::now();
+    while start_time.elapsed() < std::time::Duration::from_secs(30 * 60) {
+        tokio::time::sleep(std::time::Duration::from_secs(100)).await;
+        let task_exists = task_exists("ZenlessZoneZero.exe").await;
+        match task_exists {
+            Ok(true) => {
+                tracing::info!("绝区零一条龙仍在运行");
+                continue;
+            }
+            Ok(false) => {
+                tracing::info!("绝区零一条龙已停止");
+                break;
+            }
+            Err(e) => {
+                tracing::error!("检查绝区零一条龙状态失败: {}", e);
+                break;
+            }
+        }
+    }
+    taskkill("ZenlessZoneZero.exe").await?;
+    Ok(())
+}
+
 async fn task_exists(exe_name: &str) -> Result<bool, String> {
     let mut cmd = tokio::process::Command::new("tasklist");
     cmd.arg("/fi")
@@ -741,6 +800,8 @@ fn main() {
             open_release_page,
             run_m7_launcher,
             run_better_gi_gui,
+            run_zzzod,
+            run_zzzod_gui,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

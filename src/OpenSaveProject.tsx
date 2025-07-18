@@ -1,7 +1,7 @@
 import { open, save } from '@tauri-apps/plugin-dialog';
 import { useState } from 'react';
 import './OpenSaveProject.css';
-import { clear_game_reg, clear_gi_reg, export_gi_account, list_accounts, list_gi_accounts, open_release_page, run_better_gi_gui, run_m7_launcher } from './fromTauri';
+import { clear_game_reg, clear_gi_reg, export_gi_account, list_accounts, list_gi_accounts, open_release_page, run_better_gi_gui, run_m7_launcher, run_zzzod, run_zzzod_gui } from './fromTauri';
 
 const blankXml = `<xml xmlns="https://developers.google.com/blockly/xml">
     <block type="start_flow" id="start" x="100" y="100"></block>
@@ -497,6 +497,25 @@ function OpenSaveProject({ goSetting, goExport, openFromPath, initFromTemaplate,
                 </button>
             </div>
 
+            <div className="button-group">
+                <button
+                    className="action-button export-button"
+                    onClick={async ()=>{
+                        try {
+                            await run_zzzod_gui();
+                        } catch (error) {
+                            alert(error);
+                        }
+                    }}
+                >
+                    <svg className="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polygon points="5,3 19,12 5,21 5,3" />
+                    </svg>
+                    <span>启动绝区零一条龙界面</span>
+                </button>
+
+                 
+            </div>
 
             <div className="version-info" onClick={() => open_release_page()}>
                 {newVersion && (

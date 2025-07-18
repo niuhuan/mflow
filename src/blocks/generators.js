@@ -171,3 +171,7 @@ javascriptGenerator.forBlock['print_variable'] = function(block) {
   var value = javascriptGenerator.valueToCode(block, 'VALUE', Order.NONE) || "''";
   return `window.log('打印变量: ' + ${value});\n`;
 };
+
+javascriptGenerator.forBlock['run_zzzod'] = function(block) {
+  return 'await window.runZzzod();\n';
+};

@@ -450,6 +450,13 @@ Blockly.defineBlocksWithJsonArray([
     "colour": 50,
     "tooltip": "导入原神账号",
     "helpUrl": ""
+  },
+  {
+    "type": "run_zzzod",
+    "message0": "运行绝区零一条龙",
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": 30,
   }
 ]);
 

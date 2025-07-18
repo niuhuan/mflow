@@ -59,6 +59,9 @@ function App() {
           </value>
         </block>
       </category>
+      <category name="ZZZ" colour="30">
+        <block type="run_zzzod"></block>
+      </category>
       <category name="通用" colour="80">
         <block type="wait_seconds">
           <field name="TIME_VALUE">10</field>
@@ -359,6 +362,12 @@ function App() {
       await invoke('import_gi_account', { accountName });
     }
     window['importGiAccount'] = importGiAccount;
+
+    const runZzzod = async () => {
+      log('运行绝区零一条龙...');
+      await invoke('run_zzzod');
+    }
+    window['runZzzod'] = runZzzod;
 
     const execute = async () => {
       try {
