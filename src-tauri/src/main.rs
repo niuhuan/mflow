@@ -214,7 +214,18 @@ async fn run_m7_launcher() -> Result<(), String> {
     Ok(())
 }
 
-
+#[tauri::command]
+async fn run_better_gi_gui() -> Result<(), String> {
+    let config = config::load_config().await?;
+    let work_dir = config.better_gi_path;
+    let bin_name = "BetterGI.exe";
+    let mut cmd = tokio::process::Command::new("cmd");
+    cmd.arg("/c");
+    cmd.arg(bin_name);
+    cmd.current_dir(work_dir);
+    let _ = cmd.spawn().map_err(|e| format!("运行命令失败: {}", e))?;
+    Ok(())
+}
 
 #[tauri::command]
 async fn close_game() -> Result<(), String> {
@@ -453,7 +464,8 @@ async fn unzip_file(zip_path: &str, dest_path: &str) -> Result<(), String> {
         .arg("-Path")
         .arg(zip_path)
         .arg("-DestinationPath")
-        .arg(dest_path);
+        .arg(dest_path)
+        .arg("-Force");
     let output = cmd.output().await.map_err(|e| format!("解压文件失败: {}", e))?;
     tracing::info!("{}", String::from_utf8_lossy(&output.stdout));
     tracing::info!("{}", String::from_utf8_lossy(&output.stderr));
@@ -728,6 +740,7 @@ fn main() {
             list_gi_accounts,
             open_release_page,
             run_m7_launcher,
+            run_better_gi_gui,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

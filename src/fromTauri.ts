@@ -84,3 +84,7 @@ export async function open_release_page() {
 export async function run_m7_launcher() {
     return await invoke('run_m7_launcher');
 }
+
+export async function run_better_gi_gui() {
+    return await invoke('run_better_gi_gui');
+}

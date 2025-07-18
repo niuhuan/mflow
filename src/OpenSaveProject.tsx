@@ -1,7 +1,7 @@
 import { open, save } from '@tauri-apps/plugin-dialog';
 import { useState } from 'react';
 import './OpenSaveProject.css';
-import { clear_game_reg, clear_gi_reg, export_gi_account, list_accounts, list_gi_accounts, open_release_page, run_m7_launcher } from './fromTauri';
+import { clear_game_reg, clear_gi_reg, export_gi_account, list_accounts, list_gi_accounts, open_release_page, run_better_gi_gui, run_m7_launcher } from './fromTauri';
 
 const blankXml = `<xml xmlns="https://developers.google.com/blockly/xml">
     <block type="start_flow" id="start" x="100" y="100"></block>
@@ -469,6 +469,18 @@ function OpenSaveProject({ goSetting, goExport, openFromPath, initFromTemaplate,
                         <line x1="12" y1="3" x2="12" y2="15" />
                     </svg>
                     <span>导入原神账号</span>
+                </button>
+
+                <button
+                    className="action-button export-button"
+                    onClick={run_better_gi_gui}
+                >
+                    <svg className="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="7,10 12,15 17,10" />
+                        <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                    <span>启动更好的原神</span>
                 </button>
 
                 <button
