@@ -2,17 +2,19 @@
 // #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use base64::Engine;
+use std::collections::HashMap;
 use std::path::Path;
 use std::path::PathBuf;
 use std::process::Stdio;
 use tokio::io::AsyncWriteExt;
+use tokio::process::Command;
 use winreg::enums::*;
 use winreg::RegKey;
 
 mod config;
 
 // if release
-#[cfg(not(debug_assertions))]
+// #[cfg(not(debug_assertions))]
 mod win;
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
@@ -197,7 +199,10 @@ async fn run_m7f_command(command: &str) -> Result<(), String> {
     // u8 \n 1024
     let buf = vec![b'\n'; 1024];
     let _result = std_in.write_all(&buf).await;
-    child.wait().await.map_err(|e| format!("等待命令执行失败: {}", e))?;
+    child
+        .wait()
+        .await
+        .map_err(|e| format!("等待命令执行失败: {}", e))?;
     Ok(())
 }
 
@@ -247,10 +252,11 @@ async fn close_game() -> Result<(), String> {
 async fn taskkill(exe_name: &str) -> Result<(), String> {
     tracing::info!("后台日志: 正在关闭游戏... {}", exe_name);
     let mut cmd = tokio::process::Command::new("taskkill");
-    cmd.arg("/f")
-        .arg("/im")
-        .arg(exe_name);
-    let _output = cmd.output().await.map_err(|e| format!("关闭任务失败: {}", e))?;
+    cmd.arg("/f").arg("/im").arg(exe_name);
+    let _output = cmd
+        .output()
+        .await
+        .map_err(|e| format!("关闭任务失败: {}", e))?;
     Ok(())
 }
 
@@ -332,14 +338,15 @@ async fn get_account_uid() -> Result<i64, String> {
     }
 }
 
-
 #[tauri::command]
 async fn list_accounts() -> Result<Vec<String>, String> {
     let config = config::load_config().await?;
     let m7_path = config.m7_path;
     let account_folder = format!("{}/m7f_accounts", m7_path);
     let mut accounts = Vec::new();
-    let mut rd = tokio::fs::read_dir(account_folder).await.map_err(|e| e.to_string())?;
+    let mut rd = tokio::fs::read_dir(account_folder)
+        .await
+        .map_err(|e| e.to_string())?;
     while let Some(entry) = rd.next_entry().await.map_err(|e| e.to_string())? {
         let path = entry.path();
         if path.is_dir() {
@@ -391,7 +398,9 @@ async fn export_account_a(
     username: String,
     password: String,
 ) -> Result<(), String> {
-    let uid = get_account_uid().await.map_err(|_| "获取账号UID失败".to_string())?;
+    let uid = get_account_uid()
+        .await
+        .map_err(|_| "获取账号UID失败".to_string())?;
     let config = config::load_config().await?;
     let m7_path = config.m7_path;
     let account_folder = format!("{}/m7f_accounts/{}", m7_path, account_name);
@@ -399,7 +408,12 @@ async fn export_account_a(
         .await
         .map_err(|_| "创建账号文件夹失败".to_string())?;
     let reg_path = format!("{}/account.reg", account_folder);
-    export_reg( "HKEY_CURRENT_USER\\SOFTWARE\\miHoYo\\崩坏：星穹铁道", reg_path.as_str()).await.map_err(|_| "导出注册表失败".to_string())?;
+    export_reg(
+        "HKEY_CURRENT_USER\\SOFTWARE\\miHoYo\\崩坏：星穹铁道",
+        reg_path.as_str(),
+    )
+    .await
+    .map_err(|_| "导出注册表失败".to_string())?;
     let src_config_path = format!("{}/config.yaml", m7_path);
     let config_path = format!("{}/config.yaml", account_folder);
     tokio::fs::copy(src_config_path, config_path)
@@ -433,10 +447,17 @@ async fn export_gi_account(account_name: String) -> Result<(), String> {
         .await
         .map_err(|_| "创建账号文件夹失败".to_string())?;
     let reg_path = format!("{}/account.reg", account_folder);
-    export_reg( "HKEY_CURRENT_USER\\SOFTWARE\\miHoYo\\原神", reg_path.as_str()).await.map_err(|_| "导出注册表失败".to_string())?;
+    export_reg(
+        "HKEY_CURRENT_USER\\SOFTWARE\\miHoYo\\原神",
+        reg_path.as_str(),
+    )
+    .await
+    .map_err(|_| "导出注册表失败".to_string())?;
     let src_config_path = format!("{}/User", better_gi_path);
     let config_path = format!("{}/User.zip", account_folder);
-    zip_dir(&src_config_path, &config_path).await.map_err(|_| "复制配置文件失败".to_string())?;
+    zip_dir(&src_config_path, &config_path)
+        .await
+        .map_err(|_| "复制配置文件失败".to_string())?;
     Ok(())
 }
 
@@ -446,7 +467,9 @@ async fn import_gi_account(account_name: String) -> Result<(), String> {
     let better_gi_path = config.better_gi_path;
     let account_folder = format!("{}/m7f_accounts/{}", better_gi_path, account_name);
     let config_path = format!("{}/User.zip", account_folder);
-    unzip_file(config_path.as_str(), better_gi_path.as_str()).await.map_err(|_| "解压文件失败".to_string())?;
+    unzip_file(config_path.as_str(), better_gi_path.as_str())
+        .await
+        .map_err(|_| "解压文件失败".to_string())?;
     let reg_path = format!("{}/account.reg", account_folder);
     import_reg(reg_path.as_str()).await?;
     Ok(())
@@ -460,7 +483,10 @@ async fn zip_dir(src_path: &str, dest_path: &str) -> Result<(), String> {
         .arg("-DestinationPath")
         .arg(dest_path)
         .arg("-Force");
-    let output = cmd.output().await.map_err(|e| format!("压缩文件夹失败: {}", e))?;
+    let output = cmd
+        .output()
+        .await
+        .map_err(|e| format!("压缩文件夹失败: {}", e))?;
     tracing::info!("{}", String::from_utf8_lossy(&output.stdout));
     tracing::info!("{}", String::from_utf8_lossy(&output.stderr));
     if output.status.success() {
@@ -478,7 +504,10 @@ async fn unzip_file(zip_path: &str, dest_path: &str) -> Result<(), String> {
         .arg("-DestinationPath")
         .arg(dest_path)
         .arg("-Force");
-    let output = cmd.output().await.map_err(|e| format!("解压文件失败: {}", e))?;
+    let output = cmd
+        .output()
+        .await
+        .map_err(|e| format!("解压文件失败: {}", e))?;
     tracing::info!("{}", String::from_utf8_lossy(&output.stdout));
     tracing::info!("{}", String::from_utf8_lossy(&output.stderr));
     if output.status.success() {
@@ -519,14 +548,14 @@ def xor_encrypt_to_base64(plaintext: str) -> str:
     return base64_encoded
 */
 
-async fn export_reg(vp: &str,reg_path: &str) -> Result<(), String> {
+async fn export_reg(vp: &str, reg_path: &str) -> Result<(), String> {
     // "REG", "EXPORT", "HKEY_CURRENT_USER\\SOFTWARE\\miHoYo\\崩坏：星穹铁道", path, "/y
     let mut cmd = tokio::process::Command::new("REG");
-    cmd.arg("EXPORT")
-        .arg(vp)
-        .arg(reg_path)
-        .arg("/y");
-    let output = cmd.output().await.map_err(|e| format!("导出注册表失败: {}", e))?;
+    cmd.arg("EXPORT").arg(vp).arg(reg_path).arg("/y");
+    let output = cmd
+        .output()
+        .await
+        .map_err(|e| format!("导出注册表失败: {}", e))?;
     tracing::info!("{}", String::from_utf8_lossy(&output.stdout));
     tracing::info!("{}", String::from_utf8_lossy(&output.stderr));
     if output.status.success() {
@@ -540,7 +569,10 @@ async fn import_reg(reg_path: &str) -> Result<(), String> {
     // "REG", "IMPORT", path
     let mut cmd = tokio::process::Command::new("REG");
     cmd.arg("IMPORT").arg(reg_path);
-    let output = cmd.output().await.map_err(|e| format!("导入注册表失败: {}", e))?;
+    let output = cmd
+        .output()
+        .await
+        .map_err(|e| format!("导入注册表失败: {}", e))?;
     tracing::info!("{}", String::from_utf8_lossy(&output.stdout));
     tracing::info!("{}", String::from_utf8_lossy(&output.stderr));
     if output.status.success() {
@@ -557,7 +589,10 @@ async fn clear_game_reg() -> Result<(), String> {
     cmd.arg("delete")
         .arg("HKEY_CURRENT_USER\\SOFTWARE\\miHoYo\\崩坏：星穹铁道")
         .arg("/f");
-    let output = cmd.output().await.map_err(|e| format!("清除游戏注册表失败: {}", e))?;
+    let output = cmd
+        .output()
+        .await
+        .map_err(|e| format!("清除游戏注册表失败: {}", e))?;
     if output.status.success() {
         Ok(())
     } else {
@@ -565,8 +600,6 @@ async fn clear_game_reg() -> Result<(), String> {
         Err(format!("清除游戏注册表失败: {}", stderr))
     }
 }
-
-
 
 pub(crate) fn join_paths<P: AsRef<Path>>(paths: Vec<P>) -> String {
     match paths.len() {
@@ -599,7 +632,8 @@ async fn run_better_gi() -> Result<(), String> {
     }
     let mut cmd = tokio::process::Command::new(better_gi_path + "\\BetterGI.exe");
     cmd.arg("startOneDragon");
-    cmd.spawn().map_err(|e| format!("启动BetterGI失败: {}", e))?;
+    cmd.spawn()
+        .map_err(|e| format!("启动BetterGI失败: {}", e))?;
     tracing::info!("启动BetterGI成功");
     let start_time = std::time::Instant::now();
     while start_time.elapsed() < std::time::Duration::from_secs(30 * 60) {
@@ -625,7 +659,6 @@ async fn run_better_gi() -> Result<(), String> {
     Ok(())
 }
 
-
 #[tauri::command]
 async fn run_zzzod() -> Result<(), String> {
     let config = config::load_config().await?;
@@ -636,23 +669,37 @@ async fn run_zzzod() -> Result<(), String> {
     let py_exe = work_dir.clone() + "\\.venv\\scripts\\python.exe";
     let py_app = work_dir.clone() + "\\src\\zzz_od\\application\\zzz_one_dragon_app.py";
 
-    let mut cmd = tokio::process::Command::new(py_exe);
-    cmd.arg(py_app);
-    cmd.arg("-o");
-    cmd.arg("-c");
-    cmd.current_dir(work_dir);
-    cmd.env("PYTHONPATH", python_path);
-    cmd.env("ENV_DIR", env_dir);
-    cmd.stdin(Stdio::inherit());
-    cmd.stdout(Stdio::inherit());
-    cmd.stderr(Stdio::inherit());
-    cmd.kill_on_drop(true);
-    cmd.spawn().map_err(|e| format!("启动绝区零一条龙失败: {}", e))?;
+    let envs = HashMap::from([("PYTHONPATH", python_path), ("ENV_DIR", env_dir)]);
+
+    let your_command = format!("{} {} -o -c", py_exe, py_app);
+
+    let mut _child = if win::where_wt_exe() {
+        Command::new("wt")
+            .arg("cmd")
+            .arg("/C")
+            .arg(your_command)
+            .envs(&envs)
+            .spawn()
+            .map_err(|e| format!("启动绝区零一条龙失败: {}", e))?
+    } else {
+        Command::new("cmd")
+            .arg("/C")
+            .arg(your_command)
+            .envs(&envs)
+            .spawn()
+            .map_err(|e| format!("启动绝区零一条龙失败: {}", e))?
+    };
+
+    // cmd.stdin(Stdio::inherit());
+    // cmd.stdout(Stdio::inherit());
+    // cmd.stderr(Stdio::inherit());
+    // cmd.kill_on_drop(true);
+    // cmd.spawn().map_err(|e| format!("启动绝区零一条龙失败: {}", e))?;
     tracing::info!("启动绝区零一条龙成功");
     let start_time = std::time::Instant::now();
     while start_time.elapsed() < std::time::Duration::from_secs(30 * 60) {
         tokio::time::sleep(std::time::Duration::from_secs(100)).await;
-        let task_exists = task_exists("ZenlessZoneZero.exe").await;
+        let task_exists: Result<bool, String> = task_exists("ZenlessZoneZero.exe").await;
         match task_exists {
             Ok(true) => {
                 tracing::info!("绝区零一条龙仍在运行");
@@ -669,16 +716,21 @@ async fn run_zzzod() -> Result<(), String> {
         }
     }
     taskkill("ZenlessZoneZero.exe").await?;
+    let _ = _child.kill().await;
     Ok(())
 }
 
 async fn task_exists(exe_name: &str) -> Result<bool, String> {
     let mut cmd = tokio::process::Command::new("tasklist");
-    cmd.arg("/fi")
-        .arg(format!("imagename eq {}", exe_name));
-    let output = cmd.output().await.map_err(|e| format!("检查任务状态失败: {}", e))?;
+    cmd.arg("/fi").arg(format!("imagename eq {}", exe_name));
+    let output = cmd
+        .output()
+        .await
+        .map_err(|e| format!("检查任务状态失败: {}", e))?;
     let std = decode_gbk(output.stdout).unwrap();
-    Ok(std.to_ascii_lowercase().contains(exe_name.to_ascii_lowercase().as_str()))
+    Ok(std
+        .to_ascii_lowercase()
+        .contains(exe_name.to_ascii_lowercase().as_str()))
 }
 
 #[tauri::command]
@@ -692,7 +744,10 @@ async fn clear_gi_reg() -> Result<(), String> {
     cmd.arg("delete")
         .arg("HKEY_CURRENT_USER\\SOFTWARE\\miHoYo\\原神")
         .arg("/f");
-    let output = cmd.output().await.map_err(|e| format!("清除原神注册表失败: {}", e))?;
+    let output = cmd
+        .output()
+        .await
+        .map_err(|e| format!("清除原神注册表失败: {}", e))?;
     if output.status.success() {
         Ok(())
     } else {
@@ -707,7 +762,9 @@ async fn list_gi_accounts() -> Result<Vec<String>, String> {
     let better_gi_path = config.better_gi_path;
     let account_folder = format!("{}/m7f_accounts", better_gi_path);
     let mut accounts = Vec::new();
-    let mut rd = tokio::fs::read_dir(account_folder).await.map_err(|e| e.to_string())?;
+    let mut rd = tokio::fs::read_dir(account_folder)
+        .await
+        .map_err(|e| e.to_string())?;
     while let Some(entry) = rd.next_entry().await.map_err(|e| e.to_string())? {
         let path = entry.path();
         if path.is_dir() {
@@ -740,16 +797,23 @@ mod tests {
 
     #[tokio::test]
     async fn test_zip_dir() {
-        let result = zip_dir("D:\\Repositories\\BetterGI\\User", "D:\\Repositories\\BetterGI\\1\\User.zip").await;
+        let result = zip_dir(
+            "D:\\Repositories\\BetterGI\\User",
+            "D:\\Repositories\\BetterGI\\1\\User.zip",
+        )
+        .await;
         println!("{:?}", result);
     }
 
     #[tokio::test]
     async fn test_unzip_file() {
-        let result = unzip_file("D:\\Repositories\\BetterGI\\1\\User.zip", "D:\\Repositories\\BetterGI").await;
+        let result = unzip_file(
+            "D:\\Repositories\\BetterGI\\1\\User.zip",
+            "D:\\Repositories\\BetterGI",
+        )
+        .await;
         println!("{:?}", result);
     }
-
 }
 
 fn main() {
