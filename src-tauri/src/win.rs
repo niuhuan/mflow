@@ -11,7 +11,7 @@ use std::ptr;
 use winapi::um::shellapi::ShellExecuteW;
 use winapi::um::winuser::SW_SHOW;
 
-
+#[allow(unused)]
 pub fn is_elevated() -> bool {
     unsafe {
         let mut token_handle = std::ptr::null_mut();
@@ -38,6 +38,7 @@ fn to_wide(s: &str) -> Vec<u16> {
     OsStr::new(s).encode_wide().chain(Some(0)).collect()
 }
 
+#[allow(unused)]
 pub fn run_as_admin() {
     let exe_path = env::current_exe().unwrap();
     let mut exe_str = exe_path.to_str().unwrap();
