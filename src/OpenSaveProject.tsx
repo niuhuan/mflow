@@ -205,11 +205,6 @@ function OpenSaveProject({ goSetting, goExport, openFromPath, initFromTemaplate,
                 return;
             }
             
-            const confirmed = confirm(`确定要导入星铁账号 "${accountName}" 吗？这将覆盖当前的三月七小助手配置文件，以及游戏注册表。`);
-            if (!confirmed) {
-                return;
-            }
-            
             await invoke('load_account', { name: accountName });
             alert('导入星铁账号成功');
         } catch (error) {
@@ -227,11 +222,6 @@ function OpenSaveProject({ goSetting, goExport, openFromPath, initFromTemaplate,
             }
             let accountName = await selectOne(list);
             if (!accountName) {
-                return;
-            }
-            
-            const confirmed = confirm(`确定要导入原神账号 "${accountName}" 吗？这将覆盖当前的更好的原神配置文件，以及游戏注册表。`);
-            if (!confirmed) {
                 return;
             }
             
