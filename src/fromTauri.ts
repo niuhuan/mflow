@@ -54,6 +54,10 @@ export async function run_better_gi() {
     return await invoke('run_better_gi');
 }
 
+export async function run_better_gi_by_config(configName: string) {
+    return await invoke('run_better_gi_by_config', { configName });
+}
+
 export async function close_gi() {
     return await invoke('close_gi');
 }

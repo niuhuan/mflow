@@ -132,6 +132,11 @@ javascriptGenerator.forBlock['run_better_gi'] = function(block) {
   return 'await window.runBetterGi();\n';
 };
 
+javascriptGenerator.forBlock['run_better_gi_by_config'] = function(block) {
+  var configName = javascriptGenerator.valueToCode(block, 'CONFIG_NAME', Order.ATOMIC) || "'配置文件'";
+  return `await window.runBetterGiByConfig(${configName});\n`;
+};
+
 javascriptGenerator.forBlock['close_gi'] = function(block) {
   return 'await window.closeGi();\n';
 };

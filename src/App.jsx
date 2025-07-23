@@ -43,6 +43,13 @@ function App() {
       </category>
       <category name="原神" colour="30">
         <block type="run_better_gi"></block>
+        <block type="run_better_gi_by_config">
+          <value name="CONFIG_NAME">
+            <shadow type="text">
+              <field name="TEXT">配置文件</field>
+            </shadow>
+          </value>
+        </block>
         <block type="close_gi"></block>
         <block type="export_gi_account">
           <value name="ACCOUNT_NAME">
@@ -344,6 +351,12 @@ function App() {
       await invoke('run_better_gi');
     }
     window['runBetterGi'] = runBetterGi;
+
+    const runBetterGiByConfig = async (configName) => {
+      log('运行原神一条龙，使用配置文件: ' + configName);
+      await invoke('run_better_gi_by_config', { configName });
+    }
+    window['runBetterGiByConfig'] = runBetterGiByConfig;
 
     const closeGi = async () => {
       log('关闭原神...');

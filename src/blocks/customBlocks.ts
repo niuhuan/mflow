@@ -411,6 +411,22 @@ Blockly.defineBlocksWithJsonArray([
     "helpUrl": ""
   },
   {
+    "type": "run_better_gi_by_config",
+    "message0": "运行BetterGI一条龙 %1",
+    "args0": [
+      {
+        "type": "input_value",
+        "name": "CONFIG_NAME",
+        "check": "String"
+      }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": 30,
+    "tooltip": "运行BetterGI一条龙，使用指定配置文件",
+    "helpUrl": ""
+  },
+  {
     "type": "close_gi",
     "message0": "关闭原神",
     "previousStatement": null,
