@@ -645,7 +645,7 @@ async fn run_better_gi() -> Result<(), String> {
         .map_err(|e| format!("启动BetterGI失败: {}", e))?;
     tracing::info!("启动BetterGI成功");
     let start_time = std::time::Instant::now();
-    while start_time.elapsed() < std::time::Duration::from_secs(30 * 60) {
+    while start_time.elapsed() < std::time::Duration::from_secs(60 * 60) {
         tokio::time::sleep(std::time::Duration::from_secs(100)).await;
         let task_exists = task_exists("BetterGI.exe").await;
         match task_exists {
@@ -682,7 +682,7 @@ async fn run_better_gi_by_config(config_name: String) -> Result<(), String> {
         .map_err(|e| format!("启动BetterGI失败: {}", e))?;
     tracing::info!("启动BetterGI成功，使用配置文件: {}", config_name);
     let start_time = std::time::Instant::now();
-    while start_time.elapsed() < std::time::Duration::from_secs(30 * 60) {
+    while start_time.elapsed() < std::time::Duration::from_secs(60 * 60) {
         tokio::time::sleep(std::time::Duration::from_secs(100)).await;
         let task_exists = task_exists("BetterGI.exe").await;
         match task_exists {
@@ -831,6 +831,45 @@ async fn open_release_page() -> Result<(), String> {
     Ok(())
 }
 
+#[tauri::command]
+async fn run_better_gi_scheduler(groups: String) -> Result<(), String> {
+    let config = config::load_config().await?;
+    let better_gi_path = config.better_gi_path;
+    if better_gi_path.is_empty() {
+        return Err("BetterGI路径为空".to_string());
+    }
+    let mut cmd = tokio::process::Command::new(better_gi_path.clone() + "\\BetterGI.exe");
+    cmd.arg("--startGroups");
+    for group in groups.split_whitespace() {
+        cmd.arg(group);
+    }
+    cmd.spawn()
+        .map_err(|e| format!("启动BetterGI调度器失败: {}", e))?;
+    tracing::info!("启动BetterGI调度器成功，任务组: {}", groups);
+    let start_time = std::time::Instant::now();
+    while start_time.elapsed() < std::time::Duration::from_secs(60 * 60 * 5) {
+        tokio::time::sleep(std::time::Duration::from_secs(100)).await;
+        let task_exists = task_exists("BetterGI.exe").await;
+        match task_exists {
+            Ok(true) => {
+                tracing::info!("BetterGI仍在运行");
+                continue;
+            }
+            Ok(false) => {
+                tracing::info!("BetterGI已停止");
+                break;
+            }
+            Err(e) => {
+                tracing::error!("检查BetterGI状态失败: {}", e);
+                break;
+            }
+        }
+    }
+    taskkill("BetterGI.exe").await?;
+    taskkill("YuanShen.exe").await?;
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -913,6 +952,7 @@ fn main() {
             run_zzzod,
             run_zzzod_gui,
             run_better_gi_by_config,
+            run_better_gi_scheduler,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

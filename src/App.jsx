@@ -50,6 +50,13 @@ function App() {
             </shadow>
           </value>
         </block>
+        <block type="run_better_gi_scheduler">
+          <value name="GROUPS">
+            <shadow type="text">
+              <field name="TEXT">配置组名称1 配置组名称2 退出程序</field>
+            </shadow>
+          </value>
+        </block>
         <block type="close_gi"></block>
         <block type="export_gi_account">
           <value name="ACCOUNT_NAME">
@@ -381,6 +388,12 @@ function App() {
       await invoke('run_zzzod');
     }
     window['runZzzod'] = runZzzod;
+
+    const runBetterGiScheduler = async (groups) => {
+      log('运行原神调度器，任务组: ' + groups);
+      await invoke('run_better_gi_scheduler', { groups });
+    }
+    window['runBetterGiScheduler'] = runBetterGiScheduler;
 
     const execute = async () => {
       try {

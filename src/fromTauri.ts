@@ -102,3 +102,7 @@ export async function run_zzzod_gui() {
     return await invoke('run_zzzod_gui');
 }
 
+export async function run_better_gi_scheduler(groups: string) {
+    return await invoke('run_better_gi_scheduler', { groups });
+}
+

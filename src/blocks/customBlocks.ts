@@ -473,6 +473,22 @@ Blockly.defineBlocksWithJsonArray([
     "previousStatement": null,
     "nextStatement": null,
     "colour": 30,
+  },
+  {
+    "type": "run_better_gi_scheduler",
+    "message0": "运行原神调度器 %1",
+    "args0": [
+      {
+        "type": "input_value",
+        "name": "GROUPS",
+        "check": "String"
+      }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": 30,
+    "tooltip": "运行原神调度器，多个任务用空格分隔",
+    "helpUrl": ""
   }
 ]);
 

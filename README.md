@@ -27,6 +27,8 @@
    ```
    winget install Microsoft.WindowsTerminal 
    ```
+5. 若使用 `更好的原神调度器`, 请使用空格分隔多个配置组, 最后增加一个`退出程序`配置组, 请保持最后运行。（目前使用程序是否存在判断任务是否执行完， 否则会等待5小时超时）
+   增加shell 关闭更好的原神  `taskkill /im BetterGI.exe` 
 
 ## 截图
 
