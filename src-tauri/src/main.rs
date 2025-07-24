@@ -719,22 +719,13 @@ async fn run_zzzod() -> Result<(), String> {
 
     let your_command = format!("{} {} -o -c", py_exe, py_app);
 
-    let mut _child = if win::where_wt_exe() {
-        Command::new("wt")
-            .arg("cmd")
-            .arg("/C")
-            .arg(your_command)
-            .envs(&envs)
-            .spawn()
-            .map_err(|e| format!("启动绝区零一条龙失败: {}", e))?
-    } else {
-        Command::new("cmd")
-            .arg("/C")
-            .arg(your_command)
-            .envs(&envs)
-            .spawn()
-            .map_err(|e| format!("启动绝区零一条龙失败: {}", e))?
-    };
+    let mut _child = Command::new("cmd")
+    .arg("/C")
+    .arg(your_command)
+    .envs(&envs)
+    .kill_on_drop(true)
+    .spawn()
+    .map_err(|e| format!("启动绝区零一条龙失败: {}", e))?;
 
     // cmd.stdin(Stdio::inherit());
     // cmd.stdout(Stdio::inherit());
