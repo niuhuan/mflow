@@ -14,6 +14,7 @@
     "fs:read-meta",
     "fs:read-dirs",
     "fs:allow-mkdir",
-    "dialog:default"
+    "dialog:default",
+    "core:window:allow-destroy"
   ]
 }

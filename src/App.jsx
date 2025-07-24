@@ -13,7 +13,6 @@ import { AppConfig } from './AppConfig';
 import { AppExport } from './AppExport';
 
 import { getCurrentWindow } from '@tauri-apps/api/window';
-const appWindow = getCurrentWindow();
 
 
 function App() {
@@ -191,6 +190,8 @@ function App() {
 
   const saveToFile = async (xmlContent) => {
     setLastSavedXml(xmlContent);
+    setIsDirty(false);
+    window.isDirty = false;
     if (filePath) {
       await writeTextFile(filePath, xmlContent);
       putConsoleMessage(`> 保存到文件: ${filePath}`);
@@ -211,6 +212,8 @@ function App() {
     setFilePath(path);
     setFileContent(fileContent);
     setLastSavedXml(fileContent);
+    setIsDirty(false);
+    window.isDirty = false;
     frontendConfig.lastFile = path;
     await saveConfig();
     setInit(100);
@@ -222,6 +225,8 @@ function App() {
     setFilePath(path);
     setFileContent(fileContent);
     setLastSavedXml(fileContent);
+    setIsDirty(false);
+    window.isDirty = false;
     frontendConfig.lastFile = path;
     await saveConfig();
     setInit(100);
@@ -460,12 +465,26 @@ function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [init, saveFlow]);
 
-  const blocklyRef = useRef(null);
-
   const onWorkspaceChange = () => {
     const xml = Blockly.Xml.domToText(Blockly.Xml.workspaceToDom(Blockly.getMainWorkspace()));
+    window.isDirty = xml !== lastSavedXml;
     setIsDirty(xml !== lastSavedXml);
   }
+
+  useEffect(() => {
+    const appWindow = getCurrentWindow();
+    const unlisten = appWindow.onCloseRequested(async (event) => {
+      if (window.isDirty) {
+        const confirmed = await confirm("不经保存就退出吗？");
+        if (!confirmed) {
+          event.preventDefault();
+        }
+      }
+    });
+    return () => {
+      unlisten.then((off) => off && off());
+    };
+  });
 
   if (init === 20) {
     return <OpenSaveProject goSetting={() => {
@@ -506,6 +525,14 @@ function App() {
       <div id="boo">
         <div id="top" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <button disabled={isRunning} onClick={async () => {
+            if (window.isDirty) {
+              const confirmed = await confirm("不经保存就关闭吗？");
+              if (!confirmed) {
+                return;
+              }
+            }
+            setIsDirty(false);
+            window.isDirty = false;
             frontendConfig.lastFile = '';
             await saveConfig();
             setInit(20);
@@ -543,7 +570,7 @@ function App() {
         </div>
         <div className="app-container">
           <div className="editor-container">
-            <BlocklyComponent initialXml={fileContent} toolboxXml={toolboxXml} ref={blocklyRef} onWorkspaceChange={onWorkspaceChange} />
+            <BlocklyComponent initialXml={fileContent} toolboxXml={toolboxXml} onWorkspaceChange={onWorkspaceChange} />
           </div>
           <div className="controls-container">
             <button onClick={runCode} className="run-button" disabled={isRunning} >
