@@ -6,7 +6,7 @@ import 'blockly/javascript';
 
 Blockly.setLocale(zhHans);
 
-const BlocklyComponent = ({ initialXml, toolboxXml }) => {
+const BlocklyComponent = ({ initialXml, toolboxXml, onWorkspaceChange }) => {
   const blocklyDiv = useRef(null);
   const primaryWorkspace = useRef(null);
 
@@ -28,6 +28,27 @@ const BlocklyComponent = ({ initialXml, toolboxXml }) => {
       }
     };
   }, [initialXml, toolboxXml]);
+
+  useEffect(() => {
+    if (!primaryWorkspace.current) return;
+    const changeListener = () => {
+      console.log('changeListener');
+      if (onWorkspaceChange) {
+        onWorkspaceChange(
+          Blockly.Xml.domToText(Blockly.Xml.workspaceToDom(primaryWorkspace.current))
+        );
+      }
+    }
+    
+    if (onWorkspaceChange) {
+      primaryWorkspace.current.addChangeListener(changeListener);
+    }
+    return () => {
+      if (primaryWorkspace.current) {
+        primaryWorkspace.current.removeChangeListener(changeListener);
+      }
+    };
+  }, [onWorkspaceChange]);
 
   return (
     <div style={{ height: '100%', width: '100%' }}>

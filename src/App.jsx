@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import BlocklyComponent from './components/BlocklyComponent';
 import './blocks/customBlocks';
 import './blocks/generators';
@@ -11,6 +11,10 @@ import { frontendConfig, loadConfig, saveConfig } from './config';
 import { exists, get_account_uid, load_backend_config, readTextFile, writeTextFile, get_version, get_new_version, open_release_page } from './fromTauri';
 import { AppConfig } from './AppConfig';
 import { AppExport } from './AppExport';
+
+import { getCurrentWindow } from '@tauri-apps/api/window';
+const appWindow = getCurrentWindow();
+
 
 function App() {
 
@@ -179,8 +183,14 @@ function App() {
   const [filePath, setFilePath] = useState('');
   const [fileContent, setFileContent] = useState(initialXml);
   const [isRunning, setIsRunning] = useState(false);
+  
+  const [exitType, setExitType] = useState('');
+  const [isDirty, setIsDirty] = useState(false);
+  const [lastSavedXml, setLastSavedXml] = useState(initialXml);
+  const [showExitModal, setShowExitModal] = useState(false);
 
   const saveToFile = async (xmlContent) => {
+    setLastSavedXml(xmlContent);
     if (filePath) {
       await writeTextFile(filePath, xmlContent);
       putConsoleMessage(`> 保存到文件: ${filePath}`);
@@ -200,6 +210,7 @@ function App() {
     const fileContent = await readTextFile(path);
     setFilePath(path);
     setFileContent(fileContent);
+    setLastSavedXml(fileContent);
     frontendConfig.lastFile = path;
     await saveConfig();
     setInit(100);
@@ -210,6 +221,7 @@ function App() {
     const fileContent = await readTextFile(path);
     setFilePath(path);
     setFileContent(fileContent);
+    setLastSavedXml(fileContent);
     frontendConfig.lastFile = path;
     await saveConfig();
     setInit(100);
@@ -448,6 +460,13 @@ function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [init, saveFlow]);
 
+  const blocklyRef = useRef(null);
+
+  const onWorkspaceChange = () => {
+    const xml = Blockly.Xml.domToText(Blockly.Xml.workspaceToDom(Blockly.getMainWorkspace()));
+    setIsDirty(xml !== lastSavedXml);
+  }
+
   if (init === 20) {
     return <OpenSaveProject goSetting={() => {
       setInit(40);
@@ -493,6 +512,7 @@ function App() {
           }}>
             关闭
           </button>
+          <span style={{ color: 'red', fontWeight: 'bold', marginRight: 4 }}>{isDirty ? '*' : ''}</span>
           <input type="text" value={filePath} disabled={true}
             style={{ flexGrow: 1, border: 'none', outline: 'none', backgroundColor: 'transparent' }} />
           <button onClick={() => {
@@ -523,7 +543,7 @@ function App() {
         </div>
         <div className="app-container">
           <div className="editor-container">
-            <BlocklyComponent initialXml={fileContent} toolboxXml={toolboxXml} />
+            <BlocklyComponent initialXml={fileContent} toolboxXml={toolboxXml} ref={blocklyRef} onWorkspaceChange={onWorkspaceChange} />
           </div>
           <div className="controls-container">
             <button onClick={runCode} className="run-button" disabled={isRunning} >
