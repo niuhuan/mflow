@@ -193,6 +193,7 @@ async fn run_m7f_command(command: &str) -> Result<(), String> {
     cmd.arg(bin);
     cmd.arg(command);
     cmd.current_dir(work_dir);
+    cmd.kill_on_drop(true);
     cmd.stdin(Stdio::piped());
     let mut child = cmd.spawn().map_err(|e| format!("运行命令失败: {}", e))?;
     let mut std_in = child.stdin.take().expect("获取标准输入失败");

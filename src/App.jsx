@@ -437,6 +437,17 @@ function App() {
     getNewVersion();
   }, []);
 
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (init === 100 && (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
+        event.preventDefault();
+        saveFlow();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [init, saveFlow]);
+
   if (init === 20) {
     return <OpenSaveProject goSetting={() => {
       setInit(40);
