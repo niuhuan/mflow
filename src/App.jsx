@@ -8,7 +8,7 @@ import './App.css';
 import { invoke } from '@tauri-apps/api/core';
 import OpenSaveProject from './OpenSaveProject';
 import { frontendConfig, loadConfig, saveConfig } from './config';
-import { exists, get_account_uid, load_backend_config, readTextFile, writeTextFile, get_version, get_new_version, open_release_page, run_m7_launcher, run_better_gi_gui, run_zzzod_gui } from './fromTauri';
+import { exists, get_account_uid, load_backend_config, readTextFile, writeTextFile, get_version, get_new_version, open_release_page, run_m7_launcher, run_better_gi_gui, run_zzzod_gui, export_gi_account, import_gi_account, list_accounts, list_gi_accounts, export_account } from './fromTauri';
 import { AppConfig } from './AppConfig';
 import { AppExport } from './AppExport';
 
@@ -205,6 +205,124 @@ function App() {
     await saveToFile(xmlText);
   }
 
+  const selectOne = async (list) => {
+    return new Promise((resolve) => {
+      // 创建模态对话框
+      const modal = document.createElement('div');
+      modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      `;
+
+      const dialog = document.createElement('div');
+      dialog.style.cssText = `
+        background-color: white;
+        border-radius: 8px;
+        padding: 20px;
+        min-width: 300px;
+        max-width: 500px;
+        max-height: 400px;
+        overflow-y: auto;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      `;
+
+      const title = document.createElement('h3');
+      title.textContent = '请选择一个项目';
+      title.style.cssText = `
+        margin: 0 0 15px 0;
+        color: #333;
+      `;
+
+      const listContainer = document.createElement('div');
+      listContainer.style.cssText = `
+        margin-bottom: 15px;
+      `;
+
+      // 创建选项列表
+      list.forEach((item) => {
+        const option = document.createElement('div');
+        option.textContent = item;
+        option.style.cssText = `
+          padding: 10px;
+          margin: 5px 0;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          cursor: pointer;
+          transition: background-color 0.2s;
+        `;
+
+        option.addEventListener('mouseenter', () => {
+          option.style.backgroundColor = '#f5f5f5';
+        });
+
+        option.addEventListener('mouseleave', () => {
+          option.style.backgroundColor = 'white';
+        });
+
+        option.addEventListener('click', () => {
+          resolve(item);
+          document.body.removeChild(modal);
+        });
+
+        listContainer.appendChild(option);
+      });
+
+      const cancelButton = document.createElement('button');
+      cancelButton.textContent = '取消';
+      cancelButton.style.cssText = `
+        padding: 8px 16px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: #f8f9fa;
+        cursor: pointer;
+        margin-right: 10px;
+      `;
+
+      cancelButton.addEventListener('click', () => {
+        resolve(null);
+        document.body.removeChild(modal);
+      });
+
+      const buttonContainer = document.createElement('div');
+      buttonContainer.style.cssText = `
+        text-align: right;
+      `;
+      buttonContainer.appendChild(cancelButton);
+
+      dialog.appendChild(title);
+      dialog.appendChild(listContainer);
+      dialog.appendChild(buttonContainer);
+      modal.appendChild(dialog);
+      document.body.appendChild(modal);
+
+      // 点击模态背景关闭
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          resolve(null);
+          document.body.removeChild(modal);
+        }
+      });
+
+      // ESC键关闭
+      const handleKeyDown = (e) => {
+        if (e.key === 'Escape') {
+          resolve(null);
+          document.body.removeChild(modal);
+          document.removeEventListener('keydown', handleKeyDown);
+        }
+      };
+      document.addEventListener('keydown', handleKeyDown);
+    });
+  }
+
   const handleDropdownAction = async (action) => {
     setShowDropdown(false);
     try {
@@ -217,6 +335,44 @@ function App() {
           break;
         case 'zzzod_gui':
           await run_zzzod_gui();
+          break;
+        case 'export_gi_account':
+          const accountName = prompt('请输入原神账号名称');
+          if (accountName && accountName.trim()) {
+            await export_gi_account(accountName.trim());
+            alert('导出原神账号成功');
+          }
+          break;
+        case 'import_gi_account':
+          const giList = await list_gi_accounts();
+          if (giList.length === 0) {
+            alert('没有原神账号');
+            return;
+          }
+          const giAccountName = await selectOne(giList);
+          if (giAccountName) {
+            await import_gi_account(giAccountName);
+            alert('导入原神账号成功');
+          }
+          break;
+        case 'import_account':
+          const list = await list_accounts();
+          if (list.length === 0) {
+            alert('没有星铁账号');
+            return;
+          }
+          const accountName2 = await selectOne(list);
+          if (accountName2) {
+            await invoke('load_account', { name: accountName2 });
+            alert('导入星铁账号成功');
+          }
+          break;
+        case 'export_account':
+          const accountName3 = prompt('请输入星铁账号名称');
+          if (accountName3 && accountName3.trim()) {
+            await export_account(accountName3.trim(), '', '');
+            alert('导出星铁账号成功');
+          }
           break;
         default:
           break;
@@ -688,6 +844,111 @@ function App() {
                     <polygon points="5,3 19,12 5,21 5,3" />
                   </svg>
                   启动绝区零一条龙
+                </button>
+                
+                {/* 分隔线 */}
+                <div style={{
+                  height: '1px',
+                  backgroundColor: '#e5e7eb',
+                  margin: '4px 0'
+                }}></div>
+                
+                <button
+                  onClick={() => handleDropdownAction('export_gi_account')}
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    border: 'none',
+                    backgroundColor: 'transparent',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = '#f5f5f5'}
+                  onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '16px', height: '16px' }}>
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7,10 12,15 17,10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                    <path d="M12 3v12" />
+                  </svg>
+                  导出原神账号
+                </button>
+                
+                <button
+                  onClick={() => handleDropdownAction('import_gi_account')}
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    border: 'none',
+                    backgroundColor: 'transparent',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = '#f5f5f5'}
+                  onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '16px', height: '16px' }}>
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="17,8 12,3 7,8" />
+                    <line x1="12" y1="3" x2="12" y2="15" />
+                  </svg>
+                  导入原神账号
+                </button>
+                
+                <button
+                  onClick={() => handleDropdownAction('import_account')}
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    border: 'none',
+                    backgroundColor: 'transparent',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = '#f5f5f5'}
+                  onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '16px', height: '16px' }}>
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="17,8 12,3 7,8" />
+                    <line x1="12" y1="3" x2="12" y2="15" />
+                  </svg>
+                  导入星铁账号
+                </button>
+                
+                <button
+                  onClick={() => handleDropdownAction('export_account')}
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    border: 'none',
+                    backgroundColor: 'transparent',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = '#f5f5f5'}
+                  onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '16px', height: '16px' }}>
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7,10 12,15 17,10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                    <path d="M12 3v12" />
+                  </svg>
+                  导出星铁账号
                 </button>
               </div>
             )}
