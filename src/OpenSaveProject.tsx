@@ -204,7 +204,7 @@ function OpenSaveProject({ goSetting, goExport, openFromPath, initFromTemaplate,
             if (!accountName) {
                 return;
             }
-            
+
             await invoke('load_account', { name: accountName });
             alert('导入星铁账号成功');
         } catch (error) {
@@ -224,7 +224,7 @@ function OpenSaveProject({ goSetting, goExport, openFromPath, initFromTemaplate,
             if (!accountName) {
                 return;
             }
-            
+
             await invoke('import_gi_account', { accountName });
             alert('导入原神账号成功');
         } catch (error) {
@@ -368,9 +368,9 @@ function OpenSaveProject({ goSetting, goExport, openFromPath, initFromTemaplate,
 
             </div>
 
-            <div className="button-group">  
+            <div className="button-group">
 
-            <button
+                <button
                     className="action-button export-button"
                     onClick={goExport}
                 >
@@ -428,9 +428,9 @@ function OpenSaveProject({ goSetting, goExport, openFromPath, initFromTemaplate,
 
             </div>
 
-            <div className="button-group">  
+            <div className="button-group">
 
-            <button
+                <button
                     className="action-button export-button"
                     onClick={onExportGiAccount}
                 >
@@ -443,7 +443,7 @@ function OpenSaveProject({ goSetting, goExport, openFromPath, initFromTemaplate,
                     <span>导出原神账号</span>
                 </button>
 
-                
+
                 <button
                     className="action-button export-button"
                     onClick={handleImportGiAccount}
@@ -490,7 +490,7 @@ function OpenSaveProject({ goSetting, goExport, openFromPath, initFromTemaplate,
             <div className="button-group">
                 <button
                     className="action-button export-button"
-                    onClick={async ()=>{
+                    onClick={async () => {
                         try {
                             await run_zzzod_gui();
                         } catch (error) {
@@ -504,7 +504,7 @@ function OpenSaveProject({ goSetting, goExport, openFromPath, initFromTemaplate,
                     <span>启动绝区零一条龙界面</span>
                 </button>
 
-                 
+
             </div>
 
             <div className="version-info" onClick={() => open_release_page()}>

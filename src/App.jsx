@@ -8,7 +8,7 @@ import './App.css';
 import { invoke } from '@tauri-apps/api/core';
 import OpenSaveProject from './OpenSaveProject';
 import { frontendConfig, loadConfig, saveConfig } from './config';
-import { exists, get_account_uid, load_backend_config, readTextFile, writeTextFile, get_version, get_new_version, open_release_page } from './fromTauri';
+import { exists, get_account_uid, load_backend_config, readTextFile, writeTextFile, get_version, get_new_version, open_release_page, run_m7_launcher, run_better_gi_gui, run_zzzod_gui } from './fromTauri';
 import { AppConfig } from './AppConfig';
 import { AppExport } from './AppExport';
 
@@ -187,6 +187,7 @@ function App() {
   const [isDirty, setIsDirty] = useState(false);
   const [lastSavedXml, setLastSavedXml] = useState(initialXml);
   const [showExitModal, setShowExitModal] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
 
   const saveToFile = async (xmlContent) => {
     setLastSavedXml(xmlContent);
@@ -202,6 +203,27 @@ function App() {
     const xml = Blockly.Xml.workspaceToDom(Blockly.getMainWorkspace());
     const xmlText = Blockly.Xml.domToText(xml);
     await saveToFile(xmlText);
+  }
+
+  const handleDropdownAction = async (action) => {
+    setShowDropdown(false);
+    try {
+      switch (action) {
+        case 'm7_launcher':
+          await run_m7_launcher();
+          break;
+        case 'better_gi_gui':
+          await run_better_gi_gui();
+          break;
+        case 'zzzod_gui':
+          await run_zzzod_gui();
+          break;
+        default:
+          break;
+      }
+    } catch (error) {
+      alert(error);
+    }
   }
 
   const openFromPath = async (path) => {
@@ -465,6 +487,22 @@ function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [init, saveFlow]);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showDropdown && !event.target.closest('.dropdown-container')) {
+        setShowDropdown(false);
+      }
+    };
+    
+    if (showDropdown) {
+      document.addEventListener('click', handleClickOutside);
+    }
+    
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [showDropdown]);
+
   const onWorkspaceChange = () => {
     const xml = Blockly.Xml.domToText(Blockly.Xml.workspaceToDom(Blockly.getMainWorkspace()));
     window.isDirty = xml !== lastSavedXml;
@@ -542,6 +580,119 @@ function App() {
           <span style={{ color: 'red', fontWeight: 'bold', marginRight: 4 }}>{isDirty ? '*' : ''}</span>
           <input type="text" value={filePath} disabled={true}
             style={{ flexGrow: 1, border: 'none', outline: 'none', backgroundColor: 'transparent' }} />
+          
+          {/* 下拉菜单 */}
+          <div className="dropdown-container" style={{ position: 'relative', marginRight: 8 }}>
+            <button 
+              onClick={() => setShowDropdown(!showDropdown)}
+              style={{
+                padding: '8px 12px',
+                /* backgroundColor: '#4a5568', */
+                /* color: 'white', */
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+            >
+              工具
+              <svg 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2"
+                style={{ 
+                  width: '16px', 
+                  height: '16px',
+                  transform: showDropdown ? 'rotate(180deg)' : 'rotate(0deg)',
+                  transition: 'transform 0.2s'
+                }}
+              >
+                <polyline points="6,9 12,15 18,9" />
+              </svg>
+            </button>
+            
+            {showDropdown && (
+              <div style={{
+                position: 'absolute',
+                top: '100%',
+                right: 0,
+                backgroundColor: 'white',
+                border: '1px solid #ddd',
+                borderRadius: '4px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                zIndex: 1000,
+                minWidth: '200px'
+              }}>
+                <button
+                  onClick={() => handleDropdownAction('m7_launcher')}
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    border: 'none',
+                    backgroundColor: 'transparent',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = '#f5f5f5'}
+                  onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '16px', height: '16px' }}>
+                    <polygon points="5,3 19,12 5,21 5,3" />
+                  </svg>
+                  启动三月七小助手
+                </button>
+                <button
+                  onClick={() => handleDropdownAction('better_gi_gui')}
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    border: 'none',
+                    backgroundColor: 'transparent',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = '#f5f5f5'}
+                  onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '16px', height: '16px' }}>
+                    <polygon points="5,3 19,12 5,21 5,3" />
+                  </svg>
+                  启动更好的原神
+                </button>
+                <button
+                  onClick={() => handleDropdownAction('zzzod_gui')}
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    border: 'none',
+                    backgroundColor: 'transparent',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = '#f5f5f5'}
+                  onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '16px', height: '16px' }}>
+                    <polygon points="5,3 19,12 5,21 5,3" />
+                  </svg>
+                  启动绝区零一条龙
+                </button>
+              </div>
+            )}
+          </div>
+          
           <button onClick={() => {
             saveFlow();
           }}>
