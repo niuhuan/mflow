@@ -635,6 +635,8 @@ fn decode_gbk(bytes: Vec<u8>) -> Result<String, String> {
 
 #[tauri::command]
 async fn run_better_gi() -> Result<(), String> {
+    taskkill("BetterGI.exe").await?;
+    tokio::time::sleep(std::time::Duration::from_secs(5)).await;
     let config = config::load_config().await?;
     let better_gi_path = config.better_gi_path;
     if better_gi_path.is_empty() {
@@ -671,6 +673,8 @@ async fn run_better_gi() -> Result<(), String> {
 
 #[tauri::command]
 async fn run_better_gi_by_config(config_name: String) -> Result<(), String> {
+    taskkill("BetterGI.exe").await?;
+    tokio::time::sleep(std::time::Duration::from_secs(5)).await;
     let config = config::load_config().await?;
     let better_gi_path = config.better_gi_path;
     if better_gi_path.is_empty() {
@@ -825,6 +829,8 @@ async fn open_release_page() -> Result<(), String> {
 
 #[tauri::command]
 async fn run_better_gi_scheduler(groups: String) -> Result<(), String> {
+    taskkill("BetterGI.exe").await?;
+    tokio::time::sleep(std::time::Duration::from_secs(5)).await;
     let config = config::load_config().await?;
     let better_gi_path = config.better_gi_path;
     if better_gi_path.is_empty() {
