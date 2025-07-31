@@ -112,20 +112,51 @@ javascriptGenerator.forBlock['custom_function_def'] = function(block) {
   var funcName = block.getFieldValue('FUNC_NAME') || 'myFunc';
   var params = block.getFieldValue('PARAMS') || '';
   var branch = javascriptGenerator.statementToCode(block, 'DO');
-  var code = `async function ${funcName}(${params}) {\n${branch}}\n`;
+  
+  // var code = `async function ${funcName}(${params}) {\n${branch}}\n`;
+
+  // 处理参数列表，清理空格并过滤空参数
+  var cleanParams = params.split(',')
+    .map(function(param) { return param.trim(); })
+    .filter(function(param) { return param.length > 0; })
+    .join(', ');
+  
+  var code = `async function ${funcName}(${cleanParams}) {\n${branch}}\n`;
   return code;
 };
 
 javascriptGenerator.forBlock['custom_function_call'] = function(block) {
   var funcName = block.getFieldValue('FUNC_NAME') || 'myFunc';
   var args = javascriptGenerator.valueToCode(block, 'ARGS', Order.NONE) || '';
-  var code = `await ${funcName}(${args});\n`;
+  
+
+  // var code = `await ${funcName}(${args});\n`;
+
+
+  // 如果参数为空，则不传递参数
+  if (!args || args.trim() === '') {
+    var code = `await ${funcName}();\n`;
+  } else {
+    // 直接使用生成的参数，不进行额外的分割处理
+    var code = `await ${funcName}(${args});\n`;
+  }
+
+
   return code;
 };
 
 javascriptGenerator.forBlock['custom_parameter'] = function(block) {
   var paramName = block.getFieldValue('PARAM_NAME') || 'param1';
+  
   return [paramName, Order.ATOMIC];
+  
+  // 清理参数名，移除多余的空格
+  var cleanParamName = paramName.trim();
+  // 确保参数名是有效的JavaScript标识符
+  if (!/^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(cleanParamName)) {
+    cleanParamName = 'param1'; // 默认参数名
+  }
+  return [cleanParamName, Order.ATOMIC];
 }; 
 
 javascriptGenerator.forBlock['run_better_gi'] = function(block) {

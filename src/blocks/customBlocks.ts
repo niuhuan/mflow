@@ -281,7 +281,7 @@ Blockly.defineBlocksWithJsonArray([
       {
         "type": "field_input",
         "name": "PARAMS",
-        "text": ""
+        "text": "param1, param2"
       },
       {
         "type": "input_statement",
@@ -289,7 +289,7 @@ Blockly.defineBlocksWithJsonArray([
       }
     ],
     "colour": 330,
-    "tooltip": "自定义函数定义，可填写参数名，用逗号分隔。",
+    "tooltip": "自定义函数定义，参数名用逗号分隔，如：param1, param2, param3",
     "helpUrl": "",
     "nextStatement": null,
     "previousStatement": null
@@ -309,7 +309,7 @@ Blockly.defineBlocksWithJsonArray([
       }
     ],
     "colour": 330,
-    "tooltip": "调用自定义函数，参数用逗号分隔。",
+    "tooltip": "调用自定义函数，参数用逗号分隔，如：'hello', 123, true",
     "helpUrl": "",
     "previousStatement": null,
     "nextStatement": null
