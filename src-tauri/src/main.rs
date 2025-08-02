@@ -121,25 +121,25 @@ async fn get_version() -> Result<String, String> {
 #[tauri::command]
 async fn daily_mission() -> Result<(), String> {
     tracing::info!("后台日志: 正在执行每日任务...");
-    run_m7f_command("daily").await
+    run_m7f_command("daily", std::time::Duration::from_secs(60 * 60)).await
 }
 
 #[tauri::command]
 async fn refresh_stamina() -> Result<(), String> {
     tracing::info!("后台日志: 正在刷体力...");
-    run_m7f_command("power").await
+    run_m7f_command("power", std::time::Duration::from_secs(60 * 60)).await
 }
 
 #[tauri::command]
 async fn simulated_universe() -> Result<(), String> {
     tracing::info!("后台日志: 正在执行模拟宇宙...");
-    run_m7f_command("universe").await
+    run_m7f_command("universe", std::time::Duration::from_secs(60 * 60 * 2)).await
 }
 
 #[tauri::command]
 async fn farming() -> Result<(), String> {
     tracing::info!("后台日志: 正在锄大地...");
-    run_m7f_command("fight").await
+    run_m7f_command("fight", std::time::Duration::from_secs(60 * 60 * 6)).await
 }
 
 #[tauri::command]
@@ -183,27 +183,37 @@ async fn save_backend_config(config: config::BackendConfig) -> Result<(), String
     Ok(())
 }
 
-async fn run_m7f_command(command: &str) -> Result<(), String> {
+async fn run_m7f_command(command: &str, timeout: std::time::Duration) -> Result<(), String> {
     let config = config::load_config().await?;
     let work_dir = config.m7_path;
     let bin = "March7th Assistant.exe";
-    tracing::info!("后台日志: 正在运行命令... {} {} {}", work_dir, bin, command);
+    tracing::info!("后台日志: 正在运行命令... {} {} {} 超时: {}", work_dir, bin, command, timeout.as_secs());
     let mut cmd = tokio::process::Command::new("cmd");
     cmd.arg("/c");
     cmd.arg(bin);
     cmd.arg(command);
-    cmd.current_dir(work_dir);
+    cmd.current_dir(work_dir.clone());
     cmd.kill_on_drop(true);
     cmd.stdin(Stdio::piped());
     let mut child = cmd.spawn().map_err(|e| format!("运行命令失败: {}", e))?;
     let mut std_in = child.stdin.take().expect("获取标准输入失败");
     // u8 \n 1024
     let buf = vec![b'\n'; 1024];
-    let _result = std_in.write_all(&buf).await;
-    child
-        .wait()
-        .await
-        .map_err(|e| format!("等待命令执行失败: {}", e))?;
+    let writing = tokio::spawn(async move {
+        let _result = std_in.write_all(&buf).await;
+    });
+    let start_time = std::time::Instant::now();
+    while start_time.elapsed() < timeout {
+        tokio::time::sleep(std::time::Duration::from_secs(100)).await;
+        let try_wait = child.try_wait().map_err(|e| format!("等待命令执行失败: {}", e));
+        tracing::info!("try_wait: {:?}", try_wait);
+        if try_wait.is_ok() && try_wait.unwrap().is_some() {
+            break;
+        }
+    }
+    let _ = child.kill().await;
+    let _ = writing.abort();
+    taskkill("StarRail.exe").await?;
     Ok(())
 }
 
