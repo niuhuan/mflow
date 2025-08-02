@@ -95,7 +95,7 @@ jobs:
         yarn tauri build
 
     - name: Upload asset to existing release
-      if: steps.check-release.outputs.release_exists == 'true' && steps.check-release.outputs.has_asset != 'true'
+      if: steps.check-release.outputs.has_asset != 'true'
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
