@@ -179,6 +179,20 @@ javascriptGenerator.forBlock['import_gi_account'] = function(block) {
   return `await window.importGiAccount(${accountName});\n`;
 };
 
+javascriptGenerator.forBlock['export_zzz_account'] = function(block) {
+  var accountName = javascriptGenerator.valueToCode(block, 'ACCOUNT_NAME', Order.ATOMIC) || "''";
+  return `await window.exportZzzAccount(${accountName});\n`;
+};
+
+javascriptGenerator.forBlock['import_zzz_account'] = function(block) {
+  var accountName = javascriptGenerator.valueToCode(block, 'ACCOUNT_NAME', Order.ATOMIC) || "''";
+  return `await window.importZzzAccount(${accountName});\n`;
+};
+
+javascriptGenerator.forBlock['close_zzz'] = function(block) {
+  return 'await window.closeZzz();\n';
+};
+
 javascriptGenerator.forBlock['math_number'] = function(block) {
   var code = String(block.getFieldValue('NUM'));
   return [code, Order.ATOMIC];

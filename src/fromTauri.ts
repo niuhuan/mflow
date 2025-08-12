@@ -106,3 +106,23 @@ export async function run_better_gi_scheduler(groups: string) {
     return await invoke('run_better_gi_scheduler', { groups });
 }
 
+export async function export_zzz_account(accountName: string) {
+    return await invoke('export_zzz_account', { accountName });
+}
+
+export async function import_zzz_account(accountName: string) {
+    return await invoke('import_zzz_account', { accountName });
+}
+
+export async function list_zzz_accounts() {
+    return await invoke('list_zzz_accounts') as string[];
+}
+
+export async function clear_zzz_reg() {
+    return await invoke('clear_zzz_reg');
+}
+
+export async function close_zzz() {
+    return await invoke('close_zzz');
+}
+

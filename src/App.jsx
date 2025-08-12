@@ -8,7 +8,7 @@ import './App.css';
 import { invoke } from '@tauri-apps/api/core';
 import OpenSaveProject from './OpenSaveProject';
 import { frontendConfig, loadConfig, saveConfig } from './config';
-import { exists, get_account_uid, load_backend_config, readTextFile, writeTextFile, get_version, get_new_version, open_release_page, run_m7_launcher, run_better_gi_gui, run_zzzod_gui, export_gi_account, import_gi_account, list_accounts, list_gi_accounts, export_account } from './fromTauri';
+import { exists, get_account_uid, load_backend_config, readTextFile, writeTextFile, get_version, get_new_version, open_release_page, run_m7_launcher, run_better_gi_gui, run_zzzod_gui, export_gi_account, import_gi_account, export_zzz_account, import_zzz_account, close_zzz, list_accounts, list_gi_accounts, list_zzz_accounts, export_account } from './fromTauri';
 import { AppConfig } from './AppConfig';
 import { AppExport } from './AppExport';
 
@@ -78,6 +78,21 @@ function App() {
       </category>
       <category name="ZZZ" colour="30">
         <block type="run_zzzod"></block>
+        <block type="close_zzz"></block>
+        <block type="export_zzz_account">
+          <value name="ACCOUNT_NAME">
+            <shadow type="text">
+              <field name="TEXT">默认账号</field>
+            </shadow>
+          </value>
+        </block>
+        <block type="import_zzz_account">
+          <value name="ACCOUNT_NAME">
+            <shadow type="text">
+              <field name="TEXT">默认账号</field>
+            </shadow>
+          </value>
+        </block>
       </category>
       <category name="通用" colour="80">
         <block type="wait_seconds">
@@ -374,6 +389,25 @@ function App() {
             alert('导出星铁账号成功');
           }
           break;
+        case 'export_zzz_account':
+          const zzzAccountName = prompt('请输入绝区零账号名称');
+          if (zzzAccountName && zzzAccountName.trim()) {
+            await export_zzz_account(zzzAccountName.trim());
+            alert('导出绝区零账号成功');
+          }
+          break;
+        case 'import_zzz_account':
+          const zzzList = await list_zzz_accounts();
+          if (zzzList.length === 0) {
+            alert('没有绝区零账号');
+            return;
+          }
+          const zzzAccountName2 = await selectOne(zzzList);
+          if (zzzAccountName2) {
+            await import_zzz_account(zzzAccountName2);
+            alert('导入绝区零账号成功');
+          }
+          break;
         default:
           break;
       }
@@ -577,6 +611,24 @@ function App() {
       await invoke('import_gi_account', { accountName });
     }
     window['importGiAccount'] = importGiAccount;
+
+    const exportZzzAccount = async (accountName) => {
+      log('导出绝区零账号: ' + accountName);
+      await invoke('export_zzz_account', { accountName });
+    }
+    window['exportZzzAccount'] = exportZzzAccount;
+
+    const importZzzAccount = async (accountName) => {
+      log('导入绝区零账号: ' + accountName);
+      await invoke('import_zzz_account', { accountName });
+    }
+    window['importZzzAccount'] = importZzzAccount;
+
+    const closeZzz = async () => {
+      log('关闭绝区零游戏...');
+      await invoke('close_zzz');
+    }
+    window['closeZzz'] = closeZzz;
 
     const runZzzod = async () => {
       log('运行绝区零一条龙...');
@@ -949,6 +1001,55 @@ function App() {
                     <path d="M12 3v12" />
                   </svg>
                   导出星铁账号
+                </button>
+                
+                <button
+                  onClick={() => handleDropdownAction('export_zzz_account')}
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    border: 'none',
+                    backgroundColor: 'transparent',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = '#f5f5f5'}
+                  onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '16px', height: '16px' }}>
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7,10 12,15 17,10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                    <path d="M12 3v12" />
+                  </svg>
+                  导出绝区零账号
+                </button>
+                
+                <button
+                  onClick={() => handleDropdownAction('import_zzz_account')}
+                  style={{
+                    width: '100%',
+                    padding: '8px 12px',
+                    border: 'none',
+                    backgroundColor: 'transparent',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = '#f5f5f5'}
+                  onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '16px', height: '16px' }}>
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="17,8 12,3 7,8" />
+                    <line x1="12" y1="3" x2="12" y2="15" />
+                  </svg>
+                  导入绝区零账号
                 </button>
               </div>
             )}

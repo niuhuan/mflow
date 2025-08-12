@@ -1,7 +1,7 @@
 import { open, save } from '@tauri-apps/plugin-dialog';
 import { useState } from 'react';
 import './OpenSaveProject.css';
-import { clear_game_reg, clear_gi_reg, export_gi_account, list_accounts, list_gi_accounts, open_release_page, run_better_gi_gui, run_m7_launcher, run_zzzod_gui } from './fromTauri';
+import { clear_game_reg, clear_gi_reg, clear_zzz_reg, export_gi_account, export_zzz_account, import_zzz_account, close_zzz, list_accounts, list_gi_accounts, list_zzz_accounts, open_release_page, run_better_gi_gui, run_m7_launcher, run_zzzod_gui } from './fromTauri';
 
 const blankXml = `<xml xmlns="https://developers.google.com/blockly/xml">
     <block type="start_flow" id="start" x="100" y="100"></block>
@@ -68,6 +68,26 @@ function OpenSaveProject({ goSetting, goExport, openFromPath, initFromTemaplate,
             try {
                 await export_gi_account(accountName);
                 alert('导出原神账号成功');
+            } catch (error) {
+                alert(error);
+            }
+        }
+    }
+
+    const onExportZzzAccount = async () => {
+        // dialog input text
+        let accountName = prompt('请输入绝区零账号名称');
+        if (!accountName) {
+            return;
+        }
+        accountName = accountName.trim();
+        if (accountName === '') {
+            alert('请输入绝区零账号名称');
+        }
+        if (accountName) {
+            try {
+                await export_zzz_account(accountName);
+                alert('导出绝区零账号成功');
             } catch (error) {
                 alert(error);
             }
@@ -227,6 +247,26 @@ function OpenSaveProject({ goSetting, goExport, openFromPath, initFromTemaplate,
 
             await invoke('import_gi_account', { accountName });
             alert('导入原神账号成功');
+        } catch (error) {
+            alert(error);
+        }
+    }
+
+    const handleImportZzzAccount = async () => {
+        try {
+            let list = await list_zzz_accounts();
+            console.log(list);
+            if (list.length === 0) {
+                alert('没有绝区零账号');
+                return;
+            }
+            let accountName = await selectOne(list);
+            if (!accountName) {
+                return;
+            }
+
+            await invoke('import_zzz_account', { accountName });
+            alert('导入绝区零账号成功');
         } catch (error) {
             alert(error);
         }
@@ -490,6 +530,47 @@ function OpenSaveProject({ goSetting, goExport, openFromPath, initFromTemaplate,
             <div className="button-group">
                 <button
                     className="action-button export-button"
+                    onClick={onExportZzzAccount}
+                >
+                    <svg className="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="7,10 12,15 17,10" />
+                        <line x1="12" y1="15" x2="12" y2="3" />
+                        <path d="M12 3v12" />
+                    </svg>
+                    <span>导出绝区零账号</span>
+                </button>
+
+                <button
+                    className="action-button export-button"
+                    onClick={handleImportZzzAccount}
+                >
+                    <svg className="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="17,8 12,3 7,8" />
+                        <line x1="12" y1="3" x2="12" y2="15" />
+                    </svg>
+                    <span>导入绝区零账号</span>
+                </button>
+
+                <button
+                    className="action-button export-button"
+                    onClick={async () => {
+                        try {
+                            await close_zzz();
+                        } catch (error) {
+                            alert(error);
+                        }
+                    }}
+                >
+                    <svg className="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polygon points="5,3 19,12 5,21 5,3" />
+                    </svg>
+                    <span>关闭绝区零</span>
+                </button>
+
+                <button
+                    className="action-button export-button"
                     onClick={async () => {
                         try {
                             await run_zzzod_gui();
@@ -502,6 +583,26 @@ function OpenSaveProject({ goSetting, goExport, openFromPath, initFromTemaplate,
                         <polygon points="5,3 19,12 5,21 5,3" />
                     </svg>
                     <span>启动绝区零一条龙界面</span>
+                </button>
+
+                <button
+                    className="action-button danger-button"
+                    onClick={async () => {
+                        try {
+                            await clear_zzz_reg();
+                            alert('清除绝区零注册表成功');
+                        } catch (error) {
+                            alert(error);
+                        }
+                    }}
+                >
+                    <svg className="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polyline points="3,6 5,6 21,6" />
+                        <path d="M19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2" />
+                        <line x1="10" y1="11" x2="10" y2="17" />
+                        <line x1="14" y1="11" x2="14" y2="17" />
+                    </svg>
+                    <span>清除绝区零注册表</span>
                 </button>
 
 

@@ -495,6 +495,43 @@ async fn import_gi_account(account_name: String) -> Result<(), String> {
     Ok(())
 }
 
+#[tauri::command]
+async fn export_zzz_account(account_name: String) -> Result<(), String> {
+    let config = config::load_config().await?;
+    let zzzod_path = config.zzzod_path;
+    let account_folder = format!("{}/m7f_accounts/{}", zzzod_path, account_name);
+    tokio::fs::create_dir_all(&account_folder)
+        .await
+        .map_err(|_| "创建账号文件夹失败".to_string())?;
+    let reg_path = format!("{}/account.reg", account_folder);
+    export_reg(
+        "HKEY_CURRENT_USER\\SOFTWARE\\miHoYo\\绝区零",
+        reg_path.as_str(),
+    )
+    .await
+    .map_err(|_| "导出注册表失败".to_string())?;
+    let src_config_path = format!("{}/config", zzzod_path);
+    let config_path = format!("{}/config.zip", account_folder);
+    zip_dir(&src_config_path, &config_path)
+        .await
+        .map_err(|_| "复制配置文件失败".to_string())?;
+    Ok(())
+}
+
+#[tauri::command]
+async fn import_zzz_account(account_name: String) -> Result<(), String> {
+    let config = config::load_config().await?;
+    let zzzod_path = config.zzzod_path;
+    let account_folder = format!("{}/m7f_accounts/{}", zzzod_path, account_name);
+    let config_path = format!("{}/config.zip", account_folder);
+    unzip_file(config_path.as_str(), zzzod_path.as_str())
+        .await
+        .map_err(|_| "解压文件失败".to_string())?;
+    let reg_path = format!("{}/account.reg", account_folder);
+    import_reg(reg_path.as_str()).await?;
+    Ok(())
+}
+
 async fn zip_dir(src_path: &str, dest_path: &str) -> Result<(), String> {
     let mut cmd = tokio::process::Command::new("powershell");
     cmd.arg("Compress-Archive")
@@ -791,6 +828,11 @@ async fn close_gi() -> Result<(), String> {
 }
 
 #[tauri::command]
+async fn close_zzz() -> Result<(), String> {
+    taskkill("ZenlessZoneZero.exe").await
+}
+
+#[tauri::command]
 async fn clear_gi_reg() -> Result<(), String> {
     let mut cmd = tokio::process::Command::new("reg");
     cmd.arg("delete")
@@ -809,10 +851,46 @@ async fn clear_gi_reg() -> Result<(), String> {
 }
 
 #[tauri::command]
+async fn clear_zzz_reg() -> Result<(), String> {
+    let mut cmd = tokio::process::Command::new("reg");
+    cmd.arg("delete")
+        .arg("HKEY_CURRENT_USER\\SOFTWARE\\miHoYo\\绝区零")
+        .arg("/f");
+    let output = cmd
+        .output()
+        .await
+        .map_err(|e| format!("清除绝区零注册表失败: {}", e))?;
+    if output.status.success() {
+        Ok(())
+    } else {
+        let stderr = decode_gbk(output.stderr).map_err(|e| e.to_string())?;
+        Err(format!("清除绝区零注册表失败: {}", stderr))
+    }
+}
+
+#[tauri::command]
 async fn list_gi_accounts() -> Result<Vec<String>, String> {
     let config = config::load_config().await?;
     let better_gi_path = config.better_gi_path;
     let account_folder = format!("{}/m7f_accounts", better_gi_path);
+    let mut accounts = Vec::new();
+    let mut rd = tokio::fs::read_dir(account_folder)
+        .await
+        .map_err(|e| e.to_string())?;
+    while let Some(entry) = rd.next_entry().await.map_err(|e| e.to_string())? {
+        let path = entry.path();
+        if path.is_dir() {
+            accounts.push(path.file_name().unwrap().to_str().unwrap().to_string());
+        }
+    }
+    Ok(accounts)
+}
+
+#[tauri::command]
+async fn list_zzz_accounts() -> Result<Vec<String>, String> {
+    let config = config::load_config().await?;
+    let zzzod_path = config.zzzod_path;
+    let account_folder = format!("{}/m7f_accounts", zzzod_path);
     let mut accounts = Vec::new();
     let mut rd = tokio::fs::read_dir(account_folder)
         .await
@@ -949,11 +1027,16 @@ fn main() {
             clear_game_reg,
             run_better_gi,
             close_gi,
+            close_zzz,
             export_gi_account,
             import_gi_account,
+            export_zzz_account,
+            import_zzz_account,
             clear_gi_reg,
+            clear_zzz_reg,
             list_accounts,
             list_gi_accounts,
+            list_zzz_accounts,
             open_release_page,
             run_m7_launcher,
             run_better_gi_gui,

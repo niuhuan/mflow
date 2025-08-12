@@ -468,6 +468,47 @@ Blockly.defineBlocksWithJsonArray([
     "helpUrl": ""
   },
   {
+    "type": "export_zzz_account",
+    "message0": "导出绝区零账号 %1",
+    "args0": [
+      {
+        "type": "input_value",
+        "name": "ACCOUNT_NAME",
+        "check": "String"
+      }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": 50,
+    "tooltip": "导出绝区零账号",
+    "helpUrl": ""
+  },
+  {
+    "type": "import_zzz_account",
+    "message0": "导入绝区零账号 %1",
+    "args0": [
+      {
+        "type": "input_value",
+        "name": "ACCOUNT_NAME",
+        "check": "String"
+      }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": 50,
+    "tooltip": "导入绝区零账号",
+    "helpUrl": ""
+  },
+  {
+    "type": "close_zzz",
+    "message0": "关闭绝区零",
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": 30,
+    "tooltip": "关闭绝区零游戏",
+    "helpUrl": ""
+  },
+  {
     "type": "run_zzzod",
     "message0": "运行绝区零一条龙",
     "previousStatement": null,
