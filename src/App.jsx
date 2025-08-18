@@ -853,7 +853,7 @@ function App() {
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '16px', height: '16px' }}>
                     <polygon points="5,3 19,12 5,21 5,3" />
                   </svg>
-                  启动三月七小助手
+                  启动三月七小助手(GUI)
                 </button>
                 <button
                   onClick={() => handleDropdownAction('better_gi_gui')}
@@ -874,7 +874,7 @@ function App() {
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '16px', height: '16px' }}>
                     <polygon points="5,3 19,12 5,21 5,3" />
                   </svg>
-                  启动更好的原神
+                  启动更好的原神(GUI)
                 </button>
                 <button
                   onClick={() => handleDropdownAction('zzzod_gui')}
@@ -895,7 +895,7 @@ function App() {
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: '16px', height: '16px' }}>
                     <polygon points="5,3 19,12 5,21 5,3" />
                   </svg>
-                  启动绝区零一条龙
+                  启动绝区零一条龙(GUI)
                 </button>
                 
                 {/* 分隔线 */}

@@ -442,7 +442,7 @@ function OpenSaveProject({ goSetting, goExport, openFromPath, initFromTemaplate,
                     <svg className="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <polygon points="5,3 19,12 5,21 5,3" />
                     </svg>
-                    <span>启动三月七小助手</span>
+                    <span>启动三月七小助手(GUI)</span>
                 </button>
 
                 <button
@@ -503,7 +503,7 @@ function OpenSaveProject({ goSetting, goExport, openFromPath, initFromTemaplate,
                     <svg className="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <polygon points="5,3 19,12 5,21 5,3" />
                     </svg>
-                    <span>启动更好的原神</span>
+                    <span>启动更好的原神(GUI)</span>
                 </button>
 
                 <button
@@ -582,7 +582,7 @@ function OpenSaveProject({ goSetting, goExport, openFromPath, initFromTemaplate,
                     <svg className="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <polygon points="5,3 19,12 5,21 5,3" />
                     </svg>
-                    <span>启动绝区零一条龙界面</span>
+                    <span>启动绝区零一条龙(GUI)</span>
                 </button>
 
                 <button
