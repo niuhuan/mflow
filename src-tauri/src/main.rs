@@ -187,7 +187,13 @@ async fn run_m7f_command(command: &str, timeout: std::time::Duration) -> Result<
     let config = config::load_config().await?;
     let work_dir = config.m7_path;
     let bin = "March7th Assistant.exe";
-    tracing::info!("后台日志: 正在运行命令... {} {} {} 超时: {}", work_dir, bin, command, timeout.as_secs());
+    tracing::info!(
+        "后台日志: 正在运行命令... {} {} {} 超时: {}",
+        work_dir,
+        bin,
+        command,
+        timeout.as_secs()
+    );
     let mut cmd = tokio::process::Command::new("cmd");
     cmd.arg("/c");
     cmd.arg(bin);
@@ -205,7 +211,9 @@ async fn run_m7f_command(command: &str, timeout: std::time::Duration) -> Result<
     let start_time = std::time::Instant::now();
     while start_time.elapsed() < timeout {
         tokio::time::sleep(std::time::Duration::from_secs(100)).await;
-        let try_wait = child.try_wait().map_err(|e| format!("等待命令执行失败: {}", e));
+        let try_wait = child
+            .try_wait()
+            .map_err(|e| format!("等待命令执行失败: {}", e));
         tracing::info!("try_wait: {:?}", try_wait);
         if try_wait.is_ok() && try_wait.unwrap().is_some() {
             break;
@@ -251,13 +259,13 @@ async fn run_zzzod_gui() -> Result<(), String> {
         let mut cmd = tokio::process::Command::new("wt");
         cmd.arg("cmd");
         cmd.arg("/c");
-        cmd.arg(format!("{}\\{}", work_dir, "app.bat"));
+        cmd.arg(format!("{}\\{}", work_dir, "OneDragon-Launcher.exe"));
         cmd.current_dir(work_dir);
         let _ = cmd.spawn().map_err(|e| format!("运行命令失败: {}", e))?;
     } else {
         let mut cmd = tokio::process::Command::new("cmd");
         cmd.arg("/c");
-        cmd.arg("app.bat");
+        cmd.arg("OneDragon-Launcher.exe");
         cmd.current_dir(work_dir);
         let _ = cmd.spawn().map_err(|e| format!("运行命令失败: {}", e))?;
     }
@@ -772,12 +780,12 @@ async fn run_zzzod() -> Result<(), String> {
     let your_command = format!("{} {} -o -c", py_exe, py_app);
 
     let mut _child = Command::new("cmd")
-    .arg("/C")
-    .arg(your_command)
-    .envs(&envs)
-    .kill_on_drop(true)
-    .spawn()
-    .map_err(|e| format!("启动绝区零一条龙失败: {}", e))?;
+        .arg("/C")
+        .arg(your_command)
+        .envs(&envs)
+        .kill_on_drop(true)
+        .spawn()
+        .map_err(|e| format!("启动绝区零一条龙失败: {}", e))?;
 
     // cmd.stdin(Stdio::inherit());
     // cmd.stdout(Stdio::inherit());
