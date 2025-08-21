@@ -265,7 +265,7 @@ function OpenSaveProject({ goSetting, goExport, openFromPath, initFromTemaplate,
                 return;
             }
 
-            await invoke('import_zzz_account', { accountName });
+            await import_zzz_account(accountName);
             alert('导入绝区零账号成功');
         } catch (error) {
             alert(error);
