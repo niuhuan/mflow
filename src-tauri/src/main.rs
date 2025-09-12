@@ -12,7 +12,7 @@ use winreg::enums::*;
 use winreg::RegKey;
 use tokio::io::BufReader;
 use tokio::io::AsyncBufReadExt;
-
+use encoding_rs::GBK;
 mod config;
 
 // if release
@@ -245,12 +245,9 @@ async fn run_m7_launcher() -> Result<(), String> {
 #[tauri::command]
 async fn run_better_gi_gui() -> Result<(), String> {
     let config = config::load_config().await?;
-    let work_dir = config.better_gi_path;
-    let bin_name = "BetterGI.exe";
-    let mut cmd = tokio::process::Command::new("cmd");
-    cmd.arg("/c");
-    cmd.arg(bin_name);
-    cmd.current_dir(work_dir);
+    let better_gi_path = config.better_gi_path;
+    let mut cmd = tokio::process::Command::new(better_gi_path + "\\BetterGI.exe");
+    cmd.stdout(std::process::Stdio::piped());
     setup_encoding_env(&mut cmd);
     let mut child = cmd.spawn().map_err(|e| format!("运行命令失败: {}", e))?;
     if let Some(stdout) = child.stdout.take() {
