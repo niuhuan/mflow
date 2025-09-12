@@ -530,6 +530,22 @@ Blockly.defineBlocksWithJsonArray([
     "colour": 30,
     "tooltip": "运行原神调度器，多个任务用空格分隔",
     "helpUrl": ""
+  },
+  {
+    "type": "run_command",
+    "message0": "运行命令行 %1",
+    "args0": [
+      {
+        "type": "input_value",
+        "name": "COMMAND",
+        "check": "String"
+      }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": 200,
+    "tooltip": "执行指定的命令行命令",
+    "helpUrl": ""
   }
 ]);
 

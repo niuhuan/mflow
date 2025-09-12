@@ -12,7 +12,6 @@ use winreg::enums::*;
 use winreg::RegKey;
 use tokio::io::BufReader;
 use tokio::io::AsyncBufReadExt;
-use encoding_rs::GBK;
 mod config;
 
 // if release
@@ -1046,6 +1045,42 @@ mod tests {
     }
 }
 
+#[tauri::command]
+async fn run_command(command: String) -> Result<String, String> {
+    tracing::info!("后台日志: 正在运行命令: {}", command);
+    
+    let mut cmd = tokio::process::Command::new("cmd");
+    cmd.arg("/c");
+    cmd.arg(command.as_str());
+    setup_encoding_env(&mut cmd);
+
+    let mut child = cmd.spawn()
+        .map_err(|e| format!("运行命令失败: {}", e))?;
+
+    child.wait().await.map_err(|e| format!("运行命令失败: {}", e))?;
+
+    Ok("".to_string())
+    
+    // let output = cmd
+    //     .output()
+    //     .await
+    //     .map_err(|e| format!("运行命令失败: {}", e))?;
+    
+    // let stdout = decode_gbk(output.stdout).unwrap_or_else(|_| String::from_utf8_lossy(&output.stdout).to_string());
+    // let stderr = decode_gbk(output.stderr).unwrap_or_else(|_| String::from_utf8_lossy(&output.stderr).to_string());
+    
+    // tracing::info!("命令输出: {}", stdout);
+    // if !stderr.is_empty() {
+    //     tracing::info!("命令错误: {}", stderr);
+    // }
+    
+    // if output.status.success() {
+    //     Ok(stdout)
+    // } else {
+    //     Err(format!("命令执行失败: {}", stderr))
+    // }
+}
+
 fn main() {
     #[cfg(not(debug_assertions))]
     {
@@ -1103,6 +1138,7 @@ fn main() {
             run_zzzod_gui,
             run_better_gi_by_config,
             run_better_gi_scheduler,
+            run_command,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -110,6 +110,13 @@ function App() {
             </shadow>
           </value>
         </block>
+        <block type="run_command">
+          <value name="COMMAND">
+            <shadow type="text">
+              <field name="TEXT">echo Hello World</field>
+            </shadow>
+          </value>
+        </block>
       </category>
       <category name="流程" colour="120">
         <block type="controls_whileUntil"></block>
@@ -641,6 +648,17 @@ function App() {
       await invoke('run_better_gi_scheduler', { groups });
     }
     window['runBetterGiScheduler'] = runBetterGiScheduler;
+
+    const runCommand = async (command) => {
+      log('运行命令: ' + command);
+      try {
+        const result = await invoke('run_command', { command });
+        log('命令输出: ' + result);
+      } catch (error) {
+        log('命令执行失败: ' + error);
+      }
+    }
+    window['runCommand'] = runCommand;
 
     const execute = async () => {
       try {

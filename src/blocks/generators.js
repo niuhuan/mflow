@@ -227,3 +227,8 @@ javascriptGenerator.forBlock['run_better_gi_scheduler'] = function(block) {
   var groups = javascriptGenerator.valueToCode(block, 'GROUPS', Order.ATOMIC) || "''";
   return `await window.runBetterGiScheduler(${groups});\n`;
 };
+
+javascriptGenerator.forBlock['run_command'] = function(block) {
+  var command = javascriptGenerator.valueToCode(block, 'COMMAND', Order.ATOMIC) || "''";
+  return `await window.runCommand(${command});\n`;
+};
