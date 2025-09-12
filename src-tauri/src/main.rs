@@ -10,6 +10,8 @@ use tokio::io::AsyncWriteExt;
 use tokio::process::Command;
 use winreg::enums::*;
 use winreg::RegKey;
+use tokio::io::BufReader;
+use tokio::io::AsyncBufReadExt;
 
 mod config;
 
@@ -201,10 +203,11 @@ async fn run_m7f_command(command: &str, timeout: std::time::Duration) -> Result<
     cmd.current_dir(work_dir.clone());
     cmd.kill_on_drop(true);
     cmd.stdin(Stdio::piped());
+    setup_encoding_env(&mut cmd);
     let mut child = cmd.spawn().map_err(|e| format!("运行命令失败: {}", e))?;
     let mut std_in = child.stdin.take().expect("获取标准输入失败");
     // u8 \n 1024
-    let buf = vec![b'\n'; 1024];
+    let buf = vec![b'\n'; 4096];
     let writing = tokio::spawn(async move {
         let _result = std_in.write_all(&buf).await;
     });
@@ -234,6 +237,7 @@ async fn run_m7_launcher() -> Result<(), String> {
     cmd.arg("/c");
     cmd.arg(bin_name);
     cmd.current_dir(work_dir);
+    setup_encoding_env(&mut cmd);
     let _ = cmd.spawn().map_err(|e| format!("运行命令失败: {}", e))?;
     Ok(())
 }
@@ -247,7 +251,16 @@ async fn run_better_gi_gui() -> Result<(), String> {
     cmd.arg("/c");
     cmd.arg(bin_name);
     cmd.current_dir(work_dir);
-    let _ = cmd.spawn().map_err(|e| format!("运行命令失败: {}", e))?;
+    setup_encoding_env(&mut cmd);
+    let mut child = cmd.spawn().map_err(|e| format!("运行命令失败: {}", e))?;
+    if let Some(stdout) = child.stdout.take() {
+        tokio::spawn(async move {
+            let mut stdout_reader = BufReader::new(stdout).lines();
+            while let Ok(Some(line)) = stdout_reader.next_line().await {
+                tracing::info!("BetterGI输出: {}", line);
+            }
+        });
+    }
     Ok(())
 }
 
@@ -261,12 +274,14 @@ async fn run_zzzod_gui() -> Result<(), String> {
         cmd.arg("/c");
         cmd.arg(format!("{}\\{}", work_dir, "OneDragon-Launcher.exe"));
         cmd.current_dir(work_dir);
+        setup_encoding_env(&mut cmd);
         let _ = cmd.spawn().map_err(|e| format!("运行命令失败: {}", e))?;
     } else {
         let mut cmd = tokio::process::Command::new("cmd");
         cmd.arg("/c");
         cmd.arg("OneDragon-Launcher.exe");
         cmd.current_dir(work_dir);
+        setup_encoding_env(&mut cmd);
         let _ = cmd.spawn().map_err(|e| format!("运行命令失败: {}", e))?;
     }
     Ok(())
@@ -688,6 +703,13 @@ fn decode_gbk(bytes: Vec<u8>) -> Result<String, String> {
     }
 }
 
+// 设置正确的编码环境变量
+fn setup_encoding_env(cmd: &mut tokio::process::Command) {
+    cmd.env("PYTHONIOENCODING", "utf-8".to_string());
+    cmd.env("LANG", "zh_CN.UTF-8".to_string());
+    cmd.env("LC_ALL", "zh_CN.UTF-8".to_string());
+}
+
 #[tauri::command]
 async fn run_better_gi() -> Result<(), String> {
     taskkill("BetterGI.exe").await?;
@@ -699,9 +721,20 @@ async fn run_better_gi() -> Result<(), String> {
     }
     let mut cmd = tokio::process::Command::new(better_gi_path + "\\BetterGI.exe");
     cmd.arg("startOneDragon");
-    cmd.spawn()
+    cmd.stdout(std::process::Stdio::piped());
+    setup_encoding_env(&mut cmd);
+    let mut child = cmd.spawn()
         .map_err(|e| format!("启动BetterGI失败: {}", e))?;
     tracing::info!("启动BetterGI成功");
+    if let Some(stdout) = child.stdout.take() {
+        tokio::spawn(async move {
+            let mut stdout_reader = BufReader::new(stdout).lines();
+            while let Ok(Some(line)) = stdout_reader.next_line().await {
+                tracing::info!("BetterGI输出: {}", line);
+            }
+        });
+    }
+ 
     let start_time = std::time::Instant::now();
     while start_time.elapsed() < std::time::Duration::from_secs(60 * 60) {
         tokio::time::sleep(std::time::Duration::from_secs(100)).await;
@@ -738,8 +771,17 @@ async fn run_better_gi_by_config(config_name: String) -> Result<(), String> {
     let mut cmd = tokio::process::Command::new(better_gi_path + "\\BetterGI.exe");
     cmd.arg("startOneDragon");
     cmd.arg(config_name.as_str());
-    cmd.spawn()
+    setup_encoding_env(&mut cmd);
+    let mut child = cmd.spawn()
         .map_err(|e| format!("启动BetterGI失败: {}", e))?;
+    if let Some(stdout) = child.stdout.take() {
+        tokio::spawn(async move {
+            let mut stdout_reader = BufReader::new(stdout).lines();
+            while let Ok(Some(line)) = stdout_reader.next_line().await {
+                tracing::info!("BetterGI输出: {}", line);
+            }
+        });
+    }
     tracing::info!("启动BetterGI成功，使用配置文件: {}", config_name);
     let start_time = std::time::Instant::now();
     while start_time.elapsed() < std::time::Duration::from_secs(60 * 60) {
@@ -775,7 +817,10 @@ async fn run_zzzod() -> Result<(), String> {
     let py_exe = work_dir.clone() + "\\.venv\\scripts\\python.exe";
     let py_app = work_dir.clone() + "\\src\\zzz_od\\application\\zzz_one_dragon_app.py";
 
-    let envs = HashMap::from([("PYTHONPATH", python_path), ("ENV_DIR", env_dir)]);
+    let mut envs = HashMap::from([("PYTHONPATH", python_path), ("ENV_DIR", env_dir)]);
+    envs.insert("PYTHONIOENCODING", "utf-8".to_string());
+    envs.insert("LANG", "zh_CN.UTF-8".to_string());
+    envs.insert("LC_ALL", "zh_CN.UTF-8".to_string());
 
     let your_command = format!("{} {} -o -c", py_exe, py_app);
 
@@ -937,9 +982,18 @@ async fn run_better_gi_scheduler(groups: String) -> Result<(), String> {
     for group in groups.split_whitespace() {
         cmd.arg(group);
     }
-    cmd.spawn()
+    setup_encoding_env(&mut cmd);
+    let mut child = cmd.spawn()
         .map_err(|e| format!("启动BetterGI调度器失败: {}", e))?;
     tracing::info!("启动BetterGI调度器成功，任务组: {}", groups);
+    if let Some(stdout) = child.stdout.take() {
+        tokio::spawn(async move {
+            let mut stdout_reader = BufReader::new(stdout).lines();
+            while let Ok(Some(line)) = stdout_reader.next_line().await {
+                tracing::info!("BetterGI输出: {}", line);
+            }
+        });
+    }
     let start_time = std::time::Instant::now();
     while start_time.elapsed() < std::time::Duration::from_secs(60 * 60 * 5) {
         tokio::time::sleep(std::time::Duration::from_secs(100)).await;
