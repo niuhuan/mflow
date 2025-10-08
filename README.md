@@ -61,7 +61,7 @@ yarn cmd
 启动并自动运行脚本
 
 ```
-.\mflow-tauri-app.exe --auto-run main.m7f
+mflow-tauri-app.exe --auto-run main.m7f
 # 或
 yarn cmd --auto-run ../test.m7f  
 ```
