@@ -10,7 +10,6 @@ use std::os::windows::ffi::OsStrExt;
 use std::ptr;
 use winapi::um::shellapi::ShellExecuteW;
 use winapi::um::winuser::SW_SHOW;
-use tracing;
 
 #[allow(unused)]
 pub fn is_elevated() -> bool {
@@ -44,20 +43,18 @@ pub fn run_as_admin() {
     let exe_path = env::current_exe().unwrap();
     let exe_str = exe_path.to_str().unwrap();
     let args: Vec<String> = env::args().skip(1).collect();
-    
-    // 构建完整的命令行参数
-    let args_joined = if args.is_empty() {
-        String::new()
-    } else {
-        args.join(" ")
-    };
-    
-    tracing::info!("以管理员身份重新运行: {} {}", exe_str, args_joined);
+
+    let mut exe_str = exe_path.to_str().unwrap();
+    let mut args: Vec<String> = env::args().skip(1).collect();
+    if where_wt_exe() {
+        args.insert(0, exe_str.to_string());
+        exe_str = "wt.exe";
+    }
+    let args_joined = args.join(" ");
 
     let operation = to_wide("runas");
     let file = to_wide(exe_str);
     let parameters = to_wide(&args_joined);
-
     unsafe {
         ShellExecuteW(
             ptr::null_mut(),               // hwnd
