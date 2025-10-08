@@ -60,8 +60,11 @@ yarn cmd
 
 启动并自动运行脚本
 
-```
-mflow-tauri-app.exe --auto-run main.m7f
+``` 
+# 启动一个windows terminal窗口，并打开powershell，执行编辑器并自动执行脚本
+wt powershell /c C:\Users\username\Documents\mflow-tauri-app.exe --auto-run C:\Users\username\Documents\main.m7f
 # 或
+mflow-tauri-app.exe --auto-run main.m7f
+# 或 开发时
 yarn cmd --auto-run ../test.m7f  
 ```
