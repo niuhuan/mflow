@@ -88,16 +88,35 @@ fn main() {
     }
 
     let is_dev_mode = args.iter().any(|arg| arg == "--dev");
-    let _cmd = if is_dev_mode {
+    
+    // 检查是否有 --auto-run 参数
+    let auto_run_file = args.iter()
+        .position(|arg| arg == "--auto-run")
+        .and_then(|pos| args.get(pos + 1))
+        .map(|s| s.clone());
+
+    let mut cmd_args: Vec<String> = if is_dev_mode {
         println!("开发模式");
-        vec!["yarn", "tauri", "dev"]
+        vec!["yarn".to_string(), "tauri".to_string(), "dev".to_string()]
     } else {
-        vec!["mflow-tauri-app.exe"]
+        vec!["mflow-tauri-app.exe".to_string()]
     };
+
+    // 如果有 --auto-run 参数，添加到命令中
+    if let Some(file_path) = auto_run_file {
+        println!("自动运行文件: {}", file_path);
+        cmd_args.push("--".to_string());
+        cmd_args.push("--".to_string());
+        cmd_args.push("--".to_string());
+        cmd_args.push("--auto-run".to_string());
+        cmd_args.push(file_path);
+    }
+
+    println!("cmd_args: {:?}", cmd_args);
 
     let mut cmd = process::Command::new("cmd.exe");
     cmd.arg("/c");
-    for arg in _cmd {
+    for arg in cmd_args {
         cmd.arg(arg);
     }
     cmd.stdin(process::Stdio::inherit());

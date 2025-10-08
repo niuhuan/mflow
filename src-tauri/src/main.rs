@@ -12,6 +12,8 @@ use winreg::enums::*;
 use winreg::RegKey;
 use tokio::io::BufReader;
 use tokio::io::AsyncBufReadExt;
+use clap::Parser;
+use std::sync::Mutex;
 mod config;
 
 // if release
@@ -19,6 +21,17 @@ mod config;
 mod win;
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
+
+// 全局变量存储自动运行的文件路径
+static AUTO_RUN_FILE: Mutex<Option<String>> = Mutex::new(None);
+
+#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = None)]
+struct Args {
+    /// 自动运行指定的 .m7f 文件
+    #[arg(long)]
+    auto_run: Option<String>,
+}
 
 async fn lastest_release_version() -> Result<Option<String>, String> {
     let repo = option_env!("GITHUB_REPOSITORY");
@@ -1046,6 +1059,11 @@ mod tests {
 }
 
 #[tauri::command]
+async fn get_auto_run_file() -> Result<Option<String>, String> {
+    Ok(AUTO_RUN_FILE.lock().unwrap().clone())
+}
+
+#[tauri::command]
 async fn run_command(command: String) -> Result<String, String> {
     tracing::info!("后台日志: 正在运行命令: {}", command);
     
@@ -1082,6 +1100,7 @@ async fn run_command(command: String) -> Result<String, String> {
 }
 
 fn main() {
+
     #[cfg(not(debug_assertions))]
     {
         if !win::is_elevated() {
@@ -1094,6 +1113,23 @@ fn main() {
         .with_max_level(tracing::Level::INFO)
         .with_test_writer()
         .init();
+
+    // 解析命令行参数
+    let args = Args::parse();
+    
+    // 打印所有命令行参数用于调试
+    let all_args: Vec<String> = std::env::args().collect();
+    tracing::info!("所有命令行参数: {:?}", all_args);
+    
+    // 如果有 --auto-run 参数，存储文件路径
+    let work_dir = std::env::current_dir().unwrap();
+    tracing::info!("工作目录: {:?}", work_dir);
+    if let Some(file_path) = args.auto_run {
+        tracing::info!("自动运行文件: {}", file_path);
+        *AUTO_RUN_FILE.lock().unwrap() = Some(file_path);
+    } else {
+        tracing::info!("没有自动运行文件");
+    }
 
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
@@ -1139,6 +1175,7 @@ fn main() {
             run_better_gi_by_config,
             run_better_gi_scheduler,
             run_command,
+            get_auto_run_file,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

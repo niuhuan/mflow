@@ -126,3 +126,7 @@ export async function close_zzz() {
     return await invoke('close_zzz');
 }
 
+export async function get_auto_run_file() {
+    return await invoke('get_auto_run_file') as string | null;
+}
+

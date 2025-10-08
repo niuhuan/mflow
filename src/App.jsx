@@ -8,7 +8,7 @@ import './App.css';
 import { invoke } from '@tauri-apps/api/core';
 import OpenSaveProject from './OpenSaveProject';
 import { frontendConfig, loadConfig, saveConfig } from './config';
-import { exists, get_account_uid, load_backend_config, readTextFile, writeTextFile, get_version, get_new_version, open_release_page, run_m7_launcher, run_better_gi_gui, run_zzzod_gui, export_gi_account, import_gi_account, export_zzz_account, import_zzz_account, close_zzz, list_accounts, list_gi_accounts, list_zzz_accounts, export_account } from './fromTauri';
+import { exists, get_account_uid, load_backend_config, readTextFile, writeTextFile, get_version, get_new_version, open_release_page, run_m7_launcher, run_better_gi_gui, run_zzzod_gui, export_gi_account, import_gi_account, export_zzz_account, import_zzz_account, close_zzz, list_accounts, list_gi_accounts, list_zzz_accounts, export_account, get_auto_run_file } from './fromTauri';
 import { AppConfig } from './AppConfig';
 import { AppExport } from './AppExport';
 
@@ -423,7 +423,7 @@ function App() {
     }
   }
 
-  const openFromPath = async (path) => {
+  const openFromPath = async (path, autoRun = false) => {
     if (!await exists(path)) {
       await writeTextFile(path, initialXml);
     }
@@ -436,6 +436,11 @@ function App() {
     frontendConfig.lastFile = path;
     await saveConfig();
     setInit(100);
+    if (autoRun) {
+      setTimeout(() => {
+        runCode();
+      }, 200);
+    }
   }
 
   const initFromTemaplate = async (path, template) => {
@@ -674,12 +679,26 @@ function App() {
     execute();
   };
 
+  const firstLoadA = useRef(true);
+
   useEffect(() => {
     var a = async () => {
+      if (!firstLoadA.current) {
+        return;
+      }
+      firstLoadA.current = false;
+
       await loadConfig();
+      
+      // 检查是否有自动运行文件
+      const autoRunFile = await get_auto_run_file();
+      if (autoRunFile) {
+        frontendConfig.lastFile = autoRunFile;
+      }
+      
       if (frontendConfig.lastFile) {
         if (await exists(frontendConfig.lastFile)) {
-          await openFromPath(frontendConfig.lastFile);
+          await openFromPath(frontendConfig.lastFile, autoRunFile);
         } else {
           setInit(20);
         }
