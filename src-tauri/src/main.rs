@@ -821,22 +821,24 @@ async fn run_zzzod() -> Result<(), String> {
     let config = config::load_config().await?;
     let work_dir = config.zzzod_path;
 
-    let env_dir = work_dir.clone() + "\\.install";
-    let python_path = work_dir.clone() + "\\src";
-    let py_exe = work_dir.clone() + "\\.venv\\scripts\\python.exe";
-    let py_app = work_dir.clone() + "\\src\\zzz_od\\application\\zzz_one_dragon_app.py";
+    // let env_dir = work_dir.clone() + "\\.install";
+    // let python_path = work_dir.clone() + "\\src";
+    // let py_exe = work_dir.clone() + "\\.venv\\scripts\\python.exe";
+    // let py_app = work_dir.clone() + "\\src\\zzz_od\\application\\zzz_application.py";
 
-    let mut envs = HashMap::from([("PYTHONPATH", python_path), ("ENV_DIR", env_dir)]);
-    envs.insert("PYTHONIOENCODING", "utf-8".to_string());
-    envs.insert("LANG", "zh_CN.UTF-8".to_string());
-    envs.insert("LC_ALL", "zh_CN.UTF-8".to_string());
+    // let mut envs = HashMap::from([("PYTHONPATH", python_path), ("ENV_DIR", env_dir)]);
+    // envs.insert("PYTHONIOENCODING", "utf-8".to_string());
+    // envs.insert("LANG", "zh_CN.UTF-8".to_string());
+    // envs.insert("LC_ALL", "zh_CN.UTF-8".to_string());
 
-    let your_command = format!("{} {} -o -c", py_exe, py_app);
+    // let your_command = format!("{} {} -o -c", py_exe, py_app);
+
+    let your_command = format!("{}\\OneDragon-Launcher.exe -o -c", work_dir.clone());
 
     let mut _child = Command::new("cmd")
         .arg("/C")
         .arg(your_command)
-        .envs(&envs)
+        // .envs(&envs)
         .kill_on_drop(true)
         .spawn()
         .map_err(|e| format!("启动绝区零一条龙失败: {}", e))?;
