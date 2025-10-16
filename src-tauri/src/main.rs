@@ -850,7 +850,7 @@ async fn run_zzzod() -> Result<(), String> {
     // cmd.spawn().map_err(|e| format!("启动绝区零一条龙失败: {}", e))?;
     tracing::info!("启动绝区零一条龙成功");
     let start_time = std::time::Instant::now();
-    while start_time.elapsed() < std::time::Duration::from_secs(30 * 60) {
+    while start_time.elapsed() < std::time::Duration::from_secs(60 * 60) {
         tokio::time::sleep(std::time::Duration::from_secs(100)).await;
         let task_exists: Result<bool, String> = task_exists("ZenlessZoneZero.exe").await;
         match task_exists {

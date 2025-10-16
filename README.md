@@ -11,6 +11,8 @@
 
 ## 教程
 
+0. 推荐安装 [Windows Terminal](https://github.com/microsoft/terminal)
+   本程序原理时检测程序进程是否存在
 1. 下载 三月七小助手完整版、更好的原神、绝区零一条龙完整带运行时版。 安装 [powershell](https://github.com/powershell/powershell/releases) 7.5以上。
 2. 对三方程序进行配置
    - 三月七小助手
