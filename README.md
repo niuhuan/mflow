@@ -8,6 +8,7 @@
 - [三月七小助手(March7thAssistant)](https://github.com/moesnow/March7thAssistant)
 - [更好的原神(BetterGI)](https://github.com/babalae/better-genshin-impact)
 - [绝区零一条龙(ZenlessZoneZero-OneDragon)](https://github.com/OneDragon-Anything/ZenlessZoneZero-OneDragon)
+- [原神自动登录工具](https://github.com/niuhuan/AutoLoginGenshin)
 
 ## 教程
 
@@ -41,6 +42,10 @@
 ![single.png](images/single.png)
 
 ![main.png](images/main.png)
+
+若想当原神账号被退登时自动登录，组要下载自动登录工具，并以相同账号名导出，在流程中加入该节点
+
+![giautologin](images/giautologin.png)
 
 ## 开发
 
