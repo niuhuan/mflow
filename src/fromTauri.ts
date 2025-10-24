@@ -36,6 +36,7 @@ export interface BackendConfig {
     m7_path: string;
     better_gi_path: string;
     zzzod_path: string;
+    genshin_auto_login_path: string;
 }
 
 export async function get_account_uid() {
@@ -128,5 +129,9 @@ export async function close_zzz() {
 
 export async function get_auto_run_file() {
     return await invoke('get_auto_run_file') as string | null;
+}
+
+export async function genshin_auto_login(accountName: string) {
+    return await invoke('genshin_auto_login', { accountName });
 }
 

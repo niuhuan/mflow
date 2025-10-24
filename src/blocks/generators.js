@@ -232,3 +232,8 @@ javascriptGenerator.forBlock['run_command'] = function(block) {
   var command = javascriptGenerator.valueToCode(block, 'COMMAND', Order.ATOMIC) || "''";
   return `await window.runCommand(${command});\n`;
 };
+
+javascriptGenerator.forBlock['genshin_auto_login'] = function(block) {
+  var accountName = javascriptGenerator.valueToCode(block, 'ACCOUNT_NAME', Order.ATOMIC) || "'account1'";
+  return `await window.genshinAutoLogin(${accountName});\n`;
+};

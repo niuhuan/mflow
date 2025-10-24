@@ -8,7 +8,7 @@ import './App.css';
 import { invoke } from '@tauri-apps/api/core';
 import OpenSaveProject from './OpenSaveProject';
 import { frontendConfig, loadConfig, saveConfig } from './config';
-import { exists, get_account_uid, load_backend_config, readTextFile, writeTextFile, get_version, get_new_version, open_release_page, run_m7_launcher, run_better_gi_gui, run_zzzod_gui, export_gi_account, import_gi_account, export_zzz_account, import_zzz_account, close_zzz, list_accounts, list_gi_accounts, list_zzz_accounts, export_account, get_auto_run_file } from './fromTauri';
+import { exists, get_account_uid, load_backend_config, readTextFile, writeTextFile, get_version, get_new_version, open_release_page, run_m7_launcher, run_better_gi_gui, run_zzzod_gui, export_gi_account, import_gi_account, export_zzz_account, import_zzz_account, close_zzz, list_accounts, list_gi_accounts, list_zzz_accounts, export_account, get_auto_run_file, genshin_auto_login } from './fromTauri';
 import { AppConfig } from './AppConfig';
 import { AppExport } from './AppExport';
 
@@ -72,6 +72,13 @@ function App() {
           <value name="ACCOUNT_NAME">
             <shadow type="text">
               <field name="TEXT">默认账号</field>
+            </shadow>
+          </value>
+        </block>
+        <block type="genshin_auto_login">
+          <value name="ACCOUNT_NAME">
+            <shadow type="text">
+              <field name="TEXT">account1</field>
             </shadow>
           </value>
         </block>
@@ -664,6 +671,17 @@ function App() {
       }
     }
     window['runCommand'] = runCommand;
+
+    const genshinAutoLogin = async (accountName) => {
+      log('原神自动登录，账号: ' + accountName);
+      try {
+        await invoke('genshin_auto_login', { accountName });
+        log('原神自动登录完成');
+      } catch (error) {
+        log('原神自动登录失败: ' + error);
+      }
+    }
+    window['genshinAutoLogin'] = genshinAutoLogin;
 
     const execute = async () => {
       try {

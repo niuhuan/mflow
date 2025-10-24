@@ -1101,6 +1101,47 @@ async fn run_command(command: String) -> Result<String, String> {
     // }
 }
 
+#[tauri::command]
+async fn genshin_auto_login(account_name: String) -> Result<(), String> {
+    tracing::info!("后台日志: 正在使用账号 '{}' 自动登录原神...", account_name);
+    
+    let config = config::load_config().await?;
+    let auto_login_path = config.genshin_auto_login_path;
+    
+    if auto_login_path.is_empty() {
+        return Err("原神自动登录器文件夹路径未配置".to_string());
+    }
+    
+    let exe_path = format!("{}/AutoLoginGenshin.exe", auto_login_path);
+    
+    // 检查exe文件是否存在
+    if !std::path::Path::new(&exe_path).exists() {
+        return Err(format!("原神自动登录器文件不存在: {}", exe_path));
+    }
+    
+    tracing::info!("后台日志: 正在运行原神自动登录器: {} --saved {}", exe_path, account_name);
+    
+    let mut cmd = tokio::process::Command::new(&exe_path);
+    cmd.arg("--saved");
+    cmd.arg(&account_name);
+    cmd.current_dir(&auto_login_path);
+    setup_encoding_env(&mut cmd);
+    
+    let mut child = cmd.spawn()
+        .map_err(|e| format!("启动原神自动登录器失败: {}", e))?;
+    
+    // 等待程序运行结束
+    let status = child.wait().await
+        .map_err(|e| format!("等待原神自动登录器结束失败: {}", e))?;
+    
+    if status.success() {
+        tracing::info!("后台日志: 原神自动登录器运行完成");
+        Ok(())
+    } else {
+        Err(format!("原神自动登录器运行失败，退出码: {:?}", status.code()))
+    }
+}
+
 fn main() {
 
     #[cfg(not(debug_assertions))]
@@ -1177,6 +1218,7 @@ fn main() {
             run_better_gi_by_config,
             run_better_gi_scheduler,
             run_command,
+            genshin_auto_login,
             get_auto_run_file,
         ])
         .run(tauri::generate_context!())

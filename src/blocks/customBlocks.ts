@@ -546,6 +546,22 @@ Blockly.defineBlocksWithJsonArray([
     "colour": 200,
     "tooltip": "执行指定的命令行命令",
     "helpUrl": ""
+  },
+  {
+    "type": "genshin_auto_login",
+    "message0": "原神自动登录 %1",
+    "args0": [
+      {
+        "type": "input_value",
+        "name": "ACCOUNT_NAME",
+        "check": "String"
+      }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": 30,
+    "tooltip": "使用指定账号自动登录原神",
+    "helpUrl": ""
   }
 ]);
 
