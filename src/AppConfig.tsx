@@ -9,6 +9,7 @@ export function AppConfig({ backToEditor }: { backToEditor: () => void }) {
         better_gi_path: '',
         zzzod_path: '',
         genshin_auto_login_path: '',
+        ok_ww_path: '',
     });
     const [isLoading, setIsLoading] = useState(false);
     const [hasChanges, setHasChanges] = useState(false);
@@ -142,6 +143,28 @@ export function AppConfig({ backToEditor }: { backToEditor: () => void }) {
                         />
                         <div className="input-hint">指定原神自动登录器文件夹路径，用于原神自动登录功能</div>
                     </div>
+
+                    <div className="form-group">
+                        <label className="form-label">
+                            <svg className="label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14,2 14,8 20,8"/>
+                                <line x1="16" y1="13" x2="8" y2="13"/>
+                                <line x1="16" y1="17" x2="8" y2="17"/>
+                                <polyline points="10,9 9,9 8,9"/>
+                            </svg>
+                            OK-WW路径
+                        </label>
+                        <input 
+                            type="text" 
+                            className="form-input"
+                            value={backendConfig.ok_ww_path} 
+                            onChange={(e) => handleInputChange('ok_ww_path', e.target.value)}
+                            placeholder="ok-ww文件夹路径"
+                        />
+                        <div className="input-hint">指定ok-ww文件夹路径，用于运行ok-ww</div>
+                    </div>
+
                 </div>
 
                 <div className="config-actions">

@@ -516,6 +516,33 @@ Blockly.defineBlocksWithJsonArray([
     "colour": 30,
   },
   {
+    "type": "start_ok_ww_daily",
+    "message0": "运行鸣潮日常",
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": 30,
+    "tooltip": "运行鸣潮日常任务",
+    "helpUrl": ""
+  },
+  {
+    "type": "start_ok_ww_weekly",
+    "message0": "运行鸣潮周常",
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": 30,
+    "tooltip": "运行鸣潮周常任务",
+    "helpUrl": ""
+  },
+  {
+    "type": "kill_ok_ww",
+    "message0": "关闭鸣潮",
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": 30,
+    "tooltip": "结束鸣潮相关进程",
+    "helpUrl": ""
+  },
+  {
     "type": "run_better_gi_scheduler",
     "message0": "运行原神调度器 %1",
     "args0": [

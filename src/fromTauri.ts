@@ -37,6 +37,7 @@ export interface BackendConfig {
     better_gi_path: string;
     zzzod_path: string;
     genshin_auto_login_path: string;
+    ok_ww_path: string;
 }
 
 export async function get_account_uid() {

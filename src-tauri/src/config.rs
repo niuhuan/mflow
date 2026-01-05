@@ -11,6 +11,8 @@ pub struct BackendConfig {
     pub zzzod_path: String,
     #[serde(default)]
     pub genshin_auto_login_path: String,
+    #[serde(default)]
+    pub ok_ww_path: String,
 }
 
 pub async fn load_config() -> Result<BackendConfig, String> {

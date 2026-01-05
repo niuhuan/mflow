@@ -223,6 +223,18 @@ javascriptGenerator.forBlock['run_zzzod'] = function(block) {
   return 'await window.runZzzod();\n';
 };
 
+javascriptGenerator.forBlock['start_ok_ww_daily'] = function(block) {
+  return 'await window.startOkWwDaily();\n';
+};
+
+javascriptGenerator.forBlock['start_ok_ww_weekly'] = function(block) {
+  return 'await window.startOkWwWeekly();\n';
+};
+
+javascriptGenerator.forBlock['kill_ok_ww'] = function(block) {
+  return 'await window.killOkWw();\n';
+};
+
 javascriptGenerator.forBlock['run_better_gi_scheduler'] = function(block) {
   var groups = javascriptGenerator.valueToCode(block, 'GROUPS', Order.ATOMIC) || "''";
   return `await window.runBetterGiScheduler(${groups});\n`;

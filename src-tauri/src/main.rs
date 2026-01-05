@@ -312,6 +312,67 @@ async fn taskkill(exe_name: &str) -> Result<(), String> {
     Ok(())
 }
 
+fn escape_powershell_single_quote(input: &str) -> String {
+    input.replace('\'', "''")
+}
+
+async fn kill_process_by_path(exe_path: &str) -> Result<(), String> {
+    let exe_path = escape_powershell_single_quote(exe_path);
+    let script = format!(
+        "$p='{}'; Get-Process | Where-Object {{ $_.Path -eq $p }} | ForEach-Object {{ Stop-Process -Id $_.Id -Force -ErrorAction SilentlyContinue }}",
+        exe_path
+    );
+    println!("{}", script);
+    let output = tokio::process::Command::new("powershell")
+        .arg("-NoProfile")
+        .arg("-Command")
+        .arg(script)
+        .output()
+        .await
+        .map_err(|e| format!("结束进程失败: {}", e))?;
+    if output.status.success() {
+        Ok(())
+    } else {
+        Err(format!(
+            "结束进程失败: {}",
+            String::from_utf8_lossy(&output.stderr)
+        ))
+    }
+}
+
+async fn get_ok_ww_paths() -> Result<(String, String, String), String> {
+    let config = config::load_config().await?;
+    let ok_ww_dir = config.ok_ww_path;
+    if ok_ww_dir.is_empty() {
+        return Err("ok-ww路径为空".to_string());
+    }
+    let ok_ww_exe = format!("{}\\ok-ww.exe", ok_ww_dir);
+    let ok_ww_pythonw_exe = format!("{}\\data\\apps\\ok-ww\\python\\pythonw.exe", ok_ww_dir);
+    Ok((ok_ww_dir, ok_ww_exe, ok_ww_pythonw_exe))
+}
+
+async fn task_exists_by_path(exe_path: &str) -> Result<bool, String> {
+    let exe_path = escape_powershell_single_quote(exe_path);
+    let script = format!(
+        "$p='{}'; if (Get-Process | Where-Object {{ $_.Path -eq $p }}) {{ Write-Output 1 }} else {{ Write-Output 0 }}",
+        exe_path
+    );
+    let output = tokio::process::Command::new("powershell")
+        .arg("-NoProfile")
+        .arg("-Command")
+        .arg(script)
+        .output()
+        .await
+        .map_err(|e| format!("检查任务状态失败: {}", e))?;
+    if !output.status.success() {
+        return Err(format!(
+            "检查任务状态失败: {}",
+            String::from_utf8_lossy(&output.stderr)
+        ));
+    }
+    Ok(String::from_utf8_lossy(&output.stdout).trim() == "1")
+}
+
 #[tauri::command]
 async fn get_account_uid() -> Result<i64, String> {
     tracing::info!("后台日志: 正在读取账号UID...");
@@ -1102,6 +1163,58 @@ async fn run_command(command: String) -> Result<String, String> {
 }
 
 #[tauri::command]
+async fn kill_ok_ww() -> Result<(), String> {
+    let (_, ok_ww_exe, ok_ww_pythonw_exe) = get_ok_ww_paths().await?;
+    if let Err(e) = kill_process_by_path(&ok_ww_exe).await {
+        tracing::info!("结束 ok-ww.exe 失败: {}", e);
+    }
+    if let Err(e) = kill_process_by_path(&ok_ww_pythonw_exe).await {
+        tracing::info!("结束 pythonw.exe 失败: {}", e);
+    }
+    let game_exe = "Client-Win64-Shipping.exe";
+    taskkill(game_exe).await;
+    Ok(())
+}
+
+async fn start_ok_ww_with_task(task_type: &str) -> Result<(), String> {
+    let (ok_ww_dir, ok_ww_exe, ok_ww_pythonw_exe) = get_ok_ww_paths().await?;
+    if !Path::new(&ok_ww_exe).exists() {
+        return Err(format!("ok-ww.exe文件不存在: {}", ok_ww_exe));
+    }
+    let mut cmd = tokio::process::Command::new(&ok_ww_exe);
+    cmd.arg("-t").arg(task_type).arg("-e");
+    cmd.current_dir(&ok_ww_dir);
+    setup_encoding_env(&mut cmd);
+    cmd.spawn().map_err(|e| format!("启动 ok-ww 失败: {}", e))?;
+    tokio::time::sleep(std::time::Duration::from_secs(100)).await;
+    let start_time = std::time::Instant::now();
+    while start_time.elapsed() < std::time::Duration::from_secs(60 * 60) {
+        tokio::time::sleep(std::time::Duration::from_secs(100)).await;
+        match task_exists_by_path(&ok_ww_pythonw_exe).await {
+            Ok(true) => continue,
+            Ok(false) => break,
+            Err(e) => {
+                tracing::info!("检查 ok-ww 状态失败: {}", e);
+                break;
+            }
+        }
+    }
+    kill_ok_ww().await?;
+    tokio::time::sleep(std::time::Duration::from_secs(10)).await;
+    Ok(())
+}
+
+#[tauri::command]
+async fn start_ok_ww_daily() -> Result<(), String> {
+    start_ok_ww_with_task("1").await
+}
+
+#[tauri::command]
+async fn start_ok_ww_weekly() -> Result<(), String> {
+    start_ok_ww_with_task("2").await
+}
+
+#[tauri::command]
 async fn genshin_auto_login(account_name: String) -> Result<(), String> {
     tracing::info!("后台日志: 正在使用账号 '{}' 自动登录原神...", account_name);
     
@@ -1220,6 +1333,9 @@ fn main() {
             run_command,
             genshin_auto_login,
             get_auto_run_file,
+            kill_ok_ww,
+            start_ok_ww_daily,
+            start_ok_ww_weekly,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

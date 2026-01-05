@@ -101,6 +101,11 @@ function App() {
           </value>
         </block>
       </category>
+      <category name="鸣潮" colour="30">
+        <block type="start_ok_ww_daily"></block>
+        <block type="start_ok_ww_weekly"></block>
+        <block type="kill_ok_ww"></block>
+      </category>
       <category name="通用" colour="80">
         <block type="wait_seconds">
           <field name="TIME_VALUE">10</field>
@@ -654,6 +659,24 @@ function App() {
       await invoke('run_zzzod');
     }
     window['runZzzod'] = runZzzod;
+
+    const startOkWwDaily = async () => {
+      log('运行鸣潮日常...');
+      await invoke('start_ok_ww_daily');
+    }
+    window['startOkWwDaily'] = startOkWwDaily;
+
+    const startOkWwWeekly = async () => {
+      log('运行鸣潮周常...');
+      await invoke('start_ok_ww_weekly');
+    }
+    window['startOkWwWeekly'] = startOkWwWeekly;
+
+    const killOkWw = async () => {
+      log('关闭鸣潮...');
+      await invoke('kill_ok_ww');
+    }
+    window['killOkWw'] = killOkWw;
 
     const runBetterGiScheduler = async (groups) => {
       log('运行原神调度器，任务组: ' + groups);
