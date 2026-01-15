@@ -43,6 +43,7 @@ function App() {
         <block type="simulated_universe"></block>
         <block type="farming"></block>
         <block type="close_game"></block>
+        <block type="clear_hsr_reg"></block>
       </category>
       <category name="原神" colour="30">
         <block type="run_better_gi"></block>
@@ -82,6 +83,7 @@ function App() {
             </shadow>
           </value>
         </block>
+        <block type="clear_gi_reg"></block>
       </category>
       <category name="ZZZ" colour="30">
         <block type="run_zzzod"></block>
@@ -100,11 +102,13 @@ function App() {
             </shadow>
           </value>
         </block>
+        <block type="clear_zzz_reg"></block>
       </category>
       <category name="鸣潮" colour="30">
         <block type="start_ok_ww_daily"></block>
         <block type="start_ok_ww_weekly"></block>
         <block type="kill_ok_ww"></block>
+        <block type="clear_ww_reg"></block>
       </category>
       <category name="通用" colour="80">
         <block type="wait_seconds">
@@ -705,6 +709,50 @@ function App() {
       }
     }
     window['genshinAutoLogin'] = genshinAutoLogin;
+
+    const clearHsrReg = async () => {
+      log('清除星铁注册表...');
+      try {
+        await invoke('clear_game_reg');
+        log('清除星铁注册表成功');
+      } catch (error) {
+        log('清除星铁注册表失败: ' + error);
+      }
+    }
+    window['clearHsrReg'] = clearHsrReg;
+
+    const clearGiReg = async () => {
+      log('清除原神注册表...');
+      try {
+        await invoke('clear_gi_reg');
+        log('清除原神注册表成功');
+      } catch (error) {
+        log('清除原神注册表失败: ' + error);
+      }
+    }
+    window['clearGiReg'] = clearGiReg;
+
+    const clearZzzReg = async () => {
+      log('清除绝区零注册表...');
+      try {
+        await invoke('clear_zzz_reg');
+        log('清除绝区零注册表成功');
+      } catch (error) {
+        log('清除绝区零注册表失败: ' + error);
+      }
+    }
+    window['clearZzzReg'] = clearZzzReg;
+
+    const clearWwReg = async () => {
+      log('清除鸣潮注册表...');
+      try {
+        await invoke('clear_ww_reg');
+        log('清除鸣潮注册表成功');
+      } catch (error) {
+        log('清除鸣潮注册表失败: ' + error);
+      }
+    }
+    window['clearWwReg'] = clearWwReg;
 
     const execute = async () => {
       try {

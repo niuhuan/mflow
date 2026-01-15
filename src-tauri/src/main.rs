@@ -994,6 +994,24 @@ async fn clear_zzz_reg() -> Result<(), String> {
 }
 
 #[tauri::command]
+async fn clear_ww_reg() -> Result<(), String> {
+    let mut cmd = tokio::process::Command::new("reg");
+    cmd.arg("delete")
+        .arg("HKEY_CURRENT_USER\\SOFTWARE\\Kuro Games\\鸣潮")
+        .arg("/f");
+    let output = cmd
+        .output()
+        .await
+        .map_err(|e| format!("清除鸣潮注册表失败: {}", e))?;
+    if output.status.success() {
+        Ok(())
+    } else {
+        let stderr = decode_gbk(output.stderr).map_err(|e| e.to_string())?;
+        Err(format!("清除鸣潮注册表失败: {}", stderr))
+    }
+}
+
+#[tauri::command]
 async fn list_gi_accounts() -> Result<Vec<String>, String> {
     let config = config::load_config().await?;
     let better_gi_path = config.better_gi_path;
@@ -1320,6 +1338,7 @@ fn main() {
             import_zzz_account,
             clear_gi_reg,
             clear_zzz_reg,
+            clear_ww_reg,
             list_accounts,
             list_gi_accounts,
             list_zzz_accounts,

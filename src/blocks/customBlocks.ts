@@ -589,6 +589,42 @@ Blockly.defineBlocksWithJsonArray([
     "colour": 30,
     "tooltip": "使用指定账号自动登录原神",
     "helpUrl": ""
+  },
+  {
+    "type": "clear_hsr_reg",
+    "message0": "清除星铁注册表",
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": 250,
+    "tooltip": "清除星铁游戏注册表",
+    "helpUrl": ""
+  },
+  {
+    "type": "clear_gi_reg",
+    "message0": "清除原神注册表",
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": 30,
+    "tooltip": "清除原神游戏注册表",
+    "helpUrl": ""
+  },
+  {
+    "type": "clear_zzz_reg",
+    "message0": "清除绝区零注册表",
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": 30,
+    "tooltip": "清除绝区零游戏注册表",
+    "helpUrl": ""
+  },
+  {
+    "type": "clear_ww_reg",
+    "message0": "清除鸣潮注册表",
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": 30,
+    "tooltip": "清除鸣潮游戏注册表",
+    "helpUrl": ""
   }
 ]);
 

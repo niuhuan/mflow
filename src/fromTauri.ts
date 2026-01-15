@@ -124,6 +124,10 @@ export async function clear_zzz_reg() {
     return await invoke('clear_zzz_reg');
 }
 
+export async function clear_ww_reg() {
+    return await invoke('clear_ww_reg');
+}
+
 export async function close_zzz() {
     return await invoke('close_zzz');
 }

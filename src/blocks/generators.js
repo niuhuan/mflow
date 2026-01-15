@@ -249,3 +249,19 @@ javascriptGenerator.forBlock['genshin_auto_login'] = function(block) {
   var accountName = javascriptGenerator.valueToCode(block, 'ACCOUNT_NAME', Order.ATOMIC) || "'account1'";
   return `await window.genshinAutoLogin(${accountName});\n`;
 };
+
+javascriptGenerator.forBlock['clear_hsr_reg'] = function(block) {
+  return 'await window.clearHsrReg();\n';
+};
+
+javascriptGenerator.forBlock['clear_gi_reg'] = function(block) {
+  return 'await window.clearGiReg();\n';
+};
+
+javascriptGenerator.forBlock['clear_zzz_reg'] = function(block) {
+  return 'await window.clearZzzReg();\n';
+};
+
+javascriptGenerator.forBlock['clear_ww_reg'] = function(block) {
+  return 'await window.clearWwReg();\n';
+};
