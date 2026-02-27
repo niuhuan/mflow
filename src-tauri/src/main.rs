@@ -10,8 +10,6 @@ use tokio::io::AsyncWriteExt;
 use tokio::process::Command;
 use winreg::enums::*;
 use winreg::RegKey;
-use tokio::io::BufReader;
-use tokio::io::AsyncBufReadExt;
 use clap::Parser;
 use std::sync::Mutex;
 mod config;
@@ -258,18 +256,12 @@ async fn run_m7_launcher() -> Result<(), String> {
 async fn run_better_gi_gui() -> Result<(), String> {
     let config = config::load_config().await?;
     let better_gi_path = config.better_gi_path;
-    let mut cmd = tokio::process::Command::new(better_gi_path + "\\BetterGI.exe");
-    cmd.stdout(std::process::Stdio::piped());
+    let exe_path = format!("{}\\BetterGI.exe", better_gi_path);
+    let mut cmd = tokio::process::Command::new("cmd");
+    cmd.arg("/c").arg("start").arg("").arg(&exe_path);
+    cmd.current_dir(&better_gi_path);
     setup_encoding_env(&mut cmd);
-    let mut child = cmd.spawn().map_err(|e| format!("运行命令失败: {}", e))?;
-    if let Some(stdout) = child.stdout.take() {
-        tokio::spawn(async move {
-            let mut stdout_reader = BufReader::new(stdout).lines();
-            while let Ok(Some(line)) = stdout_reader.next_line().await {
-                tracing::info!("BetterGI输出: {}", line);
-            }
-        });
-    }
+    let _ = cmd.spawn().map_err(|e| format!("运行命令失败: {}", e))?;
     Ok(())
 }
 
@@ -789,22 +781,18 @@ async fn run_better_gi() -> Result<(), String> {
     if better_gi_path.is_empty() {
         return Err("BetterGI路径为空".to_string());
     }
-    let mut cmd = tokio::process::Command::new(better_gi_path + "\\BetterGI.exe");
-    cmd.arg("startOneDragon");
-    cmd.stdout(std::process::Stdio::piped());
+    let exe_path = format!("{}\\BetterGI.exe", better_gi_path);
+    let mut cmd = tokio::process::Command::new("cmd");
+    cmd.arg("/c")
+        .arg("start")
+        .arg("")
+        .arg(&exe_path)
+        .arg("startOneDragon");
+    cmd.current_dir(&better_gi_path);
     setup_encoding_env(&mut cmd);
-    let mut child = cmd.spawn()
-        .map_err(|e| format!("启动BetterGI失败: {}", e))?;
+    let _ = cmd.spawn().map_err(|e| format!("启动BetterGI失败: {}", e))?;
     tracing::info!("启动BetterGI成功");
-    if let Some(stdout) = child.stdout.take() {
-        tokio::spawn(async move {
-            let mut stdout_reader = BufReader::new(stdout).lines();
-            while let Ok(Some(line)) = stdout_reader.next_line().await {
-                tracing::info!("BetterGI输出: {}", line);
-            }
-        });
-    }
- 
+
     let start_time = std::time::Instant::now();
     while start_time.elapsed() < std::time::Duration::from_secs(60 * 60) {
         tokio::time::sleep(std::time::Duration::from_secs(100)).await;
@@ -838,20 +826,17 @@ async fn run_better_gi_by_config(config_name: String) -> Result<(), String> {
     if better_gi_path.is_empty() {
         return Err("BetterGI路径为空".to_string());
     }
-    let mut cmd = tokio::process::Command::new(better_gi_path + "\\BetterGI.exe");
-    cmd.arg("startOneDragon");
-    cmd.arg(config_name.as_str());
+    let exe_path = format!("{}\\BetterGI.exe", better_gi_path);
+    let mut cmd = tokio::process::Command::new("cmd");
+    cmd.arg("/c")
+        .arg("start")
+        .arg("")
+        .arg(&exe_path)
+        .arg("startOneDragon")
+        .arg(config_name.as_str());
+    cmd.current_dir(&better_gi_path);
     setup_encoding_env(&mut cmd);
-    let mut child = cmd.spawn()
-        .map_err(|e| format!("启动BetterGI失败: {}", e))?;
-    if let Some(stdout) = child.stdout.take() {
-        tokio::spawn(async move {
-            let mut stdout_reader = BufReader::new(stdout).lines();
-            while let Ok(Some(line)) = stdout_reader.next_line().await {
-                tracing::info!("BetterGI输出: {}", line);
-            }
-        });
-    }
+    let _ = cmd.spawn().map_err(|e| format!("启动BetterGI失败: {}", e))?;
     tracing::info!("启动BetterGI成功，使用配置文件: {}", config_name);
     let start_time = std::time::Instant::now();
     while start_time.elapsed() < std::time::Duration::from_secs(60 * 60) {
@@ -1067,23 +1052,17 @@ async fn run_better_gi_scheduler(groups: String) -> Result<(), String> {
     if better_gi_path.is_empty() {
         return Err("BetterGI路径为空".to_string());
     }
-    let mut cmd = tokio::process::Command::new(better_gi_path.clone() + "\\BetterGI.exe");
-    cmd.arg("--startGroups");
+    let exe_path = format!("{}\\BetterGI.exe", better_gi_path);
+    let mut cmd = tokio::process::Command::new("cmd");
+    cmd.arg("/c").arg("start").arg("").arg(&exe_path).arg("--startGroups");
     for group in groups.split_whitespace() {
         cmd.arg(group);
     }
+    cmd.current_dir(&better_gi_path);
     setup_encoding_env(&mut cmd);
-    let mut child = cmd.spawn()
-        .map_err(|e| format!("启动BetterGI调度器失败: {}", e))?;
+    let _ = cmd.spawn().map_err(|e| format!("启动BetterGI调度器失败: {}", e))?;
     tracing::info!("启动BetterGI调度器成功，任务组: {}", groups);
-    if let Some(stdout) = child.stdout.take() {
-        tokio::spawn(async move {
-            let mut stdout_reader = BufReader::new(stdout).lines();
-            while let Ok(Some(line)) = stdout_reader.next_line().await {
-                tracing::info!("BetterGI输出: {}", line);
-            }
-        });
-    }
+
     let start_time = std::time::Instant::now();
     while start_time.elapsed() < std::time::Duration::from_secs(60 * 60 * 5) {
         tokio::time::sleep(std::time::Duration::from_secs(100)).await;
