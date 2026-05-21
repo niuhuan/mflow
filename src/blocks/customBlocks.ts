@@ -575,6 +575,22 @@ Blockly.defineBlocksWithJsonArray([
     "helpUrl": ""
   },
   {
+    "type": "run_command_background",
+    "message0": "后台运行命令行 %1",
+    "args0": [
+      {
+        "type": "input_value",
+        "name": "COMMAND",
+        "check": "String"
+      }
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": 200,
+    "tooltip": "后台启动指定的命令行命令",
+    "helpUrl": ""
+  },
+  {
     "type": "genshin_auto_login",
     "message0": "原神自动登录 %1",
     "args0": [

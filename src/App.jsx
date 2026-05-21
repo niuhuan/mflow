@@ -133,6 +133,13 @@ function App() {
             </shadow>
           </value>
         </block>
+        <block type="run_command_background">
+          <value name="COMMAND">
+            <shadow type="text">
+              <field name="TEXT">echo Hello World</field>
+            </shadow>
+          </value>
+        </block>
       </category>
       <category name="流程" colour="120">
         <block type="controls_whileUntil"></block>
@@ -698,6 +705,17 @@ function App() {
       }
     }
     window['runCommand'] = runCommand;
+
+    const runCommandBackground = async (command) => {
+      log('后台运行命令: ' + command);
+      try {
+        await invoke('run_command_background', { command });
+        log('后台命令已启动: ' + command);
+      } catch (error) {
+        log('后台命令执行失败: ' + error);
+      }
+    }
+    window['runCommandBackground'] = runCommandBackground;
 
     const genshinAutoLogin = async (accountName) => {
       log('原神自动登录，账号: ' + accountName);
