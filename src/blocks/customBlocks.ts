@@ -68,6 +68,15 @@ Blockly.defineBlocksWithJsonArray([
     "helpUrl": ""
   },
   {
+    "type": "full_run",
+    "message0": "星铁完整运行",
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": 230,
+    "tooltip": "执行完整运行流程",
+    "helpUrl": ""
+  },
+  {
     "type": "daily_mission",
     "message0": "星铁每日任务",
     "previousStatement": null,

@@ -38,6 +38,7 @@ function App() {
             </shadow>
           </value>
         </block>
+        <block type="full_run"></block>
         <block type="daily_mission"></block>
         <block type="refresh_stamina"></block>
         <block type="simulated_universe"></block>
@@ -586,6 +587,12 @@ function App() {
       });
     }
     window['waitUntilTime'] = waitUntilTime;
+
+    const fullRun = async () => {
+      log('执行星铁完整运行...');
+      await invoke('full_run');
+    }
+    window['fullRun'] = fullRun;
 
     const dailyMission = async () => {
       log('执行星铁每日任务...');

@@ -23,6 +23,10 @@ javascriptGenerator.forBlock['wait_seconds'] = function(block) {
   return `await window.wait(${timeValue}, '${timeUnit}');\n`;
 };
 
+javascriptGenerator.forBlock['full_run'] = function(block) {
+  return 'await window.fullRun();\n';
+};
+
 javascriptGenerator.forBlock['daily_mission'] = function(block) {
   return 'await window.dailyMission();\n';
 };
