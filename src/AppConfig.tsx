@@ -10,6 +10,15 @@ export function AppConfig({ backToEditor }: { backToEditor: () => void }) {
         zzzod_path: '',
         genshin_auto_login_path: '',
         ok_ww_path: '',
+        full_run_timeout_minutes: 60,
+        daily_mission_timeout_minutes: 60,
+        refresh_stamina_timeout_minutes: 60,
+        simulated_universe_timeout_minutes: 120,
+        farming_timeout_minutes: 360,
+        better_gi_timeout_minutes: 60,
+        better_gi_scheduler_timeout_minutes: 300,
+        zzzod_timeout_minutes: 60,
+        ok_ww_timeout_minutes: 60,
     });
     const [isLoading, setIsLoading] = useState(false);
     const [hasChanges, setHasChanges] = useState(false);
@@ -20,10 +29,22 @@ export function AppConfig({ backToEditor }: { backToEditor: () => void }) {
         });
     }, []);
 
-    const handleInputChange = (field: keyof BackendConfig, value: string) => {
+    const handleInputChange = (field: keyof BackendConfig, value: string | number) => {
         setBackendConfig({ ...backendConfig, [field]: value });
         setHasChanges(true);
     };
+
+    const timeoutFields: { field: keyof BackendConfig; label: string }[] = [
+        { field: 'full_run_timeout_minutes', label: '星铁完整运行' },
+        { field: 'daily_mission_timeout_minutes', label: '星铁每日任务' },
+        { field: 'refresh_stamina_timeout_minutes', label: '星铁刷体力' },
+        { field: 'simulated_universe_timeout_minutes', label: '星铁模拟宇宙' },
+        { field: 'farming_timeout_minutes', label: '星铁锄大地' },
+        { field: 'better_gi_timeout_minutes', label: '原神一条龙' },
+        { field: 'better_gi_scheduler_timeout_minutes', label: '原神调度器' },
+        { field: 'zzzod_timeout_minutes', label: '绝区零一条龙' },
+        { field: 'ok_ww_timeout_minutes', label: '鸣潮日常 / 周常' },
+    ];
 
     const handleSave = async () => {
         setIsLoading(true);
@@ -163,6 +184,31 @@ export function AppConfig({ backToEditor }: { backToEditor: () => void }) {
                             placeholder="ok-ww文件夹路径"
                         />
                         <div className="input-hint">指定ok-ww文件夹路径，用于运行ok-ww</div>
+                    </div>
+
+                    <div className="form-group">
+                        <label className="form-label">
+                            <svg className="label-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <polyline points="12,6 12,12 16,14"/>
+                            </svg>
+                            任务超时时间（分钟）
+                        </label>
+                        <div className="input-hint">每个任务运行超过设定时长后会被强制结束，留空或为 0 表示沿用默认值</div>
+                        <div className="timeout-grid">
+                            {timeoutFields.map(({ field, label }) => (
+                                <div className="timeout-item" key={field}>
+                                    <span className="timeout-item-label">{label}</span>
+                                    <input
+                                        type="number"
+                                        min={0}
+                                        className="form-input timeout-input"
+                                        value={backendConfig[field] as number}
+                                        onChange={(e) => handleInputChange(field, e.target.value === '' ? 0 : Number(e.target.value))}
+                                    />
+                                </div>
+                            ))}
+                        </div>
                     </div>
 
                 </div>

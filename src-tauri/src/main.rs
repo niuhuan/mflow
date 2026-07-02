@@ -2,7 +2,6 @@
 // #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use base64::Engine;
-use std::collections::HashMap;
 use std::path::Path;
 use std::path::PathBuf;
 use std::process::Stdio;
@@ -10,6 +9,8 @@ use tokio::io::AsyncWriteExt;
 use tokio::process::Command;
 use winreg::enums::*;
 use winreg::RegKey;
+use tokio::io::BufReader;
+use tokio::io::AsyncBufReadExt;
 use clap::Parser;
 use std::sync::Mutex;
 mod config;
@@ -128,12 +129,6 @@ async fn get_new_version() -> Option<String> {
 #[tauri::command]
 async fn get_version() -> Result<String, String> {
     Ok(VERSION.to_string())
-}
-
-#[tauri::command]
-async fn full_run() -> Result<(), String> {
-    tracing::info!("后台日志: 正在执行完整运行...");
-    run_m7f_command("main", std::time::Duration::from_secs(60 * 60)).await
 }
 
 #[tauri::command]
@@ -262,10 +257,11 @@ async fn run_m7_launcher() -> Result<(), String> {
 async fn run_better_gi_gui() -> Result<(), String> {
     let config = config::load_config().await?;
     let better_gi_path = config.better_gi_path;
-    let exe_path = format!("{}\\BetterGI.exe", better_gi_path);
-    let mut cmd = tokio::process::Command::new("cmd");
-    cmd.arg("/c").arg("start").arg("").arg(&exe_path);
-    cmd.current_dir(&better_gi_path);
+    let mut cmd = tokio::process::Command::new(better_gi_path + "\\BetterGI.exe");
+    // GUI 程序这里不需要捕获输出；使用管道在子进程写入时更容易触发“管道正在关闭”等异常
+    cmd.stdin(std::process::Stdio::null());
+    cmd.stdout(std::process::Stdio::null());
+    cmd.stderr(std::process::Stdio::null());
     setup_encoding_env(&mut cmd);
     let _ = cmd.spawn().map_err(|e| format!("运行命令失败: {}", e))?;
     Ok(())
@@ -771,6 +767,56 @@ fn decode_gbk(bytes: Vec<u8>) -> Result<String, String> {
     }
 }
 
+fn attach_child_pipe_loggers(child: &mut tokio::process::Child, label: &'static str) {
+    if let Some(stdout) = child.stdout.take() {
+        tokio::spawn(async move {
+            let mut reader = BufReader::new(stdout);
+            let mut buf: Vec<u8> = Vec::with_capacity(1024);
+            loop {
+                buf.clear();
+                match reader.read_until(b'\n', &mut buf).await {
+                    Ok(0) => break,
+                    Ok(_) => {
+                        let line = String::from_utf8_lossy(&buf);
+                        let line = line.trim_end_matches(['\r', '\n']);
+                        if !line.is_empty() {
+                            tracing::info!("{}: {}", label, line);
+                        }
+                    }
+                    Err(e) => {
+                        tracing::warn!("{} stdout read failed: {}", label, e);
+                        break;
+                    }
+                }
+            }
+        });
+    }
+
+    if let Some(stderr) = child.stderr.take() {
+        tokio::spawn(async move {
+            let mut reader = BufReader::new(stderr);
+            let mut buf: Vec<u8> = Vec::with_capacity(1024);
+            loop {
+                buf.clear();
+                match reader.read_until(b'\n', &mut buf).await {
+                    Ok(0) => break,
+                    Ok(_) => {
+                        let line = String::from_utf8_lossy(&buf);
+                        let line = line.trim_end_matches(['\r', '\n']);
+                        if !line.is_empty() {
+                            tracing::info!("{} [stderr]: {}", label, line);
+                        }
+                    }
+                    Err(e) => {
+                        tracing::warn!("{} stderr read failed: {}", label, e);
+                        break;
+                    }
+                }
+            }
+        });
+    }
+}
+
 // 设置正确的编码环境变量
 fn setup_encoding_env(cmd: &mut tokio::process::Command) {
     cmd.env("PYTHONIOENCODING", "utf-8".to_string());
@@ -787,18 +833,18 @@ async fn run_better_gi() -> Result<(), String> {
     if better_gi_path.is_empty() {
         return Err("BetterGI路径为空".to_string());
     }
-    let exe_path = format!("{}\\BetterGI.exe", better_gi_path);
-    let mut cmd = tokio::process::Command::new("cmd");
-    cmd.arg("/c")
-        .arg("start")
-        .arg("")
-        .arg(&exe_path)
-        .arg("startOneDragon");
-    cmd.current_dir(&better_gi_path);
+    let mut cmd = tokio::process::Command::new(better_gi_path + "\\BetterGI.exe");
+    cmd.arg("startOneDragon");
+    cmd.kill_on_drop(true);
+    cmd.stdin(std::process::Stdio::null());
+    cmd.stdout(std::process::Stdio::piped());
+    cmd.stderr(std::process::Stdio::piped());
     setup_encoding_env(&mut cmd);
-    let _ = cmd.spawn().map_err(|e| format!("启动BetterGI失败: {}", e))?;
+    let mut child = cmd.spawn()
+        .map_err(|e| format!("启动BetterGI失败: {}", e))?;
     tracing::info!("启动BetterGI成功");
-
+    attach_child_pipe_loggers(&mut child, "BetterGI");
+ 
     let start_time = std::time::Instant::now();
     while start_time.elapsed() < std::time::Duration::from_secs(60 * 60) {
         tokio::time::sleep(std::time::Duration::from_secs(100)).await;
@@ -820,6 +866,8 @@ async fn run_better_gi() -> Result<(), String> {
     }
     taskkill("BetterGI.exe").await?;
     taskkill("YuanShen.exe").await?;
+    let _ = child.kill().await;
+    let _ = child.wait().await;
     Ok(())
 }
 
@@ -832,17 +880,17 @@ async fn run_better_gi_by_config(config_name: String) -> Result<(), String> {
     if better_gi_path.is_empty() {
         return Err("BetterGI路径为空".to_string());
     }
-    let exe_path = format!("{}\\BetterGI.exe", better_gi_path);
-    let mut cmd = tokio::process::Command::new("cmd");
-    cmd.arg("/c")
-        .arg("start")
-        .arg("")
-        .arg(&exe_path)
-        .arg("startOneDragon")
-        .arg(config_name.as_str());
-    cmd.current_dir(&better_gi_path);
+    let mut cmd = tokio::process::Command::new(better_gi_path + "\\BetterGI.exe");
+    cmd.arg("startOneDragon");
+    cmd.arg(config_name.as_str());
+    cmd.kill_on_drop(true);
+    cmd.stdin(std::process::Stdio::null());
+    cmd.stdout(std::process::Stdio::piped());
+    cmd.stderr(std::process::Stdio::piped());
     setup_encoding_env(&mut cmd);
-    let _ = cmd.spawn().map_err(|e| format!("启动BetterGI失败: {}", e))?;
+    let mut child = cmd.spawn()
+        .map_err(|e| format!("启动BetterGI失败: {}", e))?;
+    attach_child_pipe_loggers(&mut child, "BetterGI");
     tracing::info!("启动BetterGI成功，使用配置文件: {}", config_name);
     let start_time = std::time::Instant::now();
     while start_time.elapsed() < std::time::Duration::from_secs(60 * 60) {
@@ -865,6 +913,8 @@ async fn run_better_gi_by_config(config_name: String) -> Result<(), String> {
     }
     taskkill("BetterGI.exe").await?;
     taskkill("YuanShen.exe").await?;
+    let _ = child.kill().await;
+    let _ = child.wait().await;
     Ok(())
 }
 
@@ -890,6 +940,7 @@ async fn run_zzzod() -> Result<(), String> {
     let mut _child = Command::new("cmd")
         .arg("/C")
         .arg(your_command)
+        .current_dir(work_dir)
         // .envs(&envs)
         .kill_on_drop(true)
         .spawn()
@@ -1058,17 +1109,20 @@ async fn run_better_gi_scheduler(groups: String) -> Result<(), String> {
     if better_gi_path.is_empty() {
         return Err("BetterGI路径为空".to_string());
     }
-    let exe_path = format!("{}\\BetterGI.exe", better_gi_path);
-    let mut cmd = tokio::process::Command::new("cmd");
-    cmd.arg("/c").arg("start").arg("").arg(&exe_path).arg("--startGroups");
+    let mut cmd = tokio::process::Command::new(better_gi_path.clone() + "\\BetterGI.exe");
+    cmd.arg("--startGroups");
     for group in groups.split_whitespace() {
         cmd.arg(group);
     }
-    cmd.current_dir(&better_gi_path);
+    cmd.kill_on_drop(true);
+    cmd.stdin(std::process::Stdio::null());
+    cmd.stdout(std::process::Stdio::piped());
+    cmd.stderr(std::process::Stdio::piped());
     setup_encoding_env(&mut cmd);
-    let _ = cmd.spawn().map_err(|e| format!("启动BetterGI调度器失败: {}", e))?;
+    let mut child = cmd.spawn()
+        .map_err(|e| format!("启动BetterGI调度器失败: {}", e))?;
     tracing::info!("启动BetterGI调度器成功，任务组: {}", groups);
-
+    attach_child_pipe_loggers(&mut child, "BetterGI");
     let start_time = std::time::Instant::now();
     while start_time.elapsed() < std::time::Duration::from_secs(60 * 60 * 5) {
         tokio::time::sleep(std::time::Duration::from_secs(100)).await;
@@ -1090,6 +1144,8 @@ async fn run_better_gi_scheduler(groups: String) -> Result<(), String> {
     }
     taskkill("BetterGI.exe").await?;
     taskkill("YuanShen.exe").await?;
+    let _ = child.kill().await;
+    let _ = child.wait().await;
     Ok(())
 }
 
@@ -1166,28 +1222,6 @@ async fn run_command(command: String) -> Result<String, String> {
 }
 
 #[tauri::command]
-async fn run_command_background(command: String) -> Result<String, String> {
-    tracing::info!("后台日志: 正在后台运行命令: {}", command);
-
-    let mut cmd = tokio::process::Command::new("cmd");
-    cmd.arg("/c");
-    cmd.arg("start");
-    cmd.arg("");
-    cmd.arg("cmd");
-    cmd.arg("/c");
-    cmd.arg(command.as_str());
-    setup_encoding_env(&mut cmd);
-
-    let mut child = cmd
-        .spawn()
-        .map_err(|e| format!("后台运行命令失败: {}", e))?;
-
-    child.wait().await.map_err(|e| format!("后台运行命令失败: {}", e))?;
-
-    Ok("".to_string())
-}
-
-#[tauri::command]
 async fn kill_ok_ww() -> Result<(), String> {
     let (_, ok_ww_exe, ok_ww_pythonw_exe) = get_ok_ww_paths().await?;
     if let Err(e) = kill_process_by_path(&ok_ww_exe).await {
@@ -1197,7 +1231,9 @@ async fn kill_ok_ww() -> Result<(), String> {
         tracing::info!("结束 pythonw.exe 失败: {}", e);
     }
     let game_exe = "Client-Win64-Shipping.exe";
-    taskkill(game_exe).await;
+    if let Err(e) = taskkill(game_exe).await {
+        tracing::info!("结束游戏进程失败: {}", e);
+    }
     Ok(())
 }
 
@@ -1321,7 +1357,6 @@ fn main() {
             get_new_version,
             load_account,
             save_account,
-            full_run,
             daily_mission,
             refresh_stamina,
             simulated_universe,
@@ -1358,7 +1393,6 @@ fn main() {
             run_better_gi_by_config,
             run_better_gi_scheduler,
             run_command,
-            run_command_background,
             genshin_auto_login,
             get_auto_run_file,
             kill_ok_ww,

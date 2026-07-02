@@ -38,6 +38,15 @@ export interface BackendConfig {
     zzzod_path: string;
     genshin_auto_login_path: string;
     ok_ww_path: string;
+    full_run_timeout_minutes: number;
+    daily_mission_timeout_minutes: number;
+    refresh_stamina_timeout_minutes: number;
+    simulated_universe_timeout_minutes: number;
+    farming_timeout_minutes: number;
+    better_gi_timeout_minutes: number;
+    better_gi_scheduler_timeout_minutes: number;
+    zzzod_timeout_minutes: number;
+    ok_ww_timeout_minutes: number;
 }
 
 export async function get_account_uid() {
