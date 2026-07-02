@@ -138,6 +138,17 @@ async fn daily_mission() -> Result<(), String> {
 }
 
 #[tauri::command]
+async fn full_run() -> Result<(), String> {
+    tracing::info!("后台日志: 正在执行完整运行...");
+    let timeout_minutes = config::load_config().await?.full_run_timeout_minutes;
+    run_m7f_command(
+        "main",
+        std::time::Duration::from_secs(timeout_minutes.saturating_mul(60)),
+    )
+    .await
+}
+
+#[tauri::command]
 async fn refresh_stamina() -> Result<(), String> {
     tracing::info!("后台日志: 正在刷体力...");
     run_m7f_command("power", std::time::Duration::from_secs(60 * 60)).await
@@ -1357,6 +1368,7 @@ fn main() {
             get_new_version,
             load_account,
             save_account,
+            full_run,
             daily_mission,
             refresh_stamina,
             simulated_universe,
