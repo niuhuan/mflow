@@ -1236,6 +1236,28 @@ async fn run_command(command: String) -> Result<String, String> {
 }
 
 #[tauri::command]
+async fn run_command_background(command: String) -> Result<String, String> {
+    tracing::info!("后台日志: 正在后台运行命令: {}", command);
+
+    let mut cmd = tokio::process::Command::new("cmd");
+    cmd.arg("/c");
+    cmd.arg("start");
+    cmd.arg("");
+    cmd.arg("cmd");
+    cmd.arg("/c");
+    cmd.arg(command.as_str());
+    setup_encoding_env(&mut cmd);
+
+    let mut child = cmd
+        .spawn()
+        .map_err(|e| format!("后台运行命令失败: {}", e))?;
+
+    child.wait().await.map_err(|e| format!("后台运行命令失败: {}", e))?;
+
+    Ok("".to_string())
+}
+
+#[tauri::command]
 async fn kill_ok_ww() -> Result<(), String> {
     let (_, ok_ww_exe, ok_ww_pythonw_exe) = get_ok_ww_paths().await?;
     if let Err(e) = kill_process_by_path(&ok_ww_exe).await {
@@ -1408,6 +1430,7 @@ fn main() {
             run_better_gi_by_config,
             run_better_gi_scheduler,
             run_command,
+            run_command_background,
             genshin_auto_login,
             get_auto_run_file,
             kill_ok_ww,
