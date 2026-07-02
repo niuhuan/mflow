@@ -282,19 +282,22 @@ async fn run_better_gi_gui() -> Result<(), String> {
 async fn run_zzzod_gui() -> Result<(), String> {
     let config = config::load_config().await?;
     let work_dir = config.zzzod_path;
+    let launcher = format!("{}\\{}", work_dir, "OneDragon-Launcher.exe");
     if win::where_wt_exe() {
         let mut cmd = tokio::process::Command::new("wt");
+        cmd.arg("-d");
+        cmd.arg(work_dir.as_str());
         cmd.arg("cmd");
         cmd.arg("/c");
-        cmd.arg(format!("{}\\{}", work_dir, "OneDragon-Launcher.exe"));
-        cmd.current_dir(work_dir);
+        cmd.arg(launcher.as_str());
+        cmd.current_dir(work_dir.as_str());
         setup_encoding_env(&mut cmd);
         let _ = cmd.spawn().map_err(|e| format!("运行命令失败: {}", e))?;
     } else {
         let mut cmd = tokio::process::Command::new("cmd");
         cmd.arg("/c");
-        cmd.arg("OneDragon-Launcher.exe");
-        cmd.current_dir(work_dir);
+        cmd.arg(launcher.as_str());
+        cmd.current_dir(work_dir.as_str());
         setup_encoding_env(&mut cmd);
         let _ = cmd.spawn().map_err(|e| format!("运行命令失败: {}", e))?;
     }
